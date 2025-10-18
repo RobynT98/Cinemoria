@@ -1,11 +1,14 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-
-// måste matcha repo-namnet exakt (skiftläge också!)
-const repoBase = '/Cinemoria/'
+import path from 'path'
 
 export default defineConfig({
   plugins: [react()],
-  base: repoBase,
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src')
+    }
+  },
+  base: '/Cinemoria/',
   server: { port: 5173 }
 })
