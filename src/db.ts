@@ -9,13 +9,20 @@ class CinemoriaDB extends Dexie {
   constructor() {
     super('cinemoria')
 
-    // v1: bara movies
+    // v1: movies
     this.version(1).stores({
       movies: 'id, title, year, status, createdAt'
     })
 
-    // v2: listor + listItems
+    // v2: lists + listItems
     this.version(2).stores({
+      movies: 'id, title, year, status, createdAt',
+      lists: 'id, name, createdAt',
+      listItems: 'id, listId, movieId, createdAt'
+    })
+
+    // v3: inga nya index, men framtida plats för migrationer
+    this.version(3).stores({
       movies: 'id, title, year, status, createdAt',
       lists: 'id, name, createdAt',
       listItems: 'id, listId, movieId, createdAt'
@@ -32,6 +39,10 @@ export async function addMovie(data: Omit<Movie, 'id' | 'createdAt' | 'updatedAt
   const movie: Movie = { id, createdAt: now, updatedAt: now, ...data }
   await db.movies.add(movie)
   return movie
+}
+
+export async function getMovie(id: string) {
+  return db.movies.get(id)
 }
 
 export async function updateMovie(id: string, patch: Partial<Movie>) {
@@ -60,7 +71,7 @@ export async function exportJson() {
     db.listItems.toArray()
   ])
   return JSON.stringify(
-    { version: 2, exportedAt: new Date().toISOString(), movies, lists, listItems },
+    { version: 3, exportedAt: new Date().toISOString(), movies, lists, listItems },
     null,
     2
   )
