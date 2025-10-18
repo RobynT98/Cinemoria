@@ -83,3 +83,21 @@ textarea:focus {
 .card button {
   @apply bg-sand-200 text-ink-900 border-sand-300 hover:bg-sand-300;
 }
+.sepia {
+  color-scheme: light;
+  --bg: #f5e6c5;
+  --ink: #3c2f1b;
+  --accent: #b57f3f;
+}
+
+.sepia body,
+.sepia .card,
+.sepia nav {
+  background-color: var(--bg);
+  color: var(--ink);
+}
+
+.sepia .btn {
+  background-color: var(--accent);
+  color: #fff;
+}
