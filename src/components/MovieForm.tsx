@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { Movie, MovieStatus } from '../types'
 
 type Draft = {
   title: string
   year?: number
   posterUrl?: string
+  trailerUrl?: string
   genres: string
   tags: string
   status: MovieStatus
@@ -13,9 +14,13 @@ type Draft = {
 }
 
 export default function MovieForm({
-  onSubmit
+  onSubmit,
+  initial,
+  submitLabel = 'Spara film'
 }: {
   onSubmit: (movie: Omit<Movie, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void> | void
+  initial?: Partial<Movie>
+  submitLabel?: string
 }) {
   const [draft, setDraft] = useState<Draft>({
     title: '',
@@ -26,8 +31,34 @@ export default function MovieForm({
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState<string | null>(null)
 
+  useEffect(() => {
+    if (!initial) return
+    setDraft({
+      title: initial.title ?? '',
+      year: initial.year,
+      posterUrl: initial.posterUrl,
+      trailerUrl: initial.trailerUrl,
+      genres: (initial.genres || []).join(', '),
+      tags: (initial.tags || []).join(', '),
+      status: initial.status ?? 'planned',
+      rating: initial.rating,
+      notes: initial.notes
+    })
+  }, [initial])
+
   function set<K extends keyof Draft>(k: K, v: Draft[K]) {
     setDraft((d) => ({ ...d, [k]: v }))
+  }
+
+  function cleanUrl(u?: string) {
+    const s = (u || '').trim()
+    if (!s) return undefined
+    try {
+      const url = new URL(s)
+      return url.toString()
+    } catch {
+      return s // låt användaren spara som är – vi är offline-first
+    }
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -38,7 +69,8 @@ export default function MovieForm({
     const payload: Omit<Movie, 'id' | 'createdAt' | 'updatedAt'> = {
       title: draft.title.trim(),
       year: draft.year || undefined,
-      posterUrl: draft.posterUrl?.trim() || undefined,
+      posterUrl: cleanUrl(draft.posterUrl),
+      trailerUrl: cleanUrl(draft.trailerUrl),
       genres: draft.genres ? draft.genres.split(',').map((s) => s.trim()).filter(Boolean) : [],
       tags: draft.tags ? draft.tags.split(',').map((s) => s.trim()).filter(Boolean) : [],
       status: draft.status,
@@ -49,8 +81,6 @@ export default function MovieForm({
     try {
       setBusy(true)
       await onSubmit(payload)
-      // reset
-      setDraft({ title: '', genres: '', tags: '', status: 'planned' })
     } finally {
       setBusy(false)
     }
@@ -83,6 +113,7 @@ export default function MovieForm({
       </div>
 
       <Input label="Poster-URL" value={draft.posterUrl || ''} onChange={(v) => set('posterUrl', v)} />
+      <Input label="Trailer-URL (YouTube, etc.)" value={draft.trailerUrl || ''} onChange={(v) => set('trailerUrl', v)} />
       <Input label="Genrer (komma-separerat)" value={draft.genres} onChange={(v) => set('genres', v)} />
       <Input label="Taggar (komma-separerat)" value={draft.tags} onChange={(v) => set('tags', v)} />
 
@@ -111,7 +142,7 @@ export default function MovieForm({
       </div>
 
       <button className="btn btn-primary w-full" disabled={busy}>
-        {busy ? 'Sparar…' : 'Spara film'}
+        {busy ? 'Sparar…' : submitLabel}
       </button>
     </form>
   )
