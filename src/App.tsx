@@ -1,14 +1,15 @@
-import { NavLink, Route, Routes } from 'react-router-dom'
-import { Home, PlusCircle, Search, Library, User } from 'lucide-react'
-import { Suspense, lazy } from 'react'
-import clsx from 'classnames'
+import { NavLink, Route, Routes } from "react-router-dom";
+import { Home, PlusCircle, Search, Library, User } from "lucide-react";
+import { Suspense, lazy } from "react";
+import clsx from "classnames";
 
-const HomePage = lazy(() => import('./pages/HomePage'))
-const SearchPage = lazy(() => import('./pages/SearchPage'))
-const AddPage = lazy(() => import('./pages/AddPage'))
-const CollectionsPage = lazy(() => import('./pages/CollectionsPage'))
-const ProfilePage = lazy(() => import('./pages/ProfilePage'))
-const EditPage = lazy(() => import('./pages/EditPage'))
+const HomePage = lazy(() => import("./pages/HomePage"));
+const SearchPage = lazy(() => import("./pages/SearchPage"));
+const AddPage = lazy(() => import("./pages/AddPage"));
+const CollectionsPage = lazy(() => import("./pages/CollectionsPage"));
+const ListDetailPage = lazy(() => import("./pages/ListDetailPage")); // ⬅️ NY
+const ProfilePage = lazy(() => import("./pages/ProfilePage"));
+const EditPage = lazy(() => import("./pages/EditPage"));
 
 export default function App() {
   return (
@@ -20,6 +21,7 @@ export default function App() {
             <Route path="/search" element={<SearchPage />} />
             <Route path="/add" element={<AddPage />} />
             <Route path="/collections" element={<CollectionsPage />} />
+            <Route path="/collections/:id" element={<ListDetailPage />} /> {/* ⬅️ NY */}
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/edit/:id" element={<EditPage />} />
           </Routes>
@@ -36,22 +38,32 @@ export default function App() {
         </div>
       </nav>
     </div>
-  )
+  );
 }
 
-function NavItem({ to, label, icon }: { to: string; label: string; icon: React.ReactNode }) {
+function NavItem({
+  to,
+  label,
+  icon,
+}: {
+  to: string;
+  label: string;
+  icon: React.ReactNode;
+}) {
   return (
     <NavLink
       to={to}
       className={({ isActive }) =>
         clsx(
-          'flex flex-col items-center justify-center py-2 text-xs gap-1',
-          isActive ? 'text-ink-900 dark:text-sand-200' : 'text-ink-600 hover:text-ink-900 dark:text-sand-400 dark:hover:text-sand-200'
+          "flex flex-col items-center justify-center py-2 text-xs gap-1",
+          isActive
+            ? "text-ink-900 dark:text-sand-200"
+            : "text-ink-600 hover:text-ink-900 dark:text-sand-400 dark:hover:text-sand-200"
         )
       }
     >
       {icon}
       <span>{label}</span>
     </NavLink>
-  )
+  );
 }
