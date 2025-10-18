@@ -2,27 +2,27 @@
 <html lang="sv" class="h-full">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" href="/favicon.ico" />
+    <link rel="icon" href="/Cinemoria/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#1f2937" />
     <title>Cinemoria</title>
   </head>
   <body class="h-full">
     <div id="root" class="h-full"></div>
-    <script type="module" src="/src/main.tsx"></script>
-<script>
-  // Om vi kom via 404-fallback, återskapa rätt URL för React Router
-  (function () {
-    var p = new URLSearchParams(location.search);
-    if (p.get('redirect') === '1' && location.hash.startsWith('#')) {
-      try {
-        var original = decodeURIComponent(location.hash.slice(1));
-        history.replaceState(null, '', original);
-      } catch (e) {
-        // noop
-      }
-    }
-  })();
-</script>
+
+    <!-- SPA GitHub Pages: om vi kom via 404-fallback, återskapa ursprungs-URL -->
+    <script>
+      (function () {
+        var p = new URLSearchParams(location.search);
+        if (p.get('redirect') === '1' && location.hash.startsWith('#')) {
+          try {
+            var original = decodeURIComponent(location.hash.slice(1));
+            history.replaceState(null, '', original);
+          } catch (e) {}
+        }
+      })();
+    </script>
+
+    <script type="module" src="/Cinemoria/src/main.tsx"></script>
   </body>
 </html>
