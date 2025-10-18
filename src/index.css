@@ -2,8 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
-/* App-variabler (mörkt default) */
+/* Färghantering */
 :root {
+  color-scheme: light;
+}
+.dark {
   color-scheme: dark;
 }
 
@@ -11,16 +14,52 @@ html, body, #root {
   height: 100%;
 }
 
-/* Kort & chips */
+/* Buttons, cards, chips – anpassade för ljus/mörk */
 .btn {
   @apply inline-flex items-center justify-center px-4 py-2 rounded-2xl font-medium transition;
 }
 .btn-primary {
   @apply bg-accent-500 text-white hover:opacity-90 active:opacity-80;
 }
+
+/* Card: ljus bas, mörk override */
 .card {
-  @apply bg-ink-800/70 backdrop-blur border border-ink-700 rounded-2xl shadow-card;
+  @apply rounded-2xl shadow-card border;
+  @apply bg-white border-sand-200 text-ink-800;
 }
+.dark .card {
+  @apply bg-ink-800/70 backdrop-blur border-ink-700 text-sand-100;
+}
+
+/* Chip: liten label */
 .chip {
-  @apply inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-ink-700 border border-ink-600;
+  @apply inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full border;
+  @apply bg-sand-100 border-sand-300 text-ink-700;
+}
+.dark .chip {
+  @apply bg-ink-700 border-ink-600 text-sand-100;
+}
+
+/* Formfält – grundstil så ljus/mörk ser vettigt ut utan att ändra varje komponent */
+input[type="text"],
+input[type="number"],
+input[type="url"],
+select,
+textarea {
+  @apply w-full rounded-2xl px-4 py-2 outline-none border transition;
+  @apply bg-white border-sand-300 text-ink-800;
+}
+input[type="text"]:focus,
+input[type="number"]:focus,
+input[type="url"]:focus,
+select:focus,
+textarea:focus {
+  @apply ring-2 ring-accent-500;
+}
+.dark input[type="text"],
+.dark input[type="number"],
+.dark input[type="url"],
+.dark select,
+.dark textarea {
+  @apply bg-ink-800 border-ink-700 text-sand-100;
 }
