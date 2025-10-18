@@ -2,12 +2,13 @@ import type { Config } from 'tailwindcss'
 
 export default {
   content: ['./index.html', './src/**/*.{ts,tsx}'],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
         // Tema C: Sand & Ink
         sand: {
-          50: '#faf6ef',
+          50:  '#faf6ef',
           100: '#f3ead6',
           200: '#e7d3a8',
           300: '#dcb97c',
@@ -19,7 +20,7 @@ export default {
           900: '#2f2010'
         },
         ink: {
-          50: '#f5f6f7',
+          50:  '#f5f6f7',
           100: '#e6e8ea',
           200: '#c9ced3',
           300: '#a6adb5',
@@ -30,8 +31,12 @@ export default {
           800: '#1f2429',
           900: '#14181c'
         },
+        // Varm koppar/guld – i sync med sepia-variablerna i CSS
         accent: {
-          500: '#8c6d3f' // varm bronsaccent
+          300: '#e6ba74',
+          400: '#d7a557', // används för text (chips i mörkt läge)
+          500: '#c18a47', // huvudaccent (primärknappar m.m.)
+          600: '#a97430'
         }
       },
       boxShadow: {
@@ -42,6 +47,5 @@ export default {
       }
     }
   },
-  darkMode: 'class',
   plugins: []
 } satisfies Config
