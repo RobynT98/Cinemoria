@@ -7,7 +7,8 @@ import {
   renameList,
 } from "@/db";
 import type { List } from "@/types";
-import { Plus, Edit3, Trash2, Search, SortAsc, SortDesc } from "lucide-react";
+import { Plus, Edit3, Trash2, Search, SortAsc, SortDesc, ExternalLink } from "lucide-react";
+import { Link } from "react-router-dom";
 
 type SortMode = "alpha" | "newest";
 
@@ -30,9 +31,7 @@ export default function CollectionsPage() {
   }
 
   async function handleCreate() {
-    const name = prompt(
-      'Namn på ny lista (t.ex. "Vampyrfilm", "Favoriter 2025")?'
-    );
+    const name = prompt('Namn på ny lista (t.ex. "Vampyrfilm", "Favoriter 2025")?');
     if (!name || !name.trim()) return;
     setBusy(true);
     await createList(name.trim());
@@ -50,12 +49,7 @@ export default function CollectionsPage() {
   }
 
   async function handleDelete(list: List) {
-    if (
-      !confirm(
-        `Ta bort listan "${list.name}"? (Filmerna ligger kvar, bara listan försvinner)`
-      )
-    )
-      return;
+    if (!confirm(`Ta bort listan "${list.name}"? (Filmerna ligger kvar, bara listan försvinner)`)) return;
     setBusy(true);
     await deleteList(list.id);
     await load();
@@ -70,7 +64,6 @@ export default function CollectionsPage() {
 
     base.sort((a, b) => {
       if (sort === "alpha") return a.name.localeCompare(b.name, "sv");
-      // newest first
       return (b.createdAt || 0) - (a.createdAt || 0);
     });
 
@@ -79,7 +72,6 @@ export default function CollectionsPage() {
 
   return (
     <section className="p-4 space-y-3">
-      {/* Header */}
       <div className="flex items-center justify-between gap-3">
         <h1 className="text-2xl font-semibold">Samlingar</h1>
         <button className="btn btn-primary" onClick={handleCreate} disabled={busy}>
@@ -88,14 +80,10 @@ export default function CollectionsPage() {
         </button>
       </div>
 
-      {/* Subheader / controls */}
       <div className="card p-3">
         <div className="flex flex-col sm:flex-row sm:items-center gap-3">
           <div className="relative flex-1">
-            <Search
-              size={16}
-              className="absolute left-3 top-1/2 -translate-y-1/2 opacity-60"
-            />
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 opacity-60" />
             <input
               type="text"
               placeholder="Sök efter listnamn…"
@@ -126,16 +114,14 @@ export default function CollectionsPage() {
         </div>
       </div>
 
-      {/* Empty state */}
       {filtered.length === 0 && (
         <div className="card p-6">
           {lists.length === 0 ? (
             <div>
               <p>Du har inga listor ännu.</p>
               <p className="text-sand-300 text-sm mt-1">
-                Tryck <strong>Ny lista</strong> för att skapa din första – till
-                exempel <em>Vampyrfilm</em>, <em>Favoriter 2025</em> eller{" "}
-                <em>Comfort</em>.
+                Tryck <strong>Ny lista</strong> för att skapa din första – t.ex. <em>Vampyrfilm</em>,{" "}
+                <em>Favoriter 2025</em> eller <em>Comfort</em>.
               </p>
             </div>
           ) : (
@@ -144,7 +130,6 @@ export default function CollectionsPage() {
         </div>
       )}
 
-      {/* List items */}
       <div className="space-y-3">
         {filtered.map((l) => {
           const count = counts[l.id] ?? 0;
@@ -152,7 +137,9 @@ export default function CollectionsPage() {
             <article key={l.id} className="card p-4">
               <div className="flex items-start gap-3">
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold truncate">{l.name}</h3>
+                  <Link to={`/collections/${l.id}`} className="font-semibold truncate hover:underline">
+                    {l.name}
+                  </Link>
                   <div className="mt-1 flex items-center gap-2">
                     <span className="chip">
                       {count} film{count === 1 ? "" : "er"}
@@ -164,21 +151,15 @@ export default function CollectionsPage() {
                 </div>
 
                 <div className="flex items-center gap-2 shrink-0">
-                  <button
-                    className="chip hover:opacity-90"
-                    onClick={() => handleRename(l)}
-                    title="Byt namn"
-                    disabled={busy}
-                  >
+                  <Link to={`/collections/${l.id}`} className="chip hover:opacity-90" title="Öppna">
+                    <ExternalLink size={14} />
+                    Öppna
+                  </Link>
+                  <button className="chip hover:opacity-90" onClick={() => handleRename(l)} title="Byt namn" disabled={busy}>
                     <Edit3 size={14} />
                     Byt namn
                   </button>
-                  <button
-                    className="chip hover:opacity-90"
-                    onClick={() => handleDelete(l)}
-                    title="Ta bort lista"
-                    disabled={busy}
-                  >
+                  <button className="chip hover:opacity-90" onClick={() => handleDelete(l)} title="Ta bort lista" disabled={busy}>
                     <Trash2 size={14} />
                     Ta bort
                   </button>
