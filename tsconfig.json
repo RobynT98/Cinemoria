@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "ES2020",
     "useDefineForClassFields": true,
-    "lib": ["DOM", "ES2021"],
+    "lib": ["DOM", "DOM.Iterable", "ES2021"],
     "module": "ESNext",
     "skipLibCheck": true,
     "jsx": "react-jsx",
@@ -16,7 +16,8 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
-    }
+    },
+    "types": ["node"]
   },
   "include": ["src", "vite.config.ts"]
 }
