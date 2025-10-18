@@ -154,3 +154,25 @@ textarea:focus { @apply ring-2 ring-accent-500; }
 /* Små detaljer */
 .sepia .text-sand-300,
 .sepia .text-sand-400 { color: var(--muted); }
+/* ──────────────────────────────
+   Sepia: knappar tydligare
+────────────────────────────── */
+.sepia .btn,
+.sepia .card button {
+  background-color: #e8d6a4;
+  color: #3b2a15;
+  border: 1px solid #d6c08a;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.sepia .btn:hover,
+.sepia .card button:hover {
+  background-color: #decb8e;
+  transform: translateY(-1px);
+}
+
+.sepia .btn:active,
+.sepia .card button:active {
+  background-color: #d4bf7b;
+  transform: translateY(0);
+}
