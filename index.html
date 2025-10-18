@@ -2,7 +2,7 @@
 <html lang="sv" class="h-full">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" href="/Cinemoria/favicon.ico" />
+    <link rel="icon" href="./favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#1f2937" />
     <title>Cinemoria</title>
@@ -10,19 +10,20 @@
   <body class="h-full">
     <div id="root" class="h-full"></div>
 
-    <!-- SPA GitHub Pages: om vi kom via 404-fallback, återskapa ursprungs-URL -->
+    <!-- SPA GitHub Pages redirect fix -->
     <script>
       (function () {
-        var p = new URLSearchParams(location.search);
-        if (p.get('redirect') === '1' && location.hash.startsWith('#')) {
+        const p = new URLSearchParams(location.search);
+        if (p.get("redirect") === "1" && location.hash.startsWith("#")) {
           try {
-            var original = decodeURIComponent(location.hash.slice(1));
-            history.replaceState(null, '', original);
-          } catch (e) {}
+            const original = decodeURIComponent(location.hash.slice(1));
+            history.replaceState(null, "", original);
+          } catch {}
         }
       })();
     </script>
 
-    <script type="module" src="/Cinemoria/src/main.tsx"></script>
+    <!-- Viktigt: relativ path -->
+    <script type="module" src="./src/main.tsx"></script>
   </body>
 </html>
