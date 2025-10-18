@@ -13,3 +13,18 @@ export interface Movie {
   createdAt: number
   updatedAt: number
 }
+
+export interface List {
+  id: string
+  name: string
+  createdAt: number
+  updatedAt: number
+}
+
+export interface ListItem {
+  // primärnyckel kombinerad: `${listId}::${movieId}`
+  id: string
+  listId: string
+  movieId: string
+  createdAt: number
+}
