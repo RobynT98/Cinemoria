@@ -9,6 +9,7 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
   },
+  // Viktigt: matcha Pages-path exakt (skiftläge)
   base: '/Cinemoria/',
   server: { port: 5173 }
 })
