@@ -157,6 +157,7 @@ export default function ProfilePage() {
         </div>
         {msg && <div className="text-sand-300 text-sm">{msg}</div>}
       </div>
+<Link to="/instructions" className="btn">Instruktioner</Link>
 
       {/* Datahantering */}
       <div className="card p-4 mb-4">
