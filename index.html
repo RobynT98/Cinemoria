@@ -2,11 +2,13 @@
 <html lang="sv" class="h-full">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" href="favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Cinemoria</title>
+
+    <!-- PWA-meta -->
     <meta name="theme-color" content="#c18a47" />
     <link rel="manifest" href="manifest.webmanifest" />
-    <title>Cinemoria</title>
+    <link rel="icon" href="favicon.ico" />
 
     <!-- Sätt tema tidigt (stöd för dark/light/sepia) -->
     <script>
@@ -44,12 +46,5 @@
 
     <!-- Vite reskriver med base=/Cinemoria/ i build -->
     <script type="module" src="/src/main.tsx"></script>
-
-    <!-- Registrera SW relativt (rätt scope under /Cinemoria/) -->
-    <script>
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('service-worker.js').catch(() => {});
-      }
-    </script>
   </body>
 </html>
