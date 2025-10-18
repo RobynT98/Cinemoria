@@ -8,6 +8,7 @@ const SearchPage = lazy(() => import('./pages/SearchPage'))
 const AddPage = lazy(() => import('./pages/AddPage'))
 const CollectionsPage = lazy(() => import('./pages/CollectionsPage'))
 const ProfilePage = lazy(() => import('./pages/ProfilePage'))
+const EditPage = lazy(() => import('./pages/EditPage'))
 
 export default function App() {
   return (
@@ -20,6 +21,7 @@ export default function App() {
             <Route path="/add" element={<AddPage />} />
             <Route path="/collections" element={<CollectionsPage />} />
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/edit/:id" element={<EditPage />} />
           </Routes>
         </Suspense>
       </main>
