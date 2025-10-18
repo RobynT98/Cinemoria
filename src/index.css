@@ -2,19 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Färghantering */
-:root {
-  color-scheme: light;
-}
-.dark {
-  color-scheme: dark;
-}
+/* ────────────────────────────────────────────────────────────
+   Bas
+────────────────────────────────────────────────────────────── */
+:root { color-scheme: light; }
+.dark  { color-scheme: dark; }
 
-html, body, #root {
-  height: 100%;
-}
+html, body, #root { height: 100%; }
 
-/* Buttons, cards, chips – anpassade för ljus/mörk */
+/* ────────────────────────────────────────────────────────────
+   Komponenter (neutral baseline = ljust läge)
+────────────────────────────────────────────────────────────── */
 .btn {
   @apply inline-flex items-center justify-center px-4 py-2 rounded-2xl font-medium transition;
 }
@@ -22,25 +20,18 @@ html, body, #root {
   @apply bg-accent-500 text-white hover:opacity-90 active:opacity-80;
 }
 
-/* Card: ljus bas, mörk override */
 .card {
-  @apply rounded-2xl shadow-card border;
-  @apply bg-white border-sand-200 text-ink-800;
+  @apply rounded-2xl shadow-card border bg-white border-sand-200 text-ink-900;
 }
-.dark .card {
-  @apply bg-ink-800/70 backdrop-blur border-ink-700 text-sand-100;
-}
+.card h3, .card h2 { @apply text-ink-900 font-semibold; }
 
-/* Chip: liten label */
+/* Chip */
 .chip {
   @apply inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full border;
-  @apply bg-sand-100 border-sand-300 text-ink-700;
-}
-.dark .chip {
-  @apply bg-ink-700 border-ink-600 text-sand-100;
+  @apply bg-sand-200 border-sand-300 text-ink-700;
 }
 
-/* Formfält – grundstil så ljus/mörk ser vettigt ut utan att ändra varje komponent */
+/* Inputs */
 input[type="text"],
 input[type="number"],
 input[type="url"],
@@ -53,8 +44,19 @@ input[type="text"]:focus,
 input[type="number"]:focus,
 input[type="url"]:focus,
 select:focus,
-textarea:focus {
-  @apply ring-2 ring-accent-500;
+textarea:focus { @apply ring-2 ring-accent-500; }
+
+/* Knapp i ljust läge inuti cards */
+.card button { @apply bg-sand-200 text-ink-900 border-sand-300 hover:bg-sand-300; }
+
+/* ────────────────────────────────────────────────────────────
+   Mörkt läge overrides
+────────────────────────────────────────────────────────────── */
+.dark .card {
+  @apply bg-ink-800/70 backdrop-blur border-ink-700 text-sand-100;
+}
+.dark .chip {
+  @apply bg-ink-700 border-ink-600 text-sand-100;
 }
 .dark input[type="text"],
 .dark input[type="number"],
@@ -63,41 +65,92 @@ textarea:focus {
 .dark textarea {
   @apply bg-ink-800 border-ink-700 text-sand-100;
 }
-/* Justera ljus textfärg */
-.card {
-  @apply rounded-2xl shadow-card border bg-white border-sand-200 text-ink-900;
-}
 
-/* Film-titel */
-.card h3,
-.card h2 {
-  @apply text-ink-900 font-semibold;
-}
-
-/* Genre/taggar under titeln */
-.card .chip {
-  @apply bg-sand-200 border-sand-300 text-ink-700;
-}
-
-/* Knappfärg i ljust läge */
-.card button {
-  @apply bg-sand-200 text-ink-900 border-sand-300 hover:bg-sand-300;
-}
+/* ────────────────────────────────────────────────────────────
+   Sepia (boksida) – varm men med bra kontrast
+   Palett:
+   - Bakgrund: gräddvit m lätt gul ton
+   - Kort: något mörkare papper
+   - Text: djup brun
+   - Muted: mild olivbrun
+   - Accent: varm koppar
+────────────────────────────────────────────────────────────── */
 .sepia {
   color-scheme: light;
-  --bg: #f5e6c5;
-  --ink: #3c2f1b;
-  --accent: #b57f3f;
+  --bg-base:   #f4ead5; /* sida */
+  --bg-card:   #efe1bf; /* papper */
+  --ink:       #3b2a15; /* text */
+  --muted:     #7a6846;
+  --border:    #e5d5af;
+  --accent:    #c18a47;
+  --accent-2:  #a97430;
 }
 
-.sepia body,
-.sepia .card,
-.sepia nav {
-  background-color: var(--bg);
+.sepia body {
+  background-color: var(--bg-base);
   color: var(--ink);
 }
 
-.sepia .btn {
+/* Nav-bar & ytor */
+.sepia nav {
+  background-color: #f0e4c6;
+  border-top: 1px solid var(--border);
+}
+
+/* Cards */
+.sepia .card {
+  background-color: var(--bg-card);
+  border-color: var(--border);
+  color: var(--ink);
+}
+.sepia .card h3, .sepia .card h2 {
+  color: var(--ink);
+}
+
+/* Chips */
+.sepia .chip {
+  background-color: #ead8b2;
+  border-color: var(--border);
+  color: var(--ink);
+}
+
+/* Knappar */
+.sepia .btn-primary {
   background-color: var(--accent);
   color: #fff;
 }
+.sepia .card button {
+  background-color: #ead8b2;
+  color: var(--ink);
+  border-color: var(--border);
+}
+.sepia .card button:hover { background-color: #e2cea4; }
+
+/* Inputs */
+.sepia input[type="text"],
+.sepia input[type="number"],
+.sepia input[type="url"],
+.sepia select,
+.sepia textarea {
+  background-color: #f8efd9;
+  border-color: var(--border);
+  color: var(--ink);
+}
+.sepia input[type="text"]::placeholder,
+.sepia input[type="number"]::placeholder,
+.sepia input[type="url"]::placeholder,
+.sepia textarea::placeholder {
+  color: var(--muted);
+}
+.sepia input[type="text"]:focus,
+.sepia input[type="number"]:focus,
+.sepia input[type="url"]:focus,
+.sepia select:focus,
+.sepia textarea:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--accent-2);
+}
+
+/* Små detaljer */
+.sepia .text-sand-300,
+.sepia .text-sand-400 { color: var(--muted); }
