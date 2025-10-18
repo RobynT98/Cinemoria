@@ -1,3 +1,4 @@
+// src/pages/CollectionsPage.tsx
 import { useEffect, useMemo, useState } from "react";
 import {
   createList,
@@ -5,8 +6,8 @@ import {
   getListCounts,
   getLists,
   renameList,
+  type List, // ✅ ta List från db-typerna
 } from "@/db";
-import type { List } from "@/types";
 import { Plus, Edit3, Trash2, Search, SortAsc, SortDesc, ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -14,7 +15,7 @@ type SortMode = "alpha" | "newest";
 
 export default function CollectionsPage() {
   const [lists, setLists] = useState<List[]>([]);
-  const [counts, setCounts] = useState<Record<string, number>>({});
+  const [counts, setCounts] = useState<Record<number, number>>({}); // ✅ numeriska nycklar
   const [busy, setBusy] = useState(false);
   const [q, setQ] = useState("");
   const [sort, setSort] = useState<SortMode>("alpha");
@@ -41,9 +42,9 @@ export default function CollectionsPage() {
 
   async function handleRename(list: List) {
     const name = prompt("Byt namn på lista:", list.name);
-    if (!name || !name.trim() || name === list.name) return;
+    if (!name || !name.trim() || name.trim() === list.name) return;
     setBusy(true);
-    await renameList(list.id, name.trim());
+    await renameList(list.id!, name.trim()); // ✅ id finns på sparade listor
     await load();
     setBusy(false);
   }
@@ -51,7 +52,7 @@ export default function CollectionsPage() {
   async function handleDelete(list: List) {
     if (!confirm(`Ta bort listan "${list.name}"? (Filmerna ligger kvar, bara listan försvinner)`)) return;
     setBusy(true);
-    await deleteList(list.id);
+    await deleteList(list.id!); // ✅ id finns på sparade listor
     await load();
     setBusy(false);
   }
@@ -64,6 +65,7 @@ export default function CollectionsPage() {
 
     base.sort((a, b) => {
       if (sort === "alpha") return a.name.localeCompare(b.name, "sv");
+      // nyast först
       return (b.createdAt || 0) - (a.createdAt || 0);
     });
 
@@ -72,6 +74,7 @@ export default function CollectionsPage() {
 
   return (
     <section className="p-4 space-y-3">
+      {/* Header */}
       <div className="flex items-center justify-between gap-3">
         <h1 className="text-2xl font-semibold">Samlingar</h1>
         <button className="btn btn-primary" onClick={handleCreate} disabled={busy}>
@@ -80,6 +83,7 @@ export default function CollectionsPage() {
         </button>
       </div>
 
+      {/* Sök + sort */}
       <div className="card p-3">
         <div className="flex flex-col sm:flex-row sm:items-center gap-3">
           <div className="relative flex-1">
@@ -114,6 +118,7 @@ export default function CollectionsPage() {
         </div>
       </div>
 
+      {/* Tomt-läge */}
       {filtered.length === 0 && (
         <div className="card p-6">
           {lists.length === 0 ? (
@@ -130,14 +135,17 @@ export default function CollectionsPage() {
         </div>
       )}
 
+      {/* Listor */}
       <div className="space-y-3">
         {filtered.map((l) => {
-          const count = counts[l.id] ?? 0;
+          const id = l.id!; // ✅ vi har id på lagrade rader
+          const count = counts[id] ?? 0;
+
           return (
-            <article key={l.id} className="card p-4">
+            <article key={id} className="card p-4">
               <div className="flex items-start gap-3">
                 <div className="flex-1 min-w-0">
-                  <Link to={`/collections/${l.id}`} className="font-semibold truncate hover:underline">
+                  <Link to={`/collections/${id}`} className="font-semibold truncate hover:underline">
                     {l.name}
                   </Link>
                   <div className="mt-1 flex items-center gap-2">
@@ -151,15 +159,25 @@ export default function CollectionsPage() {
                 </div>
 
                 <div className="flex items-center gap-2 shrink-0">
-                  <Link to={`/collections/${l.id}`} className="chip hover:opacity-90" title="Öppna">
+                  <Link to={`/collections/${id}`} className="chip hover:opacity-90" title="Öppna">
                     <ExternalLink size={14} />
                     Öppna
                   </Link>
-                  <button className="chip hover:opacity-90" onClick={() => handleRename(l)} title="Byt namn" disabled={busy}>
+                  <button
+                    className="chip hover:opacity-90"
+                    onClick={() => handleRename(l)}
+                    title="Byt namn"
+                    disabled={busy}
+                  >
                     <Edit3 size={14} />
                     Byt namn
                   </button>
-                  <button className="chip hover:opacity-90" onClick={() => handleDelete(l)} title="Ta bort lista" disabled={busy}>
+                  <button
+                    className="chip hover:opacity-90"
+                    onClick={() => handleDelete(l)}
+                    title="Ta bort lista"
+                    disabled={busy}
+                  >
                     <Trash2 size={14} />
                     Ta bort
                   </button>
