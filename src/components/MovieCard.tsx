@@ -1,81 +1,68 @@
-import { Star, Check, Play, Clock, X, ExternalLink, Pencil } from 'lucide-react'
-import type { Movie } from '../types'
-import { Link } from 'react-router-dom'
+// src/components/MovieCard.tsx
+import { Movie } from "@/db";
+import { Link } from "react-router-dom";
+import { Film, Star, Check } from "lucide-react";
 
-export default function MovieCard({
-  movie,
-  onDelete
-}: {
-  movie: Movie
-  onDelete?: (id: string) => void
-}) {
+export default function MovieCard({ movie }: { movie: Movie }) {
   return (
-    <article className="card p-3 flex gap-3">
-      <img
-        src={movie.posterUrl || 'https://placehold.co/80x120?text=No+Poster'}
-        alt={movie.title}
-        className="w-20 h-28 object-cover rounded-xl border border-ink-700"
-        loading="lazy"
-        referrerPolicy="no-referrer"
-      />
-      <div className="flex-1">
-        <div className="flex items-start gap-2">
-          <h3 className="font-semibold text-sand-100">
-            {movie.title}
-            {movie.year ? ` (${movie.year})` : ''}
-          </h3>
-          <StatusChip status={movie.status} />
-          {typeof movie.rating === 'number' && (
-            <span className="chip ml-auto">
-              <Star size={14} /> {movie.rating}
-            </span>
+    <div className="card p-3 flex gap-3 items-start">
+      {movie.posterUrl ? (
+        <img src={movie.posterUrl} alt={movie.title}
+             className="w-24 h-32 object-cover rounded-xl border border-ink-700/30" />
+      ) : (
+        <div className="w-24 h-32 rounded-xl grid place-items-center bg-ink-700/40">
+          <Film className="opacity-70" />
+        </div>
+      )}
+
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 flex-wrap">
+          <h3 className="font-semibold">{movie.title}</h3>
+          {movie.year && <span className="text-sand-300">({movie.year})</span>}
+          {movie.seen && (
+            <span className="chip"><Check className="w-3 h-3" /> Sett</span>
+          )}
+          {typeof movie.rating === "number" && (
+            <span className="chip"><Star className="w-3 h-3" /> {movie.rating}</span>
           )}
         </div>
 
-        {(movie.genres?.length || movie.tags?.length) && (
-          <p className="text-xs text-sand-300 mt-1 line-clamp-2">
-            {[...(movie.genres || []), ...(movie.tags || [])].join(' • ')}
-          </p>
-        )}
-        {movie.notes && <p className="text-xs text-sand-400 mt-2 line-clamp-2">{movie.notes}</p>}
+        {movie.genres?.length ? (
+          <div className="mt-1 flex flex-wrap gap-2">
+            {movie.genres.map((g) => (
+              <span className="chip" key={g}>{g}</span>
+            ))}
+          </div>
+        ) : null}
 
-        <div className="mt-3 flex gap-2 flex-wrap">
-          <Link
-            className="chip hover:opacity-90"
-            to={`/edit/${movie.id}`}
-            title="Redigera"
-          >
-            <Pencil size={14} /> Redigera
-          </Link>
+        {/* Samlar-chips */}
+        <div className="mt-2 flex flex-wrap gap-2">
+          {movie.owned && <span className="chip">Ägd</span>}
+          {movie.digital && <span className="chip">Digital</span>}
+          {movie.wishlisted && <span className="chip">Önskelista</span>}
+          {movie.format && <span className="chip">Format: {labelFormat(movie.format)}</span>}
+          {movie.location && <span className="chip">Plats: {movie.location}</span>}
+          {movie.provider && <span className="chip">Tjänst: {movie.provider}</span>}
+        </div>
+
+        <div className="mt-3 flex gap-2">
+          <Link to={`/edit/${movie.id}`} className="btn">Redigera</Link>
           {movie.trailerUrl && (
-            <a
-              className="chip hover:opacity-90"
-              href={movie.trailerUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              title="Öppna trailer"
-            >
-              <ExternalLink size={14} /> Trailer
-            </a>
-          )}
-          {onDelete && (
-            <button
-              className="chip hover:opacity-90"
-              onClick={() => onDelete(movie.id)}
-              title="Ta bort"
-            >
-              <X size={14} /> Ta bort
-            </button>
+            <a className="btn" href={movie.trailerUrl} target="_blank" rel="noreferrer">Trailer</a>
           )}
         </div>
       </div>
-    </article>
-  )
+    </div>
+  );
 }
 
-function StatusChip({ status }: { status: Movie['status'] }) {
-  const icon =
-    status === 'watched' ? <Check size={14} /> : status === 'watching' ? <Play size={14} /> : <Clock size={14} />
-  const label = status === 'watched' ? 'Sett' : status === 'watching' ? 'Pågående' : 'Att se'
-  return <span className="chip">{icon} {label}</span>
+function labelFormat(f?: Movie["format"]) {
+  switch (f) {
+    case "uhd": return "4K UHD";
+    case "bluray": return "Blu-ray";
+    case "dvd": return "DVD";
+    case "digital": return "Digital";
+    case "vhs": return "VHS";
+    default: return "Övrigt";
+  }
 }
