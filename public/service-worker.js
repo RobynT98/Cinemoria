@@ -1,29 +1,36 @@
-const CACHE_NAME = 'cinemoria-v1';
+const CACHE_NAME = 'cinemoria-v3';
+
+// Bygg paths relativt till scope (funkar under /Cinemoria/)
+const BASE = self.registration.scope; // ex: https://user.github.io/Cinemoria/
+const url = (p) => new URL(p, BASE).pathname;
+
 const ASSETS = [
-  '/',
-  '/index.html',
-  '/manifest.webmanifest'
+  url('index.html'),
+  url('manifest.webmanifest'),
 ];
 
-// Installera och cacha kärnfiler
-self.addEventListener('install', e => {
+// install: cachea kärnfiler
+self.addEventListener('install', (e) => {
   e.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
+    caches.open(CACHE_NAME).then((c) => c.addAll(ASSETS))
   );
+  self.skipWaiting();
 });
 
-// Serve ur cache, fallback till nätet
-self.addEventListener('fetch', e => {
-  e.respondWith(
-    caches.match(e.request).then(res => res || fetch(e.request))
-  );
-});
-
-// Rensa gamla cacheversioner
-self.addEventListener('activate', e => {
+// aktivera direkt och ta över öppna clients
+self.addEventListener('activate', (e) => {
   e.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
+    caches.keys().then((keys) =>
+      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
     )
+  );
+  self.clients.claim();
+});
+
+// cache-first för GET
+self.addEventListener('fetch', (e) => {
+  if (e.request.method !== 'GET') return;
+  e.respondWith(
+    caches.match(e.request).then((res) => res || fetch(e.request))
   );
 });
