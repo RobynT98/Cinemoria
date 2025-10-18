@@ -23,6 +23,7 @@ html, body, #root { height: 100%; }
 .card {
   @apply rounded-2xl shadow-card border bg-white border-sand-200 text-ink-900;
 }
+/* LJUST läge: rubriker mörk text */
 .card h3, .card h2 { @apply text-ink-900 font-semibold; }
 
 /* Chip */
@@ -55,6 +56,9 @@ textarea:focus { @apply ring-2 ring-accent-500; }
 .dark .card {
   @apply bg-ink-800/70 backdrop-blur border-ink-700 text-sand-100;
 }
+/* MÖRKT läge: rubriker ljus text (← fixen) */
+.dark .card h3, .dark .card h2 { @apply text-sand-100; }
+
 .dark .chip {
   @apply bg-ink-700 border-ink-600 text-accent-400;
 }
@@ -72,12 +76,6 @@ textarea:focus { @apply ring-2 ring-accent-500; }
 
 /* ────────────────────────────────────────────────────────────
    Sepia (boksida) – varm men med bra kontrast
-   Palett:
-   - Bakgrund: gräddvit m lätt gul ton
-   - Kort: något mörkare papper
-   - Text: djup brun
-   - Muted: mild olivbrun
-   - Accent: varm koppar
 ────────────────────────────────────────────────────────────── */
 .sepia {
   color-scheme: light;
@@ -107,9 +105,7 @@ textarea:focus { @apply ring-2 ring-accent-500; }
   border-color: var(--border);
   color: var(--ink);
 }
-.sepia .card h3, .sepia .card h2 {
-  color: var(--ink);
-}
+.sepia .card h3, .sepia .card h2 { color: var(--ink); }
 
 /* Chips */
 .sepia .chip {
