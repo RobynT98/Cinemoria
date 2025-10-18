@@ -1,3 +1,4 @@
+// src/store/themeStore.ts
 import { create } from "zustand";
 
 type Theme = "dark" | "light" | "sepia";
@@ -10,13 +11,14 @@ interface ThemeStore {
 export const useThemeStore = create<ThemeStore>((set) => ({
   theme: (localStorage.getItem("cm_theme") as Theme) || "dark",
   setTheme: (theme) => {
+    // spara temat
     localStorage.setItem("cm_theme", theme);
-    document.documentElement.classList.remove("dark", "light", "sepia");
-    document.documentElement.classList.add(theme);
+
+    // ta bort gamla klasser och lägg till den nya
+    document.documentElement.classList.remove("dark", "sepia");
+    if (theme === "dark") document.documentElement.classList.add("dark");
+    if (theme === "sepia") document.documentElement.classList.add("sepia");
+
     set({ theme });
   },
 }));
-
-// Kör detta direkt vid import för att applicera temat på sidladdning
-const saved = (localStorage.getItem("cm_theme") as Theme) || "dark";
-document.documentElement.classList.add(saved);
