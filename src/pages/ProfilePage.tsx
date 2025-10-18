@@ -1,12 +1,74 @@
 import { exportJson, importJson, wipeAll } from '@/db'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import { useThemeStore } from '@/store/themeStore'
+
+type BIEvent = Event & {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
+}
 
 export default function ProfilePage() {
   const fileRef = useRef<HTMLInputElement>(null)
   const [msg, setMsg] = useState<string | null>(null)
   const { theme, setTheme } = useThemeStore()
 
+  // ---- PWA Install state ----
+  const deferredRef = useRef<BIEvent | null>(null)
+  const [isInstallable, setInstallable] = useState(false)
+  const [installed, setInstalled] = useState(false)
+  const [isIOS, setIsIOS] = useState(false)
+
+  // Är vi redan i standalone?
+  const checkStandalone = () => {
+    const standaloneMedia = window.matchMedia?.('(display-mode: standalone)')?.matches
+    // iOS Safari
+    // @ts-ignore
+    const iosStandalone = (window.navigator as any).standalone
+    return Boolean(standaloneMedia || iosStandalone)
+  }
+
+  useEffect(() => {
+    setInstalled(checkStandalone())
+
+    const onBIP = (e: Event) => {
+      e.preventDefault()
+      deferredRef.current = e as BIEvent
+      setInstallable(true)
+    }
+    const onInstalled = () => {
+      deferredRef.current = null
+      setInstallable(false)
+      setInstalled(true)
+    }
+
+    window.addEventListener('beforeinstallprompt', onBIP)
+    window.addEventListener('appinstalled', onInstalled)
+
+    const ua = navigator.userAgent
+    setIsIOS(/iPad|iPhone|iPod/.test(ua) && !('MSStream' in window))
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', onBIP)
+      window.removeEventListener('appinstalled', onInstalled)
+    }
+  }, [])
+
+  const handleInstall = useCallback(async () => {
+    const ev = deferredRef.current
+    if (!ev) return
+    await ev.prompt()
+    try {
+      const choice = await ev.userChoice
+      if (choice.outcome === 'accepted') {
+        deferredRef.current = null
+        setInstallable(false)
+      }
+    } catch {
+      /* användaren avbröt – inget att göra */
+    }
+  }, [])
+
+  // ---- Backup / Import / Wipe ----
   async function handleExport() {
     const data = await exportJson()
     const blob = new Blob([data], { type: 'application/json' })
@@ -38,6 +100,31 @@ export default function ProfilePage() {
     <section className="p-4">
       <h1 className="text-2xl font-semibold mb-3">Profil & Inställningar</h1>
 
+      {/* Installera som app */}
+      {!installed && (
+        <>
+          {isInstallable ? (
+            <div className="card p-4 mb-4">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <h2 className="font-semibold">Installera som app</h2>
+                  <p className="text-sand-300 text-sm">Fungerar offline och startar helskärm.</p>
+                </div>
+                <button className="btn btn-primary" onClick={handleInstall}>Installera</button>
+              </div>
+            </div>
+          ) : isIOS ? (
+            <div className="card p-4 mb-4">
+              <h2 className="font-semibold mb-1">Installera på iPhone/iPad</h2>
+              <p className="text-sand-300 text-sm">
+                Öppna delnings-menyn och välj <span className="font-semibold">“Lägg till på hemskärmen”</span>.
+              </p>
+            </div>
+          ) : null}
+        </>
+      )}
+
+      {/* Tema */}
       <div className="card p-4 mb-4 space-y-3">
         <h2 className="font-semibold">Tema</h2>
         <p className="text-sand-300 text-sm">Välj mellan mörkt, ljust eller sepia.</p>
@@ -54,6 +141,7 @@ export default function ProfilePage() {
         </div>
       </div>
 
+      {/* Backup */}
       <div className="card p-4 mb-4 space-y-3">
         <h2 className="font-semibold">Backup</h2>
         <div className="flex gap-2 flex-wrap">
@@ -70,12 +158,16 @@ export default function ProfilePage() {
         {msg && <div className="text-sand-300 text-sm">{msg}</div>}
       </div>
 
+      {/* Datahantering */}
       <div className="card p-4 mb-4">
         <h2 className="font-semibold">Datahantering</h2>
-        <p className="text-sand-300 text-sm mb-2">Behöver du börja om från noll? Du kan rensa all lokal data.</p>
+        <p className="text-sand-300 text-sm mb-2">
+          Behöver du börja om från noll? Du kan rensa all lokal data.
+        </p>
         <button className="btn" onClick={handleWipe}>Rensa allt</button>
       </div>
 
+      {/* Om-appen */}
       <div className="text-sand-300 text-sm">
         <ul className="list-disc pl-6 space-y-1">
           <li>App: Cinemoria v0.3.0</li>
