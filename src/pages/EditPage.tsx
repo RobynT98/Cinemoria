@@ -1,18 +1,24 @@
-import { useEffect, useState } from 'react'
-import { getMovie, updateMovie } from '@/db'
-import type { Movie } from '@/types'
-import MovieForm from '@/components/MovieForm'
-import { useParams, useNavigate } from 'react-router-dom'
+// src/pages/EditPage.tsx
+import { useEffect, useState } from "react"
+import { getMovie, updateMovie, type Movie } from "@/db"
+import MovieForm from "@/components/MovieForm"
+import { useParams, useNavigate } from "react-router-dom"
 
 export default function EditPage() {
   const { id } = useParams()
   const navigate = useNavigate()
+
   const [movie, setMovie] = useState<Movie | null>(null)
   const [notFound, setNotFound] = useState(false)
 
   useEffect(() => {
-    if (!id) return
-    getMovie(id).then((m) => {
+    const numericId = Number(id)
+    if (!id || Number.isNaN(numericId)) {
+      setNotFound(true)
+      return
+    }
+
+    getMovie(numericId).then((m) => {
       if (!m) setNotFound(true)
       else setMovie(m)
     })
@@ -43,8 +49,9 @@ export default function EditPage() {
         submitLabel="Spara ändringar"
         initial={movie}
         onSubmit={async (data) => {
-          await updateMovie(movie.id, data)
-          alert('Uppdaterad!')
+          // movie.id finns här (vi laddade den från DB)
+          await updateMovie(movie.id!, data)
+          alert("Uppdaterad!")
           navigate(-1)
         }}
       />
