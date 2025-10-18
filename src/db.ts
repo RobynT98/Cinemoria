@@ -169,8 +169,7 @@ export async function searchMovies(opts: {
 
   // snabba filter först
   if (owned !== undefined) col = col.filter((m) => !!m.owned === owned);
-  if (wishlisted !== undefined)
-    col = col.filter((m) => !!m.wishlisted === wishlisted);
+  if (wishlisted !== undefined) col = col.filter((m) => !!m.wishlisted === wishlisted);
   if (digital !== undefined) col = col.filter((m) => !!m.digital === digital);
   if (format) col = col.filter((m) => m.format === format);
 
@@ -211,11 +210,15 @@ export async function deleteList(id: number) {
   });
 }
 
-export async function getListCounts(): Promise<Record<number, number>> {
+/**
+ * Returnerar antal filmer per lista.
+ * Nycklar är strängar (t.ex. "3") för att spela snällt med UI:t.
+ */
+export async function getListCounts(): Promise<Record<string, number>> {
   const all = await db.movieList.toArray();
-  const out: Record<number, number> = {};
+  const out: Record<string, number> = {};
   for (const x of all) {
-    const k = x.listId;
+    const k = String(x.listId);
     out[k] = (out[k] ?? 0) + 1;
   }
   return out;
