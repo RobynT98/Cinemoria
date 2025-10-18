@@ -19,19 +19,13 @@ export default function MovieCard({ movie }: { movie: Movie }) {
         <div className="flex items-center gap-2 flex-wrap">
           <h3 className="font-semibold">{movie.title}</h3>
           {movie.year && <span className="text-sand-300">({movie.year})</span>}
-          {movie.seen && (
-            <span className="chip"><Check className="w-3 h-3" /> Sett</span>
-          )}
-          {typeof movie.rating === "number" && (
-            <span className="chip"><Star className="w-3 h-3" /> {movie.rating}</span>
-          )}
+          {movie.seen && <span className="chip"><Check className="w-3 h-3" /> Sett</span>}
+          {typeof movie.rating === "number" && <span className="chip"><Star className="w-3 h-3" /> {movie.rating}</span>}
         </div>
 
         {movie.genres?.length ? (
           <div className="mt-1 flex flex-wrap gap-2">
-            {movie.genres.map((g) => (
-              <span className="chip" key={g}>{g}</span>
-            ))}
+            {movie.genres.map((g) => <span className="chip" key={g}>{g}</span>)}
           </div>
         ) : null}
 
@@ -40,9 +34,12 @@ export default function MovieCard({ movie }: { movie: Movie }) {
           {movie.owned && <span className="chip">Ägd</span>}
           {movie.digital && <span className="chip">Digital</span>}
           {movie.wishlisted && <span className="chip">Önskelista</span>}
-          {movie.format && <span className="chip">Format: {labelFormat(movie.format)}</span>}
-          {movie.location && <span className="chip">Plats: {movie.location}</span>}
-          {movie.provider && <span className="chip">Tjänst: {movie.provider}</span>}
+          {movie.format && <span className="chip">{labelFormat(movie.format)}</span>}
+          {movie.region && movie.region !== "NONE" && <span className="chip">{movie.region}</span>}
+          {movie.videoStandard && <span className="chip">{movie.videoStandard}</span>}
+          {movie.edition && <span className="chip">{movie.edition}</span>}
+          {movie.audioVariant && <span className="chip">{movie.audioVariant}</span>}
+          {movie.barcode && <span className="chip">EAN: {short(movie.barcode)}</span>}
         </div>
 
         <div className="mt-3 flex gap-2">
@@ -65,4 +62,7 @@ function labelFormat(f?: Movie["format"]) {
     case "vhs": return "VHS";
     default: return "Övrigt";
   }
+}
+function short(s: string) {
+  return s.length > 13 ? s.slice(0, 6) + "…" + s.slice(-4) : s;
 }
