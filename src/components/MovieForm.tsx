@@ -1,6 +1,6 @@
 // src/components/MovieForm.tsx
 import { useState } from "react";
-import { db, Movie, Format } from "@/db";
+import { db, Movie, Format, VideoStandard, RegionCode } from "@/db";
 import { useNavigate } from "react-router-dom";
 
 type Props = { initial?: Movie };
@@ -13,6 +13,12 @@ const formats: { value: Format; label: string }[] = [
   { value: "vhs", label: "VHS" },
   { value: "other", label: "Övrigt" },
 ];
+
+const videoStandards: VideoStandard[] = ["PAL", "NTSC", "SECAM"];
+
+const bluRegions: RegionCode[] = ["BD-A", "BD-B", "BD-C"];
+const dvdRegions: RegionCode[] = ["DVD-1", "DVD-2", "DVD-3", "DVD-4", "DVD-5", "DVD-6", "DVD-ALL"];
+const noneRegion: RegionCode[] = ["NONE"];
 
 export default function MovieForm({ initial }: Props) {
   const nav = useNavigate();
@@ -32,12 +38,26 @@ export default function MovieForm({ initial }: Props) {
       trailerUrl: "",
       seen: false,
       rating: undefined,
+      // utgåva/teknik
+      edition: "",
+      releaseYear: undefined,
+      cut: "",
+      audioVariant: "",
+      videoStandard: undefined,
+      region: "NONE",
+      barcode: "",
+      notes: "",
     }
   );
 
   function set<K extends keyof Movie>(key: K, val: Movie[K]) {
     setM((x) => ({ ...x, [key]: val }));
   }
+
+  const regionOptions: RegionCode[] =
+    m.format === "bluray" ? bluRegions
+    : m.format === "dvd" ? dvdRegions
+    : noneRegion;
 
   async function save() {
     if (!m.title.trim()) return alert("Titel krävs");
@@ -77,7 +97,7 @@ export default function MovieForm({ initial }: Props) {
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label className="block text-sm mb-1">Poster URL</label>
-          <input value={m.posterUrl ?? ""} onChange={(e) => set("posterUrl", e.target.value)} type="url" />
+        <input value={m.posterUrl ?? ""} onChange={(e) => set("posterUrl", e.target.value)} type="url" />
         </div>
         <div>
           <label className="block text-sm mb-1">Trailer URL</label>
@@ -85,9 +105,9 @@ export default function MovieForm({ initial }: Props) {
         </div>
       </div>
 
-      {/* Samlar-fält */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <div className="card p-3">
+      {/* Samling */}
+      <div className="card p-3 grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div>
           <h3 className="font-semibold mb-2">Ägande</h3>
           <div className="flex items-center gap-3 flex-wrap">
             <label className="inline-flex items-center gap-2">
@@ -106,7 +126,7 @@ export default function MovieForm({ initial }: Props) {
 
           <div className="mt-3">
             <label className="block text-sm mb-1">Format</label>
-            <select value={m.format ?? "other"} onChange={(e) => set("format", e.target.value as any)}>
+            <select value={m.format ?? "other"} onChange={(e) => set("format", e.target.value as Format)}>
               {formats.map(f => <option key={f.value} value={f.value}>{f.label}</option>)}
             </select>
           </div>
@@ -123,21 +143,72 @@ export default function MovieForm({ initial }: Props) {
           </div>
         </div>
 
-        <div className="card p-3">
-          <h3 className="font-semibold mb-2">Status</h3>
-          <div className="flex items-center gap-3">
-            <label className="inline-flex items-center gap-2">
-              <input type="checkbox" checked={!!m.seen} onChange={(e) => set("seen", e.target.checked)} />
-              Sett
-            </label>
+        {/* Utgåva/teknik */}
+        <div>
+          <h3 className="font-semibold mb-2">Utgåva & Teknik</h3>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-sm mb-1">Utgåva</label>
+              <input placeholder="Steelbook / First Press UK…" value={m.edition ?? ""} onChange={(e) => set("edition", e.target.value)} type="text" />
+            </div>
+            <div>
+              <label className="block text-sm mb-1">Utgåveår</label>
+              <input value={m.releaseYear ?? ""} onChange={(e) => set("releaseYear", Number(e.target.value) || undefined)} type="number" />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3 mt-3">
+            <div>
+              <label className="block text-sm mb-1">Cut</label>
+              <input placeholder="Theatrical / Extended…" value={m.cut ?? ""} onChange={(e) => set("cut", e.target.value)} type="text" />
+            </div>
+            <div>
+              <label className="block text-sm mb-1">Ljudvariant</label>
+              <input placeholder="Original UK / US dub…" value={m.audioVariant ?? ""} onChange={(e) => set("audioVariant", e.target.value)} type="text" />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3 mt-3">
+            <div>
+              <label className="block text-sm mb-1">Videostandard</label>
+              <select value={m.videoStandard ?? ""} onChange={(e) => set("videoStandard", (e.target.value || undefined) as any)}>
+                <option value="">–</option>
+                {videoStandards.map(v => <option key={v} value={v}>{v}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm mb-1">Region</label>
+              <select value={m.region ?? "NONE"} onChange={(e) => set("region", e.target.value as RegionCode)}>
+                {regionOptions.map(r => <option key={r} value={r}>{r}</option>)}
+              </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3 mt-3">
+            <div>
+              <label className="block text-sm mb-1">Streckkod (EAN/UPC)</label>
+              <input placeholder="t.ex. 5051892191831" value={m.barcode ?? ""} onChange={(e) => set("barcode", e.target.value)} type="text" />
+            </div>
+            <div>
+              <label className="block text-sm mb-1">Anteckningar</label>
+              <input placeholder="Britisk dubb, ny master…" value={m.notes ?? ""} onChange={(e) => set("notes", e.target.value)} type="text" />
+            </div>
           </div>
         </div>
       </div>
 
+      {/* Status */}
+      <div className="card p-3">
+        <h3 className="font-semibold mb-2">Status</h3>
+        <label className="inline-flex items-center gap-2">
+          <input type="checkbox" checked={!!m.seen} onChange={(e) => set("seen", e.target.checked)} />
+          Sett
+        </label>
+      </div>
+
       <div className="pt-2 flex gap-2">
-        <button className="btn btn-primary" onClick={save}>
-          Spara
-        </button>
+        <button className="btn btn-primary" onClick={save}>Spara</button>
       </div>
     </div>
   );
