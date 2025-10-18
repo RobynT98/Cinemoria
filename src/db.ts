@@ -211,11 +211,11 @@ export async function deleteList(id: number) {
   });
 }
 
-export async function getListCounts(): Promise<Record<string, number>> {
+export async function getListCounts(): Promise<Record<number, number>> {
   const all = await db.movieList.toArray();
-  const out: Record<string, number> = {};
+  const out: Record<number, number> = {};
   for (const x of all) {
-    const k = String(x.listId);
+    const k = x.listId;
     out[k] = (out[k] ?? 0) + 1;
   }
   return out;
