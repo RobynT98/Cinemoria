@@ -2,22 +2,27 @@
 <html lang="sv" class="h-full">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" href="/favicon.ico" />
+    <link rel="icon" href="favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#1f2937" />
-<link rel="manifest" href="/manifest.webmanifest" />
-<meta name="theme-color" content="#c18a47" />
+    <meta name="theme-color" content="#c18a47" />
+    <link rel="manifest" href="manifest.webmanifest" />
     <title>Cinemoria</title>
 
-    <!-- Sätt tema så tidigt som möjligt för att undvika "flash" -->
+    <!-- Sätt tema tidigt (stöd för dark/light/sepia) -->
     <script>
       (function () {
         try {
-          var t = localStorage.getItem('cm_theme'); // 'dark' | 'light' | null
-          var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-          var useDark = t ? t === 'dark' : prefersDark;
-          document.documentElement.classList.toggle('dark', useDark);
-        } catch (e) {}
+          var root = document.documentElement;
+          var t = localStorage.getItem('cm_theme'); // 'dark' | 'light' | 'sepia' | null
+          root.classList.remove('dark', 'sepia');
+          if (t === 'dark') root.classList.add('dark');
+          else if (t === 'sepia') root.classList.add('sepia');
+          else {
+            // inget sparat -> följ system
+            var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (prefersDark) root.classList.add('dark');
+          }
+        } catch {}
       })();
     </script>
   </head>
@@ -37,12 +42,14 @@
       })();
     </script>
 
-    <!-- Viktigt: root-path ("/"), Vite reskriver med base=/Cinemoria/ i build -->
+    <!-- Vite reskriver med base=/Cinemoria/ i build -->
     <script type="module" src="/src/main.tsx"></script>
-<script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/service-worker.js');
-  }
-</script>
+
+    <!-- Registrera SW relativt (rätt scope under /Cinemoria/) -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('service-worker.js').catch(() => {});
+      }
+    </script>
   </body>
 </html>
