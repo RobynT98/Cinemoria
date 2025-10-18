@@ -63,3 +63,23 @@ textarea:focus {
 .dark textarea {
   @apply bg-ink-800 border-ink-700 text-sand-100;
 }
+/* Justera ljus textfärg */
+.card {
+  @apply rounded-2xl shadow-card border bg-white border-sand-200 text-ink-900;
+}
+
+/* Film-titel */
+.card h3,
+.card h2 {
+  @apply text-ink-900 font-semibold;
+}
+
+/* Genre/taggar under titeln */
+.card .chip {
+  @apply bg-sand-200 border-sand-300 text-ink-700;
+}
+
+/* Knappfärg i ljust läge */
+.card button {
+  @apply bg-sand-200 text-ink-900 border-sand-300 hover:bg-sand-300;
+}
