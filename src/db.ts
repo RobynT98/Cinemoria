@@ -174,3 +174,23 @@ export async function wipeAll() {
     await db.movieList.clear();
   });
 }
+export async function getListById(id: number) {
+  return db.lists.get(id);
+}
+
+export async function getMoviesInList(listId: number) {
+  const links = await db.movieList.where("listId").equals(listId).toArray();
+  const ids = links.map((x) => x.movieId);
+  if (!ids.length) return [];
+  return db.movies.where("id").anyOf(ids).toArray();
+}
+
+export async function linkMovieToList(listId: number, movieId: number) {
+  const exists = await db.movieList.where({ listId, movieId }).first();
+  if (!exists) await db.movieList.add({ listId, movieId } as any);
+}
+
+export async function unlinkMovieFromList(listId: number, movieId: number) {
+  const row = await db.movieList.where({ listId, movieId }).first();
+  if (row?.id) await db.movieList.delete(row.id);
+}
