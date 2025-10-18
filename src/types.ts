@@ -5,6 +5,7 @@ export interface Movie {
   title: string
   year?: number
   posterUrl?: string
+  trailerUrl?: string
   genres: string[]
   tags: string[]
   status: MovieStatus
