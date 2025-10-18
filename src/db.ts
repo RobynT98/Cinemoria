@@ -9,6 +9,12 @@ export type Format =
   | "vhs"
   | "other";
 
+export type VideoStandard = "PAL" | "NTSC" | "SECAM";
+export type RegionCode =
+  | "BD-A" | "BD-B" | "BD-C"     // Blu-ray regioner
+  | "DVD-1" | "DVD-2" | "DVD-3" | "DVD-4" | "DVD-5" | "DVD-6" | "DVD-ALL"
+  | "NONE";                      // för digital/övrigt
+
 export interface Movie {
   id?: number;
   title: string;
@@ -20,13 +26,23 @@ export interface Movie {
   trailerUrl?: string;
   createdAt: number;
 
-  // NYTT för samling
-  owned?: boolean;       // ägd fysisk/digital
-  wishlisted?: boolean;  // på köplistan
-  digital?: boolean;     // är den digital (köpt/ägd digitalt)
-  format?: Format;       // fysisk/digital typ
-  location?: string;     // hylla/låda/app-konto etc
-  provider?: string;     // t.ex. iTunes, Google, Plex...
+  // Samling
+  owned?: boolean;
+  wishlisted?: boolean;
+  digital?: boolean;
+  format?: Format;
+  location?: string;     // hylla/låda/konto
+  provider?: string;     // t.ex. iTunes/Google/Plex
+
+  // Utgåva/tekniskt
+  edition?: string;          // t.ex. "First Press UK", "Steelbook", "Collector's"
+  releaseYear?: number;      // utgåvans år (inte filmens)
+  cut?: string;              // "Theatrical", "Extended", "Director's Cut"…
+  audioVariant?: string;     // t.ex. "Original UK", "US dub"
+  videoStandard?: VideoStandard; // PAL/NTSC/SECAM
+  region?: RegionCode;       // BD-B, DVD-2 osv eller NONE
+  barcode?: string;          // EAN/UPC
+  notes?: string;            // fria anteckningar
 }
 
 export interface List {
@@ -49,38 +65,50 @@ class CinemoriaDB extends Dexie {
   constructor() {
     super("cinemoria");
 
-    // v1 – (historisk) enkel index
+    // v1 – ursprung
     this.version(1).stores({
       movies: "++id, title, year, createdAt",
       lists: "++id, name, createdAt",
       movieList: "++id, movieId, listId",
     });
 
-    // v2 – samlarfält och hjälpsamma index
-    this.version(2)
-      .stores({
-        movies:
-          "++id, title, year, createdAt, owned, wishlisted, digital, format",
-        lists: "++id, name, createdAt",
-        movieList: "++id, movieId, listId",
-      })
-      .upgrade(async (tx) => {
-        // Sätt rimliga defaults utan att förstöra gammal data
-        const all = await tx.table<Movie>("movies").toArray();
-        for (const m of all) {
-          if (m.owned === undefined) m.owned = false;
-          if (m.wishlisted === undefined) m.wishlisted = false;
-          if (m.digital === undefined) m.digital = false;
-          if (!m.format) m.format = m.digital ? "digital" : "other";
-          await tx.table<Movie>("movies").put(m);
-        }
-      });
+    // v2 – samlarfält
+    this.version(2).stores({
+      movies:
+        "++id, title, year, createdAt, owned, wishlisted, digital, format",
+      lists: "++id, name, createdAt",
+      movieList: "++id, movieId, listId",
+    }).upgrade(async (tx) => {
+      const all = await tx.table<Movie>("movies").toArray();
+      for (const m of all) {
+        if (m.owned === undefined) m.owned = false;
+        if (m.wishlisted === undefined) m.wishlisted = false;
+        if (m.digital === undefined) m.digital = false;
+        if (!m.format) m.format = m.digital ? "digital" : "other";
+        await tx.table<Movie>("movies").put(m);
+      }
+    });
+
+    // v3 – utgåva/teknik/streckkod + index
+    this.version(3).stores({
+      movies:
+        "++id, title, year, createdAt, owned, wishlisted, digital, format, region, videoStandard, barcode, edition, releaseYear",
+      lists: "++id, name, createdAt",
+      movieList: "++id, movieId, listId",
+    }).upgrade(async (tx) => {
+      const table = tx.table<Movie>("movies");
+      const all = await table.toArray();
+      for (const m of all) {
+        if (!m.region) m.region = m.format === "digital" ? "NONE" : undefined;
+        await table.put(m);
+      }
+    });
   }
 }
 
 export const db = new CinemoriaDB();
 
-// Exporter som redan används i appen
+/* --------- Export/Import/Wipe (som tidigare) --------- */
 export async function exportJson(): Promise<string> {
   const [movies, lists, links] = await Promise.all([
     db.movies.toArray(),
@@ -90,14 +118,40 @@ export async function exportJson(): Promise<string> {
   return JSON.stringify({ movies, lists, links }, null, 2);
 }
 
+// Exportera subset (t.ex. bara ägda, bara önskelista, eller urval av id:n)
+export async function exportSubset(opts: {
+  owned?: boolean;
+  wishlisted?: boolean;
+  digital?: boolean;
+  ids?: number[];
+}) {
+  const { owned, wishlisted, digital, ids } = opts;
+  let q = db.movies.toCollection();
+
+  if (ids?.length) {
+    q = db.movies.where("id").anyOf(ids as number[]);
+  } else {
+    if (owned !== undefined) q = q.filter((m) => !!m.owned === owned);
+    if (wishlisted !== undefined) q = q.filter((m) => !!m.wishlisted === wishlisted);
+    if (digital !== undefined) q = q.filter((m) => !!m.digital === digital);
+  }
+
+  const movies = await q.toArray();
+  const [lists, links] = await Promise.all([
+    db.lists.toArray(),
+    db.movieList.toArray(),
+  ]);
+
+  return JSON.stringify({ movies, lists, links }, null, 2);
+}
+
 export async function importJson(json: string) {
   const { movies = [], lists = [], links = [] } = JSON.parse(json || "{}");
   let addedMovies = 0, addedLists = 0, addedLinks = 0;
 
   await db.transaction("rw", db.movies, db.lists, db.movieList, async () => {
     for (const m of movies) {
-      const copy = { ...m };
-      delete (copy as any).id;
+      const copy = { ...m }; delete (copy as any).id;
       await db.movies.add(copy); addedMovies++;
     }
     for (const l of lists) {
