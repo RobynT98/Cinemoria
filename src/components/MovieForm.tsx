@@ -1,175 +1,144 @@
-import { useEffect, useState } from 'react'
-import type { Movie, MovieStatus } from '../types'
+// src/components/MovieForm.tsx
+import { useState } from "react";
+import { db, Movie, Format } from "@/db";
+import { useNavigate } from "react-router-dom";
 
-type Draft = {
-  title: string
-  year?: number
-  posterUrl?: string
-  trailerUrl?: string
-  genres: string
-  tags: string
-  status: MovieStatus
-  rating?: number
-  notes?: string
-}
+type Props = { initial?: Movie };
 
-export default function MovieForm({
-  onSubmit,
-  initial,
-  submitLabel = 'Spara film'
-}: {
-  onSubmit: (movie: Omit<Movie, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void> | void
-  initial?: Partial<Movie>
-  submitLabel?: string
-}) {
-  const [draft, setDraft] = useState<Draft>({
-    title: '',
-    genres: '',
-    tags: '',
-    status: 'planned'
-  })
-  const [busy, setBusy] = useState(false)
-  const [err, setErr] = useState<string | null>(null)
+const formats: { value: Format; label: string }[] = [
+  { value: "uhd", label: "4K UHD" },
+  { value: "bluray", label: "Blu-ray" },
+  { value: "dvd", label: "DVD" },
+  { value: "digital", label: "Digital" },
+  { value: "vhs", label: "VHS" },
+  { value: "other", label: "Övrigt" },
+];
 
-  useEffect(() => {
-    if (!initial) return
-    setDraft({
-      title: initial.title ?? '',
-      year: initial.year,
-      posterUrl: initial.posterUrl,
-      trailerUrl: initial.trailerUrl,
-      genres: (initial.genres || []).join(', '),
-      tags: (initial.tags || []).join(', '),
-      status: initial.status ?? 'planned',
-      rating: initial.rating,
-      notes: initial.notes
-    })
-  }, [initial])
+export default function MovieForm({ initial }: Props) {
+  const nav = useNavigate();
+  const [m, setM] = useState<Movie>(
+    initial ?? {
+      title: "",
+      year: undefined,
+      genres: [],
+      posterUrl: "",
+      createdAt: Date.now(),
+      owned: true,
+      wishlisted: false,
+      digital: false,
+      format: "other",
+      location: "",
+      provider: "",
+      trailerUrl: "",
+      seen: false,
+      rating: undefined,
+    }
+  );
 
-  function set<K extends keyof Draft>(k: K, v: Draft[K]) {
-    setDraft((d) => ({ ...d, [k]: v }))
+  function set<K extends keyof Movie>(key: K, val: Movie[K]) {
+    setM((x) => ({ ...x, [key]: val }));
   }
 
-  function cleanUrl(u?: string) {
-    const s = (u || '').trim()
-    if (!s) return undefined
-    try {
-      const url = new URL(s)
-      return url.toString()
-    } catch {
-      return s // låt användaren spara som är – vi är offline-first
-    }
-  }
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    setErr(null)
-    if (!draft.title.trim()) return setErr('Titel krävs')
-
-    const payload: Omit<Movie, 'id' | 'createdAt' | 'updatedAt'> = {
-      title: draft.title.trim(),
-      year: draft.year || undefined,
-      posterUrl: cleanUrl(draft.posterUrl),
-      trailerUrl: cleanUrl(draft.trailerUrl),
-      genres: draft.genres ? draft.genres.split(',').map((s) => s.trim()).filter(Boolean) : [],
-      tags: draft.tags ? draft.tags.split(',').map((s) => s.trim()).filter(Boolean) : [],
-      status: draft.status,
-      rating: typeof draft.rating === 'number' ? draft.rating : undefined,
-      notes: draft.notes?.trim() || undefined
-    }
-
-    try {
-      setBusy(true)
-      await onSubmit(payload)
-    } finally {
-      setBusy(false)
-    }
+  async function save() {
+    if (!m.title.trim()) return alert("Titel krävs");
+    const data: Movie = { ...m, createdAt: m.createdAt || Date.now() };
+    if (initial?.id) await db.movies.update(initial.id, data);
+    else await db.movies.add(data);
+    nav("/");
   }
 
   return (
-    <form className="space-y-3" onSubmit={handleSubmit}>
-      {err && <div className="text-red-300 text-sm">{err}</div>}
-
-      <Input label="Titel" required value={draft.title} onChange={(v) => set('title', v)} />
+    <div className="card p-4 space-y-3">
+      <div>
+        <label className="block text-sm mb-1">Titel</label>
+        <input value={m.title} onChange={(e) => set("title", e.target.value)} type="text" />
+      </div>
 
       <div className="grid grid-cols-2 gap-3">
-        <Input
-          label="År"
-          type="number"
-          min="1888"
-          max="2100"
-          value={draft.year as any}
-          onChange={(v) => set('year', v ? Number(v) : undefined)}
-        />
-        <Input
-          label="Betyg (0–10)"
-          type="number"
-          step="0.1"
-          min="0"
-          max="10"
-          value={draft.rating as any}
-          onChange={(v) => set('rating', v === '' ? undefined : Number(v))}
-        />
-      </div>
-
-      <Input label="Poster-URL" value={draft.posterUrl || ''} onChange={(v) => set('posterUrl', v)} />
-      <Input label="Trailer-URL (YouTube, etc.)" value={draft.trailerUrl || ''} onChange={(v) => set('trailerUrl', v)} />
-      <Input label="Genrer (komma-separerat)" value={draft.genres} onChange={(v) => set('genres', v)} />
-      <Input label="Taggar (komma-separerat)" value={draft.tags} onChange={(v) => set('tags', v)} />
-
-      <div>
-        <label className="block text-sm text-sand-300 mb-1">Status</label>
-        <select
-          className="w-full rounded-2xl bg-ink-800 border border-ink-700 px-4 py-2 outline-none focus:ring-2 focus:ring-accent-500"
-          value={draft.status}
-          onChange={(e) => set('status', e.target.value as MovieStatus)}
-        >
-          <option value="planned">Att se</option>
-          <option value="watching">Pågående</option>
-          <option value="watched">Sett</option>
-        </select>
+        <div>
+          <label className="block text-sm mb-1">År</label>
+          <input value={m.year ?? ""} onChange={(e) => set("year", Number(e.target.value) || undefined)} type="number" />
+        </div>
+        <div>
+          <label className="block text-sm mb-1">Betyg (1–10)</label>
+          <input value={m.rating ?? ""} onChange={(e) => set("rating", Number(e.target.value) || undefined)} type="number" />
+        </div>
       </div>
 
       <div>
-        <label className="block text-sm text-sand-300 mb-1">Anteckning</label>
-        <textarea
-          rows={3}
-          className="w-full rounded-2xl bg-ink-800 border border-ink-700 px-4 py-2 outline-none focus:ring-2 focus:ring-accent-500"
-          value={draft.notes || ''}
-          onChange={(e) => set('notes', e.target.value)}
-          placeholder="Valfritt…"
+        <label className="block text-sm mb-1">Genrer (kommaseparerade)</label>
+        <input
+          value={m.genres?.join(", ") ?? ""}
+          onChange={(e) => set("genres", e.target.value.split(",").map(s => s.trim()).filter(Boolean))}
+          type="text"
         />
       </div>
 
-      <button className="btn btn-primary w-full" disabled={busy}>
-        {busy ? 'Sparar…' : submitLabel}
-      </button>
-    </form>
-  )
-}
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="block text-sm mb-1">Poster URL</label>
+          <input value={m.posterUrl ?? ""} onChange={(e) => set("posterUrl", e.target.value)} type="url" />
+        </div>
+        <div>
+          <label className="block text-sm mb-1">Trailer URL</label>
+          <input value={m.trailerUrl ?? ""} onChange={(e) => set("trailerUrl", e.target.value)} type="url" />
+        </div>
+      </div>
 
-function Input({
-  label,
-  value,
-  onChange,
-  type = 'text',
-  ...rest
-}: {
-  label: string
-  value: any
-  onChange: (v: string) => void
-  type?: string
-} & Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange' | 'value'>) {
-  return (
-    <div>
-      <label className="block text-sm text-sand-300 mb-1">{label}</label>
-      <input
-        {...rest}
-        type={type}
-        value={value ?? ''}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange(e.target.value)}
-        className="w-full rounded-2xl bg-ink-800 border border-ink-700 px-4 py-2 outline-none focus:ring-2 focus:ring-accent-500"
-      />
+      {/* Samlar-fält */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div className="card p-3">
+          <h3 className="font-semibold mb-2">Ägande</h3>
+          <div className="flex items-center gap-3 flex-wrap">
+            <label className="inline-flex items-center gap-2">
+              <input type="checkbox" checked={!!m.owned} onChange={(e) => set("owned", e.target.checked)} />
+              Ägd
+            </label>
+            <label className="inline-flex items-center gap-2">
+              <input type="checkbox" checked={!!m.digital} onChange={(e) => set("digital", e.target.checked)} />
+              Digital
+            </label>
+            <label className="inline-flex items-center gap-2">
+              <input type="checkbox" checked={!!m.wishlisted} onChange={(e) => set("wishlisted", e.target.checked)} />
+              Önskelista
+            </label>
+          </div>
+
+          <div className="mt-3">
+            <label className="block text-sm mb-1">Format</label>
+            <select value={m.format ?? "other"} onChange={(e) => set("format", e.target.value as any)}>
+              {formats.map(f => <option key={f.value} value={f.value}>{f.label}</option>)}
+            </select>
+          </div>
+
+          <div className="mt-3 grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-sm mb-1">Plats / Hylla</label>
+              <input value={m.location ?? ""} onChange={(e) => set("location", e.target.value)} type="text" />
+            </div>
+            <div>
+              <label className="block text-sm mb-1">Tjänst / Leverantör</label>
+              <input value={m.provider ?? ""} onChange={(e) => set("provider", e.target.value)} type="text" />
+            </div>
+          </div>
+        </div>
+
+        <div className="card p-3">
+          <h3 className="font-semibold mb-2">Status</h3>
+          <div className="flex items-center gap-3">
+            <label className="inline-flex items-center gap-2">
+              <input type="checkbox" checked={!!m.seen} onChange={(e) => set("seen", e.target.checked)} />
+              Sett
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div className="pt-2 flex gap-2">
+        <button className="btn btn-primary" onClick={save}>
+          Spara
+        </button>
+      </div>
     </div>
-  )
+  );
 }
