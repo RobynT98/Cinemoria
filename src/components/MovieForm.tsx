@@ -1,12 +1,12 @@
 // src/components/MovieForm.tsx
-import { useState } from "react"
-import { db, Movie, Format, VideoStandard, RegionCode } from "@/db"
-import { useNavigate } from "react-router-dom"
+import { useState } from "react";
+import { db, Movie, Format, VideoStandard, RegionCode } from "@/db";
+import { useNavigate } from "react-router-dom";
 
 interface MovieFormProps {
-  initial?: Movie
-  submitLabel: string
-  onSubmit?: (data: Movie) => Promise<void>
+  initial?: Movie;
+  submitLabel: string;
+  onSubmit?: (data: Movie) => Promise<void>;
 }
 
 const formats: { value: Format; label: string }[] = [
@@ -16,15 +16,15 @@ const formats: { value: Format; label: string }[] = [
   { value: "digital", label: "Digital" },
   { value: "vhs", label: "VHS" },
   { value: "other", label: "Övrigt" },
-]
+];
 
-const videoStandards: VideoStandard[] = ["PAL", "NTSC", "SECAM"]
-const bluRegions: RegionCode[] = ["BD-A", "BD-B", "BD-C"]
-const dvdRegions: RegionCode[] = ["DVD-1", "DVD-2", "DVD-3", "DVD-4", "DVD-5", "DVD-6", "DVD-ALL"]
-const noneRegion: RegionCode[] = ["NONE"]
+const videoStandards: VideoStandard[] = ["PAL", "NTSC", "SECAM"];
+const bluRegions: RegionCode[] = ["BD-A", "BD-B", "BD-C"];
+const dvdRegions: RegionCode[] = ["DVD-1", "DVD-2", "DVD-3", "DVD-4", "DVD-5", "DVD-6", "DVD-ALL"];
+const noneRegion: RegionCode[] = ["NONE"];
 
 export default function MovieForm({ initial, submitLabel, onSubmit }: MovieFormProps) {
-  const nav = useNavigate()
+  const nav = useNavigate();
   const [m, setM] = useState<Movie>(
     initial ?? {
       title: "",
@@ -50,28 +50,30 @@ export default function MovieForm({ initial, submitLabel, onSubmit }: MovieFormP
       barcode: "",
       notes: "",
     }
-  )
+  );
 
   function set<K extends keyof Movie>(key: K, val: Movie[K]) {
-    setM((x) => ({ ...x, [key]: val }))
+    setM((x) => ({ ...x, [key]: val }));
   }
 
   const regionOptions: RegionCode[] =
-    m.format === "bluray" ? bluRegions
-      : m.format === "dvd" ? dvdRegions
-      : noneRegion
+    m.format === "bluray" ? bluRegions : m.format === "dvd" ? dvdRegions : noneRegion;
 
   async function save() {
-    if (!m.title.trim()) return alert("Titel krävs")
-    const data: Movie = { ...m, createdAt: m.createdAt || Date.now() }
+    if (!m.title.trim()) return alert("Titel krävs");
+    const data: Movie = { ...m, createdAt: m.createdAt || Date.now() };
 
     if (onSubmit) {
-      await onSubmit(data)
+      await onSubmit(data);
     } else {
-      // fallback – direkt spara i databasen
-      if (initial?.id) await db.movies.update(initial.id, data)
-      else await db.movies.add(data)
-      nav("/")
+      // Fallback: spara direkt i DB
+      if (initial?.id != null) {
+        // put() accepterar fulla objekt (med id)
+        await db.movies.put({ ...data, id: initial.id });
+      } else {
+        await db.movies.add(data);
+      }
+      nav("/");
     }
   }
 
@@ -108,10 +110,7 @@ export default function MovieForm({ initial, submitLabel, onSubmit }: MovieFormP
           onChange={(e) =>
             set(
               "genres",
-              e.target.value
-                .split(",")
-                .map((s) => s.trim())
-                .filter(Boolean)
+              e.target.value.split(",").map((s) => s.trim()).filter(Boolean)
             )
           }
           type="text"
@@ -121,19 +120,11 @@ export default function MovieForm({ initial, submitLabel, onSubmit }: MovieFormP
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label className="block text-sm mb-1">Poster URL</label>
-          <input
-            value={m.posterUrl ?? ""}
-            onChange={(e) => set("posterUrl", e.target.value)}
-            type="url"
-          />
+          <input value={m.posterUrl ?? ""} onChange={(e) => set("posterUrl", e.target.value)} type="url" />
         </div>
         <div>
           <label className="block text-sm mb-1">Trailer URL</label>
-          <input
-            value={m.trailerUrl ?? ""}
-            onChange={(e) => set("trailerUrl", e.target.value)}
-            type="url"
-          />
+          <input value={m.trailerUrl ?? ""} onChange={(e) => set("trailerUrl", e.target.value)} type="url" />
         </div>
       </div>
 
@@ -143,37 +134,22 @@ export default function MovieForm({ initial, submitLabel, onSubmit }: MovieFormP
           <h3 className="font-semibold mb-2">Ägande</h3>
           <div className="flex items-center gap-3 flex-wrap">
             <label className="inline-flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={!!m.owned}
-                onChange={(e) => set("owned", e.target.checked)}
-              />
+              <input type="checkbox" checked={!!m.owned} onChange={(e) => set("owned", e.target.checked)} />
               Ägd
             </label>
             <label className="inline-flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={!!m.digital}
-                onChange={(e) => set("digital", e.target.checked)}
-              />
+              <input type="checkbox" checked={!!m.digital} onChange={(e) => set("digital", e.target.checked)} />
               Digital
             </label>
             <label className="inline-flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={!!m.wishlisted}
-                onChange={(e) => set("wishlisted", e.target.checked)}
-              />
+              <input type="checkbox" checked={!!m.wishlisted} onChange={(e) => set("wishlisted", e.target.checked)} />
               Önskelista
             </label>
           </div>
 
           <div className="mt-3">
             <label className="block text-sm mb-1">Format</label>
-            <select
-              value={m.format ?? "other"}
-              onChange={(e) => set("format", e.target.value as Format)}
-            >
+            <select value={m.format ?? "other"} onChange={(e) => set("format", e.target.value as Format)}>
               {formats.map((f) => (
                 <option key={f.value} value={f.value}>
                   {f.label}
@@ -185,19 +161,11 @@ export default function MovieForm({ initial, submitLabel, onSubmit }: MovieFormP
           <div className="mt-3 grid grid-cols-2 gap-3">
             <div>
               <label className="block text-sm mb-1">Plats / Hylla</label>
-              <input
-                value={m.location ?? ""}
-                onChange={(e) => set("location", e.target.value)}
-                type="text"
-              />
+              <input value={m.location ?? ""} onChange={(e) => set("location", e.target.value)} type="text" />
             </div>
             <div>
               <label className="block text-sm mb-1">Tjänst / Leverantör</label>
-              <input
-                value={m.provider ?? ""}
-                onChange={(e) => set("provider", e.target.value)}
-                type="text"
-              />
+              <input value={m.provider ?? ""} onChange={(e) => set("provider", e.target.value)} type="text" />
             </div>
           </div>
         </div>
@@ -209,55 +177,29 @@ export default function MovieForm({ initial, submitLabel, onSubmit }: MovieFormP
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-sm mb-1">Utgåva</label>
-              <input
-                placeholder="Steelbook / First Press UK…"
-                value={m.edition ?? ""}
-                onChange={(e) => set("edition", e.target.value)}
-                type="text"
-              />
+              <input placeholder="Steelbook / First Press UK…" value={m.edition ?? ""} onChange={(e) => set("edition", e.target.value)} type="text" />
             </div>
             <div>
               <label className="block text-sm mb-1">Utgåveår</label>
-              <input
-                value={m.releaseYear ?? ""}
-                onChange={(e) =>
-                  set("releaseYear", Number(e.target.value) || undefined)
-                }
-                type="number"
-              />
+              <input value={m.releaseYear ?? ""} onChange={(e) => set("releaseYear", Number(e.target.value) || undefined)} type="number" />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3 mt-3">
             <div>
               <label className="block text-sm mb-1">Cut</label>
-              <input
-                placeholder="Theatrical / Extended…"
-                value={m.cut ?? ""}
-                onChange={(e) => set("cut", e.target.value)}
-                type="text"
-              />
+              <input placeholder="Theatrical / Extended…" value={m.cut ?? ""} onChange={(e) => set("cut", e.target.value)} type="text" />
             </div>
             <div>
               <label className="block text-sm mb-1">Ljudvariant</label>
-              <input
-                placeholder="Original UK / US dub…"
-                value={m.audioVariant ?? ""}
-                onChange={(e) => set("audioVariant", e.target.value)}
-                type="text"
-              />
+              <input placeholder="Original UK / US dub…" value={m.audioVariant ?? ""} onChange={(e) => set("audioVariant", e.target.value)} type="text" />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3 mt-3">
             <div>
               <label className="block text-sm mb-1">Videostandard</label>
-              <select
-                value={m.videoStandard ?? ""}
-                onChange={(e) =>
-                  set("videoStandard", (e.target.value || undefined) as any)
-                }
-              >
+              <select value={m.videoStandard ?? ""} onChange={(e) => set("videoStandard", (e.target.value || undefined) as any)}>
                 <option value="">–</option>
                 {videoStandards.map((v) => (
                   <option key={v} value={v}>
@@ -268,10 +210,7 @@ export default function MovieForm({ initial, submitLabel, onSubmit }: MovieFormP
             </div>
             <div>
               <label className="block text-sm mb-1">Region</label>
-              <select
-                value={m.region ?? "NONE"}
-                onChange={(e) => set("region", e.target.value as RegionCode)}
-              >
+              <select value={m.region ?? "NONE"} onChange={(e) => set("region", e.target.value as RegionCode)}>
                 {regionOptions.map((r) => (
                   <option key={r} value={r}>
                     {r}
@@ -284,21 +223,11 @@ export default function MovieForm({ initial, submitLabel, onSubmit }: MovieFormP
           <div className="grid grid-cols-2 gap-3 mt-3">
             <div>
               <label className="block text-sm mb-1">Streckkod (EAN/UPC)</label>
-              <input
-                placeholder="t.ex. 5051892191831"
-                value={m.barcode ?? ""}
-                onChange={(e) => set("barcode", e.target.value)}
-                type="text"
-              />
+              <input placeholder="t.ex. 5051892191831" value={m.barcode ?? ""} onChange={(e) => set("barcode", e.target.value)} type="text" />
             </div>
             <div>
               <label className="block text-sm mb-1">Anteckningar</label>
-              <input
-                placeholder="Britisk dubb, ny master…"
-                value={m.notes ?? ""}
-                onChange={(e) => set("notes", e.target.value)}
-                type="text"
-              />
+              <input placeholder="Britisk dubb, ny master…" value={m.notes ?? ""} onChange={(e) => set("notes", e.target.value)} type="text" />
             </div>
           </div>
         </div>
@@ -307,11 +236,7 @@ export default function MovieForm({ initial, submitLabel, onSubmit }: MovieFormP
       <div className="card p-3">
         <h3 className="font-semibold mb-2">Status</h3>
         <label className="inline-flex items-center gap-2">
-          <input
-            type="checkbox"
-            checked={!!m.seen}
-            onChange={(e) => set("seen", e.target.checked)}
-          />
+          <input type="checkbox" checked={!!m.seen} onChange={(e) => set("seen", e.target.checked)} />
           Sett
         </label>
       </div>
@@ -322,5 +247,5 @@ export default function MovieForm({ initial, submitLabel, onSubmit }: MovieFormP
         </button>
       </div>
     </div>
-  )
+  );
 }
