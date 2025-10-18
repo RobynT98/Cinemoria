@@ -1,146 +1,122 @@
-import Dexie, { Table } from 'dexie'
-import type { Movie, List, ListItem } from './types'
+// src/db.ts
+import Dexie, { Table } from "dexie";
+
+export type Format =
+  | "uhd"     // 4K UHD
+  | "bluray"
+  | "dvd"
+  | "digital"
+  | "vhs"
+  | "other";
+
+export interface Movie {
+  id?: number;
+  title: string;
+  year?: number;
+  genres?: string[];
+  posterUrl?: string;
+  seen?: boolean;
+  rating?: number;       // 1-10
+  trailerUrl?: string;
+  createdAt: number;
+
+  // NYTT för samling
+  owned?: boolean;       // ägd fysisk/digital
+  wishlisted?: boolean;  // på köplistan
+  digital?: boolean;     // är den digital (köpt/ägd digitalt)
+  format?: Format;       // fysisk/digital typ
+  location?: string;     // hylla/låda/app-konto etc
+  provider?: string;     // t.ex. iTunes, Google, Plex...
+}
+
+export interface List {
+  id?: number;
+  name: string;
+  createdAt: number;
+}
+
+export interface MovieListLink {
+  id?: number;
+  movieId: number;
+  listId: number;
+}
 
 class CinemoriaDB extends Dexie {
-  movies!: Table<Movie, string>
-  lists!: Table<List, string>
-  listItems!: Table<ListItem, string>
+  movies!: Table<Movie, number>;
+  lists!: Table<List, number>;
+  movieList!: Table<MovieListLink, number>;
 
   constructor() {
-    super('cinemoria')
+    super("cinemoria");
 
-    // v1: movies
+    // v1 – (historisk) enkel index
     this.version(1).stores({
-      movies: 'id, title, year, status, createdAt'
-    })
+      movies: "++id, title, year, createdAt",
+      lists: "++id, name, createdAt",
+      movieList: "++id, movieId, listId",
+    });
 
-    // v2: lists + listItems
-    this.version(2).stores({
-      movies: 'id, title, year, status, createdAt',
-      lists: 'id, name, createdAt',
-      listItems: 'id, listId, movieId, createdAt'
-    })
-
-    // v3: inga nya index, men framtida plats för migrationer
-    this.version(3).stores({
-      movies: 'id, title, year, status, createdAt',
-      lists: 'id, name, createdAt',
-      listItems: 'id, listId, movieId, createdAt'
-    })
+    // v2 – samlarfält och hjälpsamma index
+    this.version(2)
+      .stores({
+        movies:
+          "++id, title, year, createdAt, owned, wishlisted, digital, format",
+        lists: "++id, name, createdAt",
+        movieList: "++id, movieId, listId",
+      })
+      .upgrade(async (tx) => {
+        // Sätt rimliga defaults utan att förstöra gammal data
+        const all = await tx.table<Movie>("movies").toArray();
+        for (const m of all) {
+          if (m.owned === undefined) m.owned = false;
+          if (m.wishlisted === undefined) m.wishlisted = false;
+          if (m.digital === undefined) m.digital = false;
+          if (!m.format) m.format = m.digital ? "digital" : "other";
+          await tx.table<Movie>("movies").put(m);
+        }
+      });
   }
 }
 
-export const db = new CinemoriaDB()
+export const db = new CinemoriaDB();
 
-/* ---------- Movies ---------- */
-export async function addMovie(data: Omit<Movie, 'id' | 'createdAt' | 'updatedAt'>) {
-  const id = crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`
-  const now = Date.now()
-  const movie: Movie = { id, createdAt: now, updatedAt: now, ...data }
-  await db.movies.add(movie)
-  return movie
-}
-
-export async function getMovie(id: string) {
-  return db.movies.get(id)
-}
-
-export async function updateMovie(id: string, patch: Partial<Movie>) {
-  const now = Date.now()
-  await db.movies.update(id, { ...patch, updatedAt: now })
-}
-
-export async function deleteMovie(id: string) {
-  // ta bort relationslänkar också
-  const links = await db.listItems.where('movieId').equals(id).toArray()
-  if (links.length) {
-    await db.listItems.bulkDelete(links.map((l) => l.id))
-  }
-  await db.movies.delete(id)
-}
-
-export async function getAllMovies() {
-  return db.movies.orderBy('createdAt').reverse().toArray()
-}
-
-/* ---------- Backup ---------- */
-export async function exportJson() {
-  const [movies, lists, listItems] = await Promise.all([
+// Exporter som redan används i appen
+export async function exportJson(): Promise<string> {
+  const [movies, lists, links] = await Promise.all([
     db.movies.toArray(),
     db.lists.toArray(),
-    db.listItems.toArray()
-  ])
-  return JSON.stringify(
-    { version: 3, exportedAt: new Date().toISOString(), movies, lists, listItems },
-    null,
-    2
-  )
+    db.movieList.toArray(),
+  ]);
+  return JSON.stringify({ movies, lists, links }, null, 2);
 }
 
-export async function importJson(text: string) {
-  const parsed = JSON.parse(text)
-  if (!parsed || typeof parsed !== 'object') throw new Error('Ogiltig backupfil')
-  const movies: Movie[] = parsed.movies || []
-  const lists: List[] = parsed.lists || []
-  const listItems: ListItem[] = parsed.listItems || []
+export async function importJson(json: string) {
+  const { movies = [], lists = [], links = [] } = JSON.parse(json || "{}");
+  let addedMovies = 0, addedLists = 0, addedLinks = 0;
 
-  // enkel merge (skippar dubbletter)
-  const exMovie = new Set((await db.movies.toCollection().primaryKeys()) as string[])
-  const exList = new Set((await db.lists.toCollection().primaryKeys()) as string[])
-  const exLink = new Set((await db.listItems.toCollection().primaryKeys()) as string[])
+  await db.transaction("rw", db.movies, db.lists, db.movieList, async () => {
+    for (const m of movies) {
+      const copy = { ...m };
+      delete (copy as any).id;
+      await db.movies.add(copy); addedMovies++;
+    }
+    for (const l of lists) {
+      const copy = { ...l }; delete (copy as any).id;
+      await db.lists.add(copy); addedLists++;
+    }
+    for (const x of links) {
+      const copy = { ...x }; delete (copy as any).id;
+      await db.movieList.add(copy); addedLinks++;
+    }
+  });
 
-  const mAdd = movies.filter((m) => m?.id && !exMovie.has(m.id))
-  const lAdd = lists.filter((l) => l?.id && !exList.has(l.id))
-  const liAdd = listItems.filter((li) => li?.id && !exLink.has(li.id))
-
-  await db.transaction('rw', db.movies, db.lists, db.listItems, async () => {
-    if (mAdd.length) await db.movies.bulkAdd(mAdd)
-    if (lAdd.length) await db.lists.bulkAdd(lAdd)
-    if (liAdd.length) await db.listItems.bulkAdd(liAdd)
-  })
-
-  return { addedMovies: mAdd.length, addedLists: lAdd.length, addedLinks: liAdd.length }
+  return { addedMovies, addedLists, addedLinks };
 }
 
-/* ---------- Lists ---------- */
-export async function createList(name: string) {
-  const id = crypto.randomUUID ? crypto.randomUUID() : `L-${Date.now()}-${Math.random()}`
-  const now = Date.now()
-  const list: List = { id, name: name.trim(), createdAt: now, updatedAt: now }
-  await db.lists.add(list)
-  return list
-}
-
-export async function renameList(id: string, name: string) {
-  const now = Date.now()
-  await db.lists.update(id, { name: name.trim(), updatedAt: now })
-}
-
-export async function deleteList(id: string) {
-  const links = await db.listItems.where('listId').equals(id).toArray()
-  await db.transaction('rw', db.listItems, db.lists, async () => {
-    if (links.length) await db.listItems.bulkDelete(links.map((l) => l.id))
-    await db.lists.delete(id)
-  })
-}
-
-export async function getLists() {
-  return db.lists.orderBy('createdAt').toArray()
-}
-
-export async function getListCounts(): Promise<Record<string, number>> {
-  const lists = await getLists()
-  const entries = await Promise.all(
-    lists.map(async (l) => [l.id, await db.listItems.where('listId').equals(l.id).count()] as const)
-  )
-  return Object.fromEntries(entries)
-}
-
-/* ---------- Maintenance ---------- */
 export async function wipeAll() {
-  await db.transaction('rw', db.movies, db.lists, db.listItems, async () => {
-    await db.listItems.clear()
-    await db.lists.clear()
-    await db.movies.clear()
-  })
+  await db.transaction("rw", db.movies, db.lists, db.movieList, async () => {
+    await db.movies.clear();
+    await db.lists.clear();
+    await db.movieList.clear();
+  });
 }
