@@ -12,7 +12,7 @@ const EditPage = lazy(() => import('./pages/EditPage'))
 
 export default function App() {
   return (
-    <div className="min-h-full bg-ink-900 text-sand-100">
+    <div className="min-h-full bg-white text-ink-800 dark:bg-ink-900 dark:text-sand-100">
       <main className="pb-20 max-w-3xl mx-auto px-3">
         <Suspense fallback={<div className="p-4">Laddar…</div>}>
           <Routes>
@@ -26,7 +26,7 @@ export default function App() {
         </Suspense>
       </main>
 
-      <nav className="fixed bottom-0 inset-x-0 bg-ink-800/80 backdrop-blur border-t border-ink-700">
+      <nav className="fixed bottom-0 inset-x-0 bg-white/90 border-t border-sand-200 backdrop-blur dark:bg-ink-800/80 dark:border-ink-700">
         <div className="max-w-3xl mx-auto grid grid-cols-5">
           <NavItem to="/" label="Hem" icon={<Home size={22} />} />
           <NavItem to="/search" label="Sök" icon={<Search size={22} />} />
@@ -46,7 +46,7 @@ function NavItem({ to, label, icon }: { to: string; label: string; icon: React.R
       className={({ isActive }) =>
         clsx(
           'flex flex-col items-center justify-center py-2 text-xs gap-1',
-          isActive ? 'text-sand-200' : 'text-sand-400 hover:text-sand-200'
+          isActive ? 'text-ink-900 dark:text-sand-200' : 'text-ink-600 hover:text-ink-900 dark:text-sand-400 dark:hover:text-sand-200'
         )
       }
     >
