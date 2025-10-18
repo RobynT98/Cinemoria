@@ -10,5 +10,19 @@
   <body class="h-full">
     <div id="root" class="h-full"></div>
     <script type="module" src="/src/main.tsx"></script>
+<script>
+  // Om vi kom via 404-fallback, återskapa rätt URL för React Router
+  (function () {
+    var p = new URLSearchParams(location.search);
+    if (p.get('redirect') === '1' && location.hash.startsWith('#')) {
+      try {
+        var original = decodeURIComponent(location.hash.slice(1));
+        history.replaceState(null, '', original);
+      } catch (e) {
+        // noop
+      }
+    }
+  })();
+</script>
   </body>
 </html>
