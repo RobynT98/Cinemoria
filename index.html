@@ -6,6 +6,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#1f2937" />
     <title>Cinemoria</title>
+
+    <!-- Sätt tema så tidigt som möjligt för att undvika "flash" -->
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem('cm_theme'); // 'dark' | 'light' | null
+          var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+          var useDark = t ? t === 'dark' : prefersDark;
+          document.documentElement.classList.toggle('dark', useDark);
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body class="h-full">
     <div id="root" class="h-full"></div>
@@ -23,7 +35,7 @@
       })();
     </script>
 
-    <!-- Viktigt: root-path ("/"), så Vite kan reskriva med base=/Cinemoria/ i build -->
+    <!-- Viktigt: root-path ("/"), Vite reskriver med base=/Cinemoria/ i build -->
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
