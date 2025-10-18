@@ -1,7 +1,14 @@
-import { Star, Check, Play, Clock, X } from 'lucide-react'
+import { Star, Check, Play, Clock, X, ExternalLink, Pencil } from 'lucide-react'
 import type { Movie } from '../types'
+import { Link } from 'react-router-dom'
 
-export default function MovieCard({ movie, onDelete }: { movie: Movie; onDelete?: (id: string) => void }) {
+export default function MovieCard({
+  movie,
+  onDelete
+}: {
+  movie: Movie
+  onDelete?: (id: string) => void
+}) {
   return (
     <article className="card p-3 flex gap-3">
       <img
@@ -13,7 +20,10 @@ export default function MovieCard({ movie, onDelete }: { movie: Movie; onDelete?
       />
       <div className="flex-1">
         <div className="flex items-start gap-2">
-          <h3 className="font-semibold text-sand-100">{movie.title}{movie.year ? ` (${movie.year})` : ''}</h3>
+          <h3 className="font-semibold text-sand-100">
+            {movie.title}
+            {movie.year ? ` (${movie.year})` : ''}
+          </h3>
           <StatusChip status={movie.status} />
           {typeof movie.rating === 'number' && (
             <span className="chip ml-auto">
@@ -21,6 +31,7 @@ export default function MovieCard({ movie, onDelete }: { movie: Movie; onDelete?
             </span>
           )}
         </div>
+
         {(movie.genres?.length || movie.tags?.length) && (
           <p className="text-xs text-sand-300 mt-1 line-clamp-2">
             {[...(movie.genres || []), ...(movie.tags || [])].join(' • ')}
@@ -28,14 +39,35 @@ export default function MovieCard({ movie, onDelete }: { movie: Movie; onDelete?
         )}
         {movie.notes && <p className="text-xs text-sand-400 mt-2 line-clamp-2">{movie.notes}</p>}
 
-        {onDelete && (
-          <button
-            className="mt-2 text-xs text-sand-400 hover:text-sand-200 inline-flex items-center gap-1"
-            onClick={() => onDelete(movie.id)}
+        <div className="mt-3 flex gap-2 flex-wrap">
+          <Link
+            className="chip hover:opacity-90"
+            to={`/edit/${movie.id}`}
+            title="Redigera"
           >
-            <X size={14} /> Ta bort
-          </button>
-        )}
+            <Pencil size={14} /> Redigera
+          </Link>
+          {movie.trailerUrl && (
+            <a
+              className="chip hover:opacity-90"
+              href={movie.trailerUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Öppna trailer"
+            >
+              <ExternalLink size={14} /> Trailer
+            </a>
+          )}
+          {onDelete && (
+            <button
+              className="chip hover:opacity-90"
+              onClick={() => onDelete(movie.id)}
+              title="Ta bort"
+            >
+              <X size={14} /> Ta bort
+            </button>
+          )}
+        </div>
       </div>
     </article>
   )
