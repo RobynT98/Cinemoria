@@ -1,69 +1,70 @@
-import { NavLink, Outlet } from "react-router-dom";
-import { Gamepad2, Search, PlusCircle, Library } from "lucide-react";
-import clsx from "classnames";
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { getRecentGames } from "@/db"; // du lägger till detta sen i db.ts
+import type { Game } from "@/db";
+import { PlusCircle } from "lucide-react";
 
-export default function GameLayout() {
+export default function GameHome() {
+  const [games, setGames] = useState<Game[]>([]);
+
+  useEffect(() => {
+    getRecentGames(10).then(setGames).catch(console.error);
+  }, []);
+
   return (
-    <section className="p-0">
-      {/* Topbar */}
-      <header
-        className={clsx(
-          "sticky top-0 z-10 border-b backdrop-blur px-4 py-3",
-          // Ljus
-          "bg-white/80 border-sand-200",
-          // Mörk
-          "dark:bg-ink-800/70 dark:border-ink-700",
-          // Sepia
-          "sepia:bg-[#f3e8c7]/80 sepia:border-[#e7d3a8]"
-        )}
-      >
-        <div className="max-w-3xl mx-auto flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <Gamepad2 className="opacity-80" size={20} />
-            <h1 className="text-xl font-semibold">Spel</h1>
-          </div>
+    <section className="space-y-4">
+      <h2 className="text-lg font-semibold">Senaste tillagda</h2>
 
-          {/* Undertabs */}
-          <nav className="flex items-center gap-1 text-sm">
-            <Tab to="" label="Översikt" end />
-            <Tab to="search" label="Sök" />
-            <Tab to="add" label="Lägg till" />
-            <Tab to="collections" label="Listor" />
-          </nav>
+      {games.length === 0 ? (
+        <div className="text-sm text-ink-600 dark:text-sand-400">
+          Inga spel ännu.{" "}
+          <Link to="/game/add" className="underline">
+            Lägg till ditt första spel
+          </Link>
+          .
         </div>
-      </header>
+      ) : (
+        <ul className="grid gap-3 sm:grid-cols-2">
+          {games.map((game) => (
+            <li
+              key={game.id}
+              className="border rounded-xl p-3 bg-white/70 dark:bg-ink-800/50 sepia:bg-[#f7efd4]/70 hover:shadow-sm transition"
+            >
+              <Link to={`/game/edit/${game.id}`} className="flex items-center gap-3">
+                {game.coverUrl ? (
+                  <img
+                    src={game.coverUrl}
+                    alt={game.title}
+                    className="w-12 h-12 object-cover rounded"
+                  />
+                ) : (
+                  <div className="w-12 h-12 bg-sand-200 dark:bg-ink-700 rounded flex items-center justify-center text-sand-700 dark:text-sand-300">
+                    🎮
+                  </div>
+                )}
+                <div>
+                  <p className="font-medium">{game.title}</p>
+                  {game.platform && (
+                    <p className="text-xs text-ink-600 dark:text-sand-400">
+                      {game.platform}
+                    </p>
+                  )}
+                </div>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
 
-      {/* Innehåll */}
-      <main className="px-4 pt-4 pb-6 max-w-3xl mx-auto">
-        <Outlet />
-      </main>
+      <div className="pt-4">
+        <Link
+          to="/game/add"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-sand-200 hover:bg-sand-300 dark:bg-ink-700 dark:hover:bg-ink-600 sepia:bg-[#e8d6a4] sepia:hover:bg-[#e0c982] transition"
+        >
+          <PlusCircle size={18} />
+          Lägg till spel
+        </Link>
+      </div>
     </section>
-  );
-}
-
-function Tab({
-  to,
-  label,
-  end,
-}: {
-  to: string;
-  label: string;
-  end?: boolean;
-}) {
-  return (
-    <NavLink
-      to={to}
-      end={end}
-      className={({ isActive }) =>
-        clsx(
-          "px-3 py-2 rounded-xl transition-colors",
-          isActive
-            ? "bg-sand-200 text-ink-900 dark:bg-ink-700 dark:text-sand-100 sepia:bg-[#e8d6a4] sepia:text-[#3c2f1b]"
-            : "text-ink-600 hover:text-ink-900 dark:text-sand-400 dark:hover:text-sand-100 sepia:text-[#6b5637] sepia:hover:text-[#3c2f1b]"
-        )
-      }
-    >
-      {label}
-    </NavLink>
   );
 }
