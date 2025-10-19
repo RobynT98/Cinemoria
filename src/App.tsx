@@ -19,18 +19,23 @@ const MovieCollections = lazy(() => import("./pages/movie/CollectionsPage"));
 const MovieListDetail = lazy(() => import("./pages/movie/ListDetailPage"));
 const MovieEdit = lazy(() => import("./pages/movie/EditPage"));
 
-/* Book */
+/* Book (speglar film) */
 const BookLayout = lazy(() => import("./pages/book/BookLayout"));
 const BookHome = lazy(() => import("./pages/book/BookHome"));
 const BookSearch = lazy(() => import("./pages/book/BookSearch"));
 const BookAdd = lazy(() => import("./pages/book/BookAdd"));
-const BookEdit = lazy(() => import("./pages/book/BookEdit")); // ⬅️ ny
+const BookCollections = lazy(() => import("./pages/book/CollectionsPage"));     // ⬅️ ny
+const BookListDetail = lazy(() => import("./pages/book/ListDetailPage"));       // ⬅️ ny
+const BookEdit = lazy(() => import("./pages/book/BookEdit"));
 
-/* Game (placeholders) */
-const GameHub = lazy(() => import("./pages/game/GameHub"));
+/* Game (speglar film) */
+const GameLayout = lazy(() => import("./pages/game/GameLayout"));               // ⬅️ ny
 const GameHome = lazy(() => import("./pages/game/GameHome"));
 const GameSearch = lazy(() => import("./pages/game/GameSearch"));
 const GameAdd = lazy(() => import("./pages/game/GameAdd"));
+const GameCollections = lazy(() => import("./pages/game/CollectionsPage"));     // ⬅️ ny
+const GameListDetail = lazy(() => import("./pages/game/ListDetailPage"));       // ⬅️ ny
+const GameEdit = lazy(() => import("./pages/game/EditPage"));                   // ⬅️ ny
 
 export default function App() {
   return (
@@ -58,19 +63,24 @@ export default function App() {
               <Route path="edit/:id" element={<MovieEdit />} />
             </Route>
 
-            {/* Böcker – layout + undersidor */}
+            {/* Böcker – layout + undersidor (paritet med film) */}
             <Route path="/book" element={<BookLayout />}>
               <Route index element={<BookHome />} />
               <Route path="search" element={<BookSearch />} />
               <Route path="add" element={<BookAdd />} />
-              <Route path="edit/:id" element={<BookEdit />} /> {/* ⬅️ ny */}
+              <Route path="collections" element={<BookCollections />} />
+              <Route path="collections/:id" element={<BookListDetail />} />
+              <Route path="edit/:id" element={<BookEdit />} />
             </Route>
 
-            {/* Spel – tills vidare enkel hub + undersidor */}
-            <Route path="/game" element={<GameHub />}>
+            {/* Spel – layout + undersidor (paritet med film) */}
+            <Route path="/game" element={<GameLayout />}>
               <Route index element={<GameHome />} />
               <Route path="search" element={<GameSearch />} />
               <Route path="add" element={<GameAdd />} />
+              <Route path="collections" element={<GameCollections />} />
+              <Route path="collections/:id" element={<GameListDetail />} />
+              <Route path="edit/:id" element={<GameEdit />} />
             </Route>
 
             {/* Profil */}
