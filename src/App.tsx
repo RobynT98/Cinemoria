@@ -1,17 +1,30 @@
-// src/App.tsx
 import { NavLink, Route, Routes } from "react-router-dom";
-import { Home, PlusCircle, Search, Library, User } from "lucide-react";
+import { Home, Library, User, BookOpen, Gamepad2 } from "lucide-react";
 import clsx from "classnames";
 
-// ✅ Ladda sidor direkt (inga lazy/Suspense → inga chunk-missar)
-import HomePage from "./pages/HomePage";
+// Huvudsidor
+import HomePage from "./pages/home/HomePage";
+import ProfilePage from "./pages/ProfilePage";
+
+// Film – återanvänd dina befintliga sidor
+import MovieHub from "./pages/movie/MovieHub";
 import SearchPage from "./pages/SearchPage";
 import AddPage from "./pages/AddPage";
 import CollectionsPage from "./pages/CollectionsPage";
 import ListDetailPage from "./pages/ListDetailPage";
-import ProfilePage from "./pages/ProfilePage";
 import EditPage from "./pages/EditPage";
-import InstructionsPage from "./pages/InstructionsPage";
+
+// Böcker (nya placeholders)
+import BookHub from "./pages/book/BookHub";
+import BookHome from "./pages/book/BookHome";
+import BookSearch from "./pages/book/BookSearch";
+import BookAdd from "./pages/book/BookAdd";
+
+// Spel (nya placeholders)
+import GameHub from "./pages/game/GameHub";
+import GameHome from "./pages/game/GameHome";
+import GameSearch from "./pages/game/GameSearch";
+import GameAdd from "./pages/game/GameAdd";
 
 export default function App() {
   return (
@@ -25,17 +38,39 @@ export default function App() {
     >
       <main className="pb-20 max-w-3xl mx-auto px-3">
         <Routes>
+          {/* Hem */}
           <Route path="/" element={<HomePage />} />
-          <Route path="/search" element={<SearchPage />} />
-          <Route path="/add" element={<AddPage />} />
-          <Route path="/collections" element={<CollectionsPage />} />
-          <Route path="/collections/:id" element={<ListDetailPage />} />
+
+          {/* Film – hub med undersidor */}
+          <Route path="/movie" element={<MovieHub />}>
+            <Route index element={<SearchPage />} />
+            <Route path="search" element={<SearchPage />} />
+            <Route path="add" element={<AddPage />} />
+            <Route path="collections" element={<CollectionsPage />} />
+            <Route path="collections/:id" element={<ListDetailPage />} />
+            <Route path="edit/:id" element={<EditPage />} />
+          </Route>
+
+          {/* Böcker – hub med undersidor (placeholder) */}
+          <Route path="/book" element={<BookHub />}>
+            <Route index element={<BookHome />} />
+            <Route path="search" element={<BookSearch />} />
+            <Route path="add" element={<BookAdd />} />
+          </Route>
+
+          {/* Spel – hub med undersidor (placeholder) */}
+          <Route path="/game" element={<GameHub />}>
+            <Route index element={<GameHome />} />
+            <Route path="search" element={<GameSearch />} />
+            <Route path="add" element={<GameAdd />} />
+          </Route>
+
+          {/* Profil */}
           <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/edit/:id" element={<EditPage />} />
-          <Route path="/instructions" element={<InstructionsPage />} />
         </Routes>
       </main>
 
+      {/* Bottennavigation – huvudflikar */}
       <nav
         className={clsx(
           "fixed bottom-0 inset-x-0 border-t backdrop-blur",
@@ -46,9 +81,9 @@ export default function App() {
       >
         <div className="max-w-3xl mx-auto grid grid-cols-5">
           <NavItem to="/" label="Hem" icon={<Home size={22} />} />
-          <NavItem to="/search" label="Sök" icon={<Search size={22} />} />
-          <NavItem to="/add" label="Lägg till" icon={<PlusCircle size={22} />} />
-          <NavItem to="/collections" label="Samlingar" icon={<Library size={22} />} />
+          <NavItem to="/movie" label="Film" icon={<Library size={22} />} />
+          <NavItem to="/game" label="Spel" icon={<Gamepad2 size={22} />} />
+          <NavItem to="/book" label="Böcker" icon={<BookOpen size={22} />} />
           <NavItem to="/profile" label="Profil" icon={<User size={22} />} />
         </div>
       </nav>
