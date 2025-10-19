@@ -1,9 +1,139 @@
+// src/pages/book/BookHome.tsx
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Book, getRecentBooks } from "@/db";
+import { db } from "@/db";
+import BookCard from "@/components/BookCard";
+
+type Stat = {
+  total: number;
+  owned: number;
+  digital: number;
+  wish: number;
+};
+
 export default function BookHome() {
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [recent, setRecent] = useState<Book[]>([]);
+  const [stats, setStats] = useState<Stat>({
+    total: 0,
+    owned: 0,
+    digital: 0,
+    wish: 0,
+  });
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        const [total, owned, digital, wish, recentBooks] = await Promise.all([
+          db.books.count(),
+          db.books.filter((b) => !!b.owned).count(),
+          db.books.filter((b) => !!b.digital).count(),
+          db.books.filter((b) => !!b.wishlisted).count(),
+          getRecentBooks(12),
+        ]);
+
+        if (!alive) return;
+        setStats({ total, owned, digital, wish });
+        setRecent(recentBooks);
+      } finally {
+        if (alive) setLoading(false);
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  const empty = !loading && stats.total === 0;
+
   return (
-    <div className="card p-4">
-      <p className="text-sand-300 text-sm">
-        Översikt kommer här (senast tillagda böcker, statistik, listor…).
-      </p>
+    <section className="p-4 space-y-4">
+      {/* Hero */}
+      <header>
+        <h1 className="text-2xl font-semibold">Böcker</h1>
+        <p className="text-sand-300">
+          Katalogisera ägda böcker, e-böcker och önskelista — helt offline.
+        </p>
+      </header>
+
+      {/* Snabbstart */}
+      <div className="card p-4">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h2 className="font-semibold">Kom igång</h2>
+            <p className="text-sand-300 text-sm">
+              Lägg till en bok, sök i din hylla eller importera en backup via Profil.
+            </p>
+          </div>
+          <div className="flex gap-2 flex-wrap">
+            <button className="btn btn-primary" onClick={() => navigate("/book/add")}>
+              Lägg till bok
+            </button>
+            <Link to="/book/search" className="btn">
+              Sök
+            </Link>
+            <Link to="/profile" className="btn">
+              Importera
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* Nyckeltal */}
+      <section className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <StatCard label="Böcker" value={stats.total} />
+        <StatCard label="Ägda" value={stats.owned} />
+        <StatCard label="Digitalt" value={stats.digital} />
+        <StatCard label="Önskelista" value={stats.wish} />
+      </section>
+
+      {/* Tomt-läge */}
+      {empty && (
+        <div className="card p-4">
+          <h3 className="font-semibold mb-1">Din bokhylla väntar 📚</h3>
+          <p className="text-sand-300 text-sm mb-3">
+            Lägg till din första bok eller importera från JSON-backup under Profil.
+          </p>
+          <div className="flex gap-2 flex-wrap">
+            <button className="btn btn-primary" onClick={() => navigate("/book/add")}>
+              Lägg till bok
+            </button>
+            <Link to="/profile" className="btn">Importera backup</Link>
+          </div>
+        </div>
+      )}
+
+      {/* Senast tillagda */}
+      <section>
+        <div className="flex items-center justify-between">
+          <h2 className="font-semibold mb-2">Senast tillagda</h2>
+          {recent.length > 0 && (
+            <Link to="/book/search" className="text-sm hover:underline">
+              Visa fler
+            </Link>
+          )}
+        </div>
+        <div className="space-y-3">
+          {recent.map((b) => (
+            <BookCard key={b.id} book={b} />
+          ))}
+          {!loading && recent.length === 0 && (
+            <div className="text-sand-300 text-sm">Inga böcker ännu.</div>
+          )}
+        </div>
+      </section>
+    </section>
+  );
+}
+
+function StatCard({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="card p-3 text-center">
+      <div className="text-2xl font-semibold">{value}</div>
+      <div className="text-sand-300 text-xs">{label}</div>
     </div>
   );
 }
