@@ -4,7 +4,8 @@ import { Home, Search, PlusCircle, Library } from "lucide-react";
 
 export default function GameLayout() {
   return (
-    <div className="min-h-full flex flex-col">
+    // blå accent
+    <div className="scope-game min-h-full flex flex-col">
       <header
         className={clsx(
           "sticky top-0 z-20 border-b backdrop-blur-md",
@@ -36,12 +37,12 @@ function Tab({
   return (
     <NavLink
       to={to}
-      end={to === "."} // exakt /game
+      end={to === "."}
       className={({ isActive }) =>
         clsx(
           "inline-flex items-center gap-1 px-3 py-1.5 rounded-full border text-sm transition",
           isActive
-            ? "bg-accent-500 text-white border-accent-500"
+            ? "tab-active"
             : "border-sand-300 text-ink-700 hover:bg-sand-200 dark:border-ink-700 dark:text-sand-200 dark:hover:bg-ink-800 sepia:border-[#d8c6a2] sepia:hover:bg-[#f3e8c7]"
         )
       }
