@@ -84,7 +84,7 @@ export default function ProfilePage() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `cinemoria-backup-${new Date().toISOString().slice(0, 10)}.json`; // ✅ backticks!
+    a.download = `cinemoria-backup-${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
   }
@@ -131,14 +131,12 @@ export default function ProfilePage() {
   }
 
   return (
-    <section className="p-4">
-      <h1 className="text-2xl font-semibold mb-3">Profil & Inställningar</h1>
-
+    <section className="p-4 space-y-4">
       {/* Installera som app */}
       {!installed && (
         <>
           {isInstallable ? (
-            <div className="card p-4 mb-4">
+            <div className="card p-4">
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <h2 className="font-semibold">Installera som app</h2>
@@ -150,7 +148,7 @@ export default function ProfilePage() {
               </div>
             </div>
           ) : isIOS ? (
-            <div className="card p-4 mb-4">
+            <div className="card p-4">
               <h2 className="font-semibold mb-1">Installera på iPhone/iPad</h2>
               <p className="text-sand-300 text-sm">
                 Öppna delnings-menyn och välj{" "}
@@ -162,7 +160,7 @@ export default function ProfilePage() {
       )}
 
       {/* Tema */}
-      <div className="card p-4 mb-4 space-y-3">
+      <div className="card p-4 space-y-3">
         <h2 className="font-semibold">Tema</h2>
         <p className="text-sand-300 text-sm">Välj mellan mörkt, ljust eller sepia.</p>
         <div className="flex gap-2 flex-wrap">
@@ -188,7 +186,7 @@ export default function ProfilePage() {
       </div>
 
       {/* Backup */}
-      <div className="card p-4 mb-2 space-y-3">
+      <div className="card p-4 space-y-3">
         <h2 className="font-semibold">Backup</h2>
         <div className="flex gap-2 flex-wrap">
           <button className="btn btn-primary" onClick={handleExport}>
@@ -200,7 +198,7 @@ export default function ProfilePage() {
           <input
             ref={fileRef}
             type="file"
-            accept="application/json"
+            accept="application/json,.json"
             className="hidden"
             onChange={(e) => e.target.files?.[0] && handleImport(e.target.files[0])}
           />
@@ -212,26 +210,22 @@ export default function ProfilePage() {
         )}
       </div>
 
-      {/* Länk till instruktioner */}
-      <div className="card p-4 mb-4">
+      {/* Hjälp */}
+      <div className="card p-4">
         <h2 className="font-semibold mb-2">Behöver du hjälp?</h2>
         <p className="text-sand-300 text-sm mb-2">
           Läs en kort guide med tips om hur du använder appen.
         </p>
-        <Link to="/instructions" className="btn">
-          Instruktioner
-        </Link>
+        <Link to="/instructions" className="btn">Instruktioner</Link>
       </div>
 
       {/* Datahantering */}
-      <div className="card p-4 mb-4">
+      <div className="card p-4">
         <h2 className="font-semibold">Datahantering</h2>
         <p className="text-sand-300 text-sm mb-2">
           Behöver du börja om från noll? Du kan rensa all lokal data.
         </p>
-        <button className="btn" onClick={handleWipe}>
-          Rensa allt
-        </button>
+        <button className="btn" onClick={handleWipe}>Rensa allt</button>
       </div>
 
       {/* Om-appen */}
