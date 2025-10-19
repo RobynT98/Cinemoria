@@ -1,69 +1,51 @@
 import { NavLink, Outlet } from "react-router-dom";
-import { Gamepad2, Search, PlusCircle, Library } from "lucide-react";
 import clsx from "classnames";
+import { Home, Search, PlusCircle, Library } from "lucide-react";
 
 export default function GameLayout() {
   return (
-    <section className="p-0">
-      {/* Topbar */}
+    <div className="min-h-full flex flex-col">
       <header
         className={clsx(
-          "sticky top-0 z-10 border-b backdrop-blur px-4 py-3",
-          // Ljus
-          "bg-white/80 border-sand-200",
-          // Mörk
-          "dark:bg-ink-800/70 dark:border-ink-700",
-          // Sepia
-          "sepia:bg-[#f3e8c7]/80 sepia:border-[#e7d3a8]"
+          "sticky top-0 z-20 border-b backdrop-blur-md",
+          "bg-white/85 border-sand-200",
+          "dark:bg-ink-900/70 dark:border-ink-700",
+          "sepia:bg-[#f7f1da]/85 sepia:border-[#e7d3a8]"
         )}
       >
-        <div className="max-w-3xl mx-auto flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <Gamepad2 className="opacity-80" size={20} />
-            <h1 className="text-xl font-semibold">Spel</h1>
-          </div>
-
-          {/* Undertabs */}
-          <nav className="flex items-center gap-1 text-sm">
-            <Tab to="" label="Översikt" end />
-            <Tab to="search" label="Sök" />
-            <Tab to="add" label="Lägg till" />
-            <Tab to="collections" label="Listor" />
+        <div className="max-w-3xl mx-auto px-3 py-3">
+          <h1 className="text-xl font-semibold">Spel</h1>
+          <nav className="mt-2 flex gap-2 overflow-x-auto scrollbar-none">
+            <Tab to="." label="Översikt" icon={<Home size={16} />} />
+            <Tab to="search" label="Sök" icon={<Search size={16} />} />
+            <Tab to="add" label="Lägg till" icon={<PlusCircle size={16} />} />
+            <Tab to="collections" label="Listor" icon={<Library size={16} />} />
           </nav>
         </div>
       </header>
-
-      {/* Innehåll */}
-      <main className="px-4 pt-4 pb-6 max-w-3xl mx-auto">
+      <main className="flex-1 max-w-3xl mx-auto px-3 py-4">
         <Outlet />
       </main>
-    </section>
+    </div>
   );
 }
 
 function Tab({
-  to,
-  label,
-  end,
-}: {
-  to: string;
-  label: string;
-  end?: boolean;
-}) {
+  to, label, icon,
+}: { to: string; label: string; icon: React.ReactNode }) {
   return (
     <NavLink
       to={to}
-      end={end}
       className={({ isActive }) =>
         clsx(
-          "px-3 py-2 rounded-xl transition-colors",
+          "inline-flex items-center gap-1 px-3 py-1.5 rounded-full border text-sm transition",
           isActive
-            ? "bg-sand-200 text-ink-900 dark:bg-ink-700 dark:text-sand-100 sepia:bg-[#e8d6a4] sepia:text-[#3c2f1b]"
-            : "text-ink-600 hover:text-ink-900 dark:text-sand-400 dark:hover:text-sand-100 sepia:text-[#6b5637] sepia:hover:text-[#3c2f1b]"
+            ? "bg-accent-500 text-white border-accent-500"
+            : "border-sand-300 text-ink-700 hover:bg-sand-200 dark:border-ink-700 dark:text-sand-200 dark:hover:bg-ink-800 sepia:border-[#d8c6a2] sepia:hover:bg-[#f3e8c7]"
         )
       }
     >
-      {label}
+      {icon}<span>{label}</span>
     </NavLink>
   );
 }
