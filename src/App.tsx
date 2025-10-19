@@ -8,11 +8,11 @@ import clsx from "classnames";
 const HomePage = lazy(() => import("./pages/home/HomePage"));
 
 /* Profile */
-const ProfilePage = lazy(() => import("./pages/profile/ProfilePage")); // flytta filen hit, eller ändra sökvägen tillbaka
+const ProfilePage = lazy(() => import("./pages/profile/ProfilePage"));
 
-/* Movie (återanvänd dina befintliga sidor) */
-const MovieHub = lazy(() => import("./pages/movie/MovieHub"));
-const MovieSearch = lazy(() => import("./pages/movie/SearchPage"));      // flytta filen eller re-exportera
+/* Movie */
+const MovieLayout = lazy(() => import("./pages/movie/MovieLayout"));
+const MovieSearch = lazy(() => import("./pages/movie/SearchPage"));
 const MovieAdd = lazy(() => import("./pages/movie/AddPage"));
 const MovieCollections = lazy(() => import("./pages/movie/CollectionsPage"));
 const MovieListDetail = lazy(() => import("./pages/movie/ListDetailPage"));
@@ -46,8 +46,8 @@ export default function App() {
             {/* Hem */}
             <Route path="/" element={<HomePage />} />
 
-            {/* Film – hub + undersidor */}
-            <Route path="/movie" element={<MovieHub />}>
+            {/* Film – layout + undersidor */}
+            <Route path="/movie" element={<MovieLayout />}>
               <Route index element={<MovieSearch />} />
               <Route path="search" element={<MovieSearch />} />
               <Route path="add" element={<MovieAdd />} />
@@ -56,14 +56,14 @@ export default function App() {
               <Route path="edit/:id" element={<MovieEdit />} />
             </Route>
 
-            {/* Böcker – hub + undersidor */}
+            {/* Böcker */}
             <Route path="/book" element={<BookHub />}>
               <Route index element={<BookHome />} />
               <Route path="search" element={<BookSearch />} />
               <Route path="add" element={<BookAdd />} />
             </Route>
 
-            {/* Spel – hub + undersidor */}
+            {/* Spel */}
             <Route path="/game" element={<GameHub />}>
               <Route index element={<GameHome />} />
               <Route path="search" element={<GameSearch />} />
@@ -76,7 +76,7 @@ export default function App() {
         </Suspense>
       </main>
 
-      {/* Bottennavigation – huvudflikar */}
+      {/* Bottennavigation */}
       <nav
         className={clsx(
           "fixed bottom-0 inset-x-0 border-t backdrop-blur",
@@ -118,7 +118,7 @@ function NavItem({
             : "text-ink-600 hover:text-ink-900 dark:text-sand-400 dark:hover:text-sand-200 sepia:text-[#6b5637] sepia:hover:text-[#3c2f1b]"
         )
       }
-      end={to === "/"} // gör att 'Hem' bara är aktivt exakt på "/"
+      end={to === "/"} // 'Hem' aktiv bara på exakt "/"
     >
       {icon}
       <span>{label}</span>
