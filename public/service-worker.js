@@ -1,5 +1,5 @@
 // public/service-worker.js
-const VERSION = 'v8';
+const VERSION = 'v9';
 const CACHE_STATIC  = `cinemoria-static-${VERSION}`;
 const CACHE_RUNTIME = `cinemoria-runtime-${VERSION}`;
 
