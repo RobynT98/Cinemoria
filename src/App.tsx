@@ -24,18 +24,18 @@ const BookLayout = lazy(() => import("./pages/book/BookLayout"));
 const BookHome = lazy(() => import("./pages/book/BookHome"));
 const BookSearch = lazy(() => import("./pages/book/BookSearch"));
 const BookAdd = lazy(() => import("./pages/book/BookAdd"));
-const BookCollections = lazy(() => import("./pages/book/CollectionsPage"));     // ⬅️ ny
-const BookListDetail = lazy(() => import("./pages/book/ListDetailPage"));       // ⬅️ ny
+const BookCollections = lazy(() => import("./pages/book/CollectionsPage"));
+const BookListDetail = lazy(() => import("./pages/book/ListDetailPage"));
 const BookEdit = lazy(() => import("./pages/book/BookEdit"));
 
 /* Game (speglar film) */
-const GameLayout = lazy(() => import("./pages/game/GameLayout"));               // ⬅️ ny
+const GameLayout = lazy(() => import("./pages/game/GameLayout"));
 const GameHome = lazy(() => import("./pages/game/GameHome"));
 const GameSearch = lazy(() => import("./pages/game/GameSearch"));
 const GameAdd = lazy(() => import("./pages/game/GameAdd"));
-const GameCollections = lazy(() => import("./pages/game/CollectionsPage"));     // ⬅️ ny
-const GameListDetail = lazy(() => import("./pages/game/ListDetailPage"));       // ⬅️ ny
-const GameEdit = lazy(() => import("./pages/game/EditPage"));                   // ⬅️ ny
+const GameCollections = lazy(() => import("./pages/game/CollectionsPage"));
+const GameListDetail = lazy(() => import("./pages/game/ListDetailPage"));
+const GameEdit = lazy(() => import("./pages/game/EditPage"));
 
 export default function App() {
   return (
@@ -63,7 +63,7 @@ export default function App() {
               <Route path="edit/:id" element={<MovieEdit />} />
             </Route>
 
-            {/* Böcker – layout + undersidor (paritet med film) */}
+            {/* Böcker – layout + undersidor */}
             <Route path="/book" element={<BookLayout />}>
               <Route index element={<BookHome />} />
               <Route path="search" element={<BookSearch />} />
@@ -73,7 +73,7 @@ export default function App() {
               <Route path="edit/:id" element={<BookEdit />} />
             </Route>
 
-            {/* Spel – layout + undersidor (paritet med film) */}
+            {/* Spel – layout + undersidor */}
             <Route path="/game" element={<GameLayout />}>
               <Route index element={<GameHome />} />
               <Route path="search" element={<GameSearch />} />
