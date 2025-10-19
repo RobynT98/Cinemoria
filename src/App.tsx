@@ -1,15 +1,16 @@
+// src/App.tsx
 import { NavLink, Route, Routes } from "react-router-dom";
 import { Home, Library, User, BookOpen, Gamepad2 } from "lucide-react";
 import { Suspense, lazy } from "react";
 import clsx from "classnames";
 
 /* Home */
-const HomeLayout = lazy(() => import("./pages/home/HomeLayout"));
-const HomePage   = lazy(() => import("./pages/home/HomePage"));
-const InstructionsPage = lazy(() => import("./pages/home/InstructionsPage"));
+const HomePage = lazy(() => import("./pages/home/HomePage"));
 
-/* Profile */
-const ProfilePage = lazy(() => import("./pages/profile/ProfilePage"));
+/* Profile + Instructions */
+const ProfileLayout = lazy(() => import("./pages/profile/ProfileLayout"));
+const ProfilePage   = lazy(() => import("./pages/profile/ProfilePage"));
+const InstructionsPage = lazy(() => import("./pages/home/InstructionsPage"));
 
 /* Movie */
 const MovieLayout = lazy(() => import("./pages/movie/MovieLayout"));
@@ -51,11 +52,8 @@ export default function App() {
       <main className="pb-20 max-w-3xl mx-auto px-3">
         <Suspense fallback={<div className="p-4">Laddar…</div>}>
           <Routes>
-            {/* Hem – egen layout + nested routes */}
-            <Route path="/" element={<HomeLayout />}>
-              <Route index element={<HomePage />} />
-              <Route path="instructions" element={<InstructionsPage />} />
-            </Route>
+            {/* Hem */}
+            <Route path="/" element={<HomePage />} />
 
             {/* Film */}
             <Route path="/movie" element={<MovieLayout />}>
@@ -87,8 +85,13 @@ export default function App() {
               <Route path="edit/:id" element={<GameEdit />} />
             </Route>
 
-            {/* Profil */}
-            <Route path="/profile" element={<ProfilePage />} />
+            {/* Profil (egen layout/scope) */}
+            <Route path="/profile" element={<ProfileLayout />}>
+              <Route index element={<ProfilePage />} />
+            </Route>
+
+            {/* Instruktioner (global sida) */}
+            <Route path="/instructions" element={<InstructionsPage />} />
           </Routes>
         </Suspense>
       </main>
@@ -135,7 +138,7 @@ function NavItem({
             : "text-ink-600 hover:text-ink-900 dark:text-sand-400 dark:hover:text-sand-200 sepia:text-[#6b5637] sepia:hover:text-[#3c2f1b]"
         )
       }
-      end={to === "/"} // 'Hem' aktiv bara på exakt "/"
+      end={to === "/"}
     >
       {icon}
       <span>{label}</span>
