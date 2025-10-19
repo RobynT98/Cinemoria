@@ -12,6 +12,7 @@ const ProfilePage = lazy(() => import("./pages/profile/ProfilePage"));
 
 /* Movie */
 const MovieLayout = lazy(() => import("./pages/movie/MovieLayout"));
+const MovieHome = lazy(() => import("./pages/movie/MovieHome"));
 const MovieSearch = lazy(() => import("./pages/movie/SearchPage"));
 const MovieAdd = lazy(() => import("./pages/movie/AddPage"));
 const MovieCollections = lazy(() => import("./pages/movie/CollectionsPage"));
@@ -48,7 +49,7 @@ export default function App() {
 
             {/* Film – layout + undersidor */}
             <Route path="/movie" element={<MovieLayout />}>
-              <Route index element={<MovieSearch />} />
+              <Route index element={<MovieHome />} />
               <Route path="search" element={<MovieSearch />} />
               <Route path="add" element={<MovieAdd />} />
               <Route path="collections" element={<MovieCollections />} />
@@ -118,7 +119,7 @@ function NavItem({
             : "text-ink-600 hover:text-ink-900 dark:text-sand-400 dark:hover:text-sand-200 sepia:text-[#6b5637] sepia:hover:text-[#3c2f1b]"
         )
       }
-      end={to === "/"} // 'Hem' aktiv bara på exakt "/"
+      end={to === "/"}
     >
       {icon}
       <span>{label}</span>
