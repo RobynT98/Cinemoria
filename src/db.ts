@@ -75,9 +75,11 @@ export interface Book {
   owned?: boolean;
   wishlisted?: boolean;
   digital?: boolean;      // e-bok/ljudbok
-  format?: BookFormat;    // ex. hardcover/paperback/ebook/audiobook
+  format?: BookFormat;    // hardcover/paperback/ebook/audiobook/other
   isbn?: string;
   language?: string;      // "sv", "en", …
+  pages?: number;
+  publisher?: string;
   notes?: string;
   createdAt: number;
 }
@@ -136,7 +138,7 @@ class CinemoriaDB extends Dexie {
         }
       });
 
-    // v4 – böcker (egen tabell)
+    // v4 – böcker (första versionen av books-tabellen)
     this.version(4)
       .stores({
         movies:
@@ -147,8 +149,22 @@ class CinemoriaDB extends Dexie {
           "++id, title, author, year, createdAt, owned, wishlisted, digital, format, isbn",
       })
       .upgrade(async (tx) => {
-        // Inget att migrera från tidigare versioner (ny tabell),
-        // men här skulle vi kunna normalisera data om det behövs framåt.
+        // No-op: ny tabell
+        await tx.table<Book>("books").toCollection().modify(() => {});
+      });
+
+    // v5 – böcker: extra fält + index (language/pages/publisher)
+    this.version(5)
+      .stores({
+        movies:
+          "++id, title, year, createdAt, owned, wishlisted, digital, format, region, videoStandard, barcode, edition, releaseYear",
+        lists: "++id, name, createdAt",
+        movieList: "++id, movieId, listId",
+        books:
+          "++id, title, author, year, createdAt, owned, wishlisted, digital, format, isbn, language, pages, publisher",
+      })
+      .upgrade(async (tx) => {
+        // No-op: vi lägger bara till indexfält; befintliga rader påverkas inte
         await tx.table<Book>("books").toCollection().modify(() => {});
       });
   }
@@ -316,14 +332,17 @@ export async function searchBooks(opts: {
   wishlisted?: boolean;
   digital?: boolean;
   format?: BookFormat;
+  language?: string;
 }) {
-  const { text, owned, wishlisted, digital, format } = opts;
+  const { text, owned, wishlisted, digital, format, language } = opts;
   let col = db.books.toCollection();
 
   if (owned !== undefined) col = col.filter((b) => !!b.owned === owned);
   if (wishlisted !== undefined) col = col.filter((b) => !!b.wishlisted === wishlisted);
   if (digital !== undefined) col = col.filter((b) => !!b.digital === digital);
   if (format) col = col.filter((b) => b.format === format);
+  if (language && language.trim())
+    col = col.filter((b) => (b.language || "").toLowerCase() === language.trim().toLowerCase());
 
   if (text && text.trim()) {
     const q = text.trim().toLowerCase();
