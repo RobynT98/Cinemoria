@@ -1,12 +1,10 @@
-// src/pages/movie/MovieLayout.tsx
 import { NavLink, Outlet } from "react-router-dom";
 import clsx from "classnames";
-import { Search, PlusCircle, Library } from "lucide-react";
+import { Home, Search, PlusCircle, Library } from "lucide-react";
 
 export default function MovieLayout() {
   return (
     <div className="min-h-full flex flex-col">
-      {/* Topbar */}
       <header
         className={clsx(
           "sticky top-0 z-20 border-b backdrop-blur-md",
@@ -18,14 +16,13 @@ export default function MovieLayout() {
         <div className="max-w-3xl mx-auto px-3 py-3">
           <h1 className="text-xl font-semibold">Filmer</h1>
           <nav className="mt-2 flex gap-2 overflow-x-auto scrollbar-none">
+            <Tab to="." label="Översikt" icon={<Home size={16} />} />
             <Tab to="search" label="Sök" icon={<Search size={16} />} />
             <Tab to="add" label="Lägg till" icon={<PlusCircle size={16} />} />
             <Tab to="collections" label="Samlingar" icon={<Library size={16} />} />
           </nav>
         </div>
       </header>
-
-      {/* Innehåll */}
       <main className="flex-1 max-w-3xl mx-auto px-3 py-4">
         <Outlet />
       </main>
@@ -34,18 +31,11 @@ export default function MovieLayout() {
 }
 
 function Tab({
-  to,
-  label,
-  icon,
-}: {
-  to: string;
-  label: string;
-  icon: React.ReactNode;
-}) {
+  to, label, icon,
+}: { to: string; label: string; icon: React.ReactNode }) {
   return (
     <NavLink
       to={to}
-      end
       className={({ isActive }) =>
         clsx(
           "inline-flex items-center gap-1 px-3 py-1.5 rounded-full border text-sm transition",
@@ -55,8 +45,7 @@ function Tab({
         )
       }
     >
-      {icon}
-      <span>{label}</span>
+      {icon}<span>{label}</span>
     </NavLink>
   );
 }
