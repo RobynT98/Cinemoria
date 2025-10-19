@@ -24,6 +24,7 @@ const BookLayout = lazy(() => import("./pages/book/BookLayout"));
 const BookHome = lazy(() => import("./pages/book/BookHome"));
 const BookSearch = lazy(() => import("./pages/book/BookSearch"));
 const BookAdd = lazy(() => import("./pages/book/BookAdd"));
+const BookEdit = lazy(() => import("./pages/book/BookEdit")); // ⬅️ ny
 
 /* Game (placeholders) */
 const GameHub = lazy(() => import("./pages/game/GameHub"));
@@ -62,9 +63,10 @@ export default function App() {
               <Route index element={<BookHome />} />
               <Route path="search" element={<BookSearch />} />
               <Route path="add" element={<BookAdd />} />
+              <Route path="edit/:id" element={<BookEdit />} /> {/* ⬅️ ny */}
             </Route>
 
-            {/* Spel */}
+            {/* Spel – tills vidare enkel hub + undersidor */}
             <Route path="/game" element={<GameHub />}>
               <Route index element={<GameHome />} />
               <Route path="search" element={<GameSearch />} />
@@ -119,7 +121,7 @@ function NavItem({
             : "text-ink-600 hover:text-ink-900 dark:text-sand-400 dark:hover:text-sand-200 sepia:text-[#6b5637] sepia:hover:text-[#3c2f1b]"
         )
       }
-      end={to === "/"}
+      end={to === "/"} // 'Hem' aktiv bara på exakt "/"
     >
       {icon}
       <span>{label}</span>
