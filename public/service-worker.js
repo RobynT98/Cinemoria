@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cinemoria-v5';
+const CACHE_NAME = 'cinemoria-v6';
 
 // Bygg paths relativt till scope (funkar under /Cinemoria/)
 const BASE = self.registration.scope; // ex: https://user.github.io/Cinemoria/
