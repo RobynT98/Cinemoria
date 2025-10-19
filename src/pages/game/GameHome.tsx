@@ -1,8 +1,7 @@
 // src/pages/game/GameHome.tsx
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { db, type Game } from "@/db";
-import { getRecentGames } from "@/db";
+import { db, getRecentGames, type Game } from "@/db";
 import GameCard from "@/components/game/GameCard";
 
 type Stat = {
@@ -41,7 +40,9 @@ export default function GameHome() {
         if (alive) setLoading(false);
       }
     })();
-    return () => { alive = false; };
+    return () => {
+      alive = false;
+    };
   }, []);
 
   const empty = !loading && stats.total === 0;
@@ -52,7 +53,8 @@ export default function GameHome() {
       <header>
         <h1 className="text-2xl font-semibold">Spel</h1>
         <p className="text-sand-300">
-          Logga ägda spel, digitala titlar och önskelista — helt offline.
+          Lägg in dina spel och spårning av plattform, ägande och önskelista —
+          helt offline.
         </p>
       </header>
 
@@ -62,16 +64,23 @@ export default function GameHome() {
           <div>
             <h2 className="font-semibold">Kom igång</h2>
             <p className="text-sand-300 text-sm">
-              Lägg till ett spel, sök i din samling, bygg listor eller importera en backup via Profil.
+              Lägg till ett spel, sök i din hylla eller importera en backup via
+              Profil.
             </p>
           </div>
           <div className="flex gap-2 flex-wrap">
-            <button className="btn btn-primary" onClick={() => navigate("/game/add")}>
+            <button
+              className="btn btn-primary"
+              onClick={() => navigate("/game/add")}
+            >
               Lägg till spel
             </button>
-            <Link to="/game/search" className="btn">Sök</Link>
-            <Link to="/game/collections" className="btn">Listor</Link>
-            <Link to="/profile" className="btn">Importera</Link>
+            <Link to="/game/search" className="btn">
+              Sök
+            </Link>
+            <Link to="/profile" className="btn">
+              Importera
+            </Link>
           </div>
         </div>
       </div>
@@ -89,13 +98,19 @@ export default function GameHome() {
         <div className="card p-4">
           <h3 className="font-semibold mb-1">Din spelhylla väntar 🎮</h3>
           <p className="text-sand-300 text-sm mb-3">
-            Lägg till ditt första spel eller importera från JSON-backup under Profil.
+            Lägg till ditt första spel eller importera från JSON-backup under
+            Profil.
           </p>
           <div className="flex gap-2 flex-wrap">
-            <button className="btn btn-primary" onClick={() => navigate("/game/add")}>
+            <button
+              className="btn btn-primary"
+              onClick={() => navigate("/game/add")}
+            >
               Lägg till spel
             </button>
-            <Link to="/profile" className="btn">Importera backup</Link>
+            <Link to="/profile" className="btn">
+              Importera backup
+            </Link>
           </div>
         </div>
       )}
@@ -104,7 +119,7 @@ export default function GameHome() {
       <section>
         <div className="flex items-center justify-between">
           <h2 className="font-semibold mb-2">Senast tillagda</h2>
-        {recent.length > 0 && (
+          {recent.length > 0 && (
             <Link to="/game/search" className="text-sm hover:underline">
               Visa fler
             </Link>
@@ -113,8 +128,20 @@ export default function GameHome() {
 
         <div className="space-y-3">
           {recent.map((g) => (
-            <GameCard key={g.id} game={g} />
+            <GameCard
+              key={g.id}
+              id={g.id}
+              title={g.title}
+              platform={g.platform}
+              year={g.year}
+              coverUrl={g.coverUrl}
+              owned={g.owned}
+              digital={g.digital}
+              wishlisted={g.wishlisted}
+              to={g.id ? `/game/edit/${g.id}` : undefined}
+            />
           ))}
+
           {!loading && recent.length === 0 && (
             <div className="text-sand-300 text-sm">Inga spel ännu.</div>
           )}
