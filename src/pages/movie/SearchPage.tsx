@@ -1,4 +1,3 @@
-// src/pages/SearchPage.tsx
 import { useEffect, useMemo, useState } from "react";
 import { db, Movie } from "@/db";
 import MovieCard from "@/components/MovieCard";
@@ -16,12 +15,14 @@ export default function SearchPage() {
       const ms = await db.movies.orderBy("title").toArray();
       if (mounted) setMovies(ms);
     })();
-    return () => { mounted = false; };
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const shown = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return movies.filter(m => {
+    return movies.filter((m) => {
       if (filter === "owned" && !m.owned) return false;
       if (filter === "digital" && !m.digital) return false;
       if (filter === "wish" && !m.wishlisted) return false;
@@ -32,8 +33,10 @@ export default function SearchPage() {
         (m.genres || []).join(" "),
         m.location || "",
         m.provider || "",
-        String(m.year || "")
-      ].join(" ").toLowerCase();
+        String(m.year || ""),
+      ]
+        .join(" ")
+        .toLowerCase();
       return hay.includes(q);
     });
   }, [movies, query, filter]);
@@ -50,7 +53,10 @@ export default function SearchPage() {
           onChange={(e) => setQuery(e.target.value)}
           type="text"
         />
-        <select value={filter} onChange={(e) => setFilter(e.target.value as Filter)}>
+        <select
+          value={filter}
+          onChange={(e) => setFilter(e.target.value as Filter)}
+        >
           <option value="all">Alla</option>
           <option value="owned">Ägd</option>
           <option value="digital">Digital</option>
@@ -59,9 +65,13 @@ export default function SearchPage() {
       </div>
 
       <div className="space-y-3">
-        {shown.map(m => <MovieCard key={m.id} movie={m} />)}
+        {shown.map((m) => (
+          <MovieCard key={m.id} movie={m} to={`/movie/edit/${m.id}`} />
+        ))}
         {shown.length === 0 && (
-          <div className="text-sand-300 text-sm">Inget matchar din filtrering.</div>
+          <div className="text-sand-300 text-sm">
+            Inget matchar din filtrering.
+          </div>
         )}
       </div>
     </section>
