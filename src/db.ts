@@ -188,7 +188,7 @@ class CinemoriaDB extends Dexie {
         }
       });
 
-    // v4 – böcker (första versionen av books-tabellen)
+    // v4 – böcker (första versionen)
     this.version(4)
       .stores({
         movies:
@@ -202,7 +202,7 @@ class CinemoriaDB extends Dexie {
         await tx.table<Book>("books").toCollection().modify(() => {});
       });
 
-    // v5 – böcker: extra fält + index (language/pages/publisher)
+    // v5 – böcker: extra fält + index
     this.version(5)
       .stores({
         movies:
@@ -216,7 +216,7 @@ class CinemoriaDB extends Dexie {
         await tx.table<Book>("books").toCollection().modify(() => {});
       });
 
-    // v6 – boklistor (egen tabell + kopplingstabell)
+    // v6 – boklistor
     this.version(6).stores({
       movies:
         "++id, title, year, createdAt, owned, wishlisted, digital, format, region, videoStandard, barcode, edition, releaseYear",
@@ -245,7 +245,7 @@ class CinemoriaDB extends Dexie {
         "++id, title, platform, year, createdAt, owned, digital, wishlisted",
     });
 
-    // v8 – spellistor (egen tabell + kopplingstabell)
+    // v8 – spellistor
     this.version(8).stores({
       movies:
         "++id, title, year, createdAt, owned, wishlisted, digital, format, region, videoStandard, barcode, edition, releaseYear",
@@ -669,6 +669,7 @@ export async function exportSubset(opts: {
     db.gameLists.toArray(),
     db.gameList.toArray(),
   ]);
+
   return JSON.stringify(
     { movies, lists, links, books, bookLists, bookLinks, games, gameLists, gameLinks },
     null, 2
@@ -746,7 +747,7 @@ export async function importJson(json: string) {
   return {
     addedMovies, addedLists, addedLinks,
     addedBooks, addedBookLists, addedBookLinks,
-    addedGames, addedGameLists, addedGameLinks,
+    addedGames, addedGameLists, addedGameLinks
   };
 }
 
@@ -760,9 +761,11 @@ export async function wipeAll() {
       await db.movies.clear();
       await db.lists.clear();
       await db.movieList.clear();
+
       await db.books.clear();
       await db.bookLists.clear();
       await db.bookList.clear();
+
       await db.games.clear();
       await db.gameLists.clear();
       await db.gameList.clear();
