@@ -9,6 +9,7 @@ const HomePage = lazy(() => import("./pages/home/HomePage"));
 
 /* Profile */
 const ProfilePage = lazy(() => import("./pages/profile/ProfilePage"));
+const InstructionsPage = lazy(() => import("./pages/InstructionsPage"));
 
 /* Movie */
 const MovieLayout = lazy(() => import("./pages/movie/MovieLayout"));
@@ -24,8 +25,8 @@ const BookLayout = lazy(() => import("./pages/book/BookLayout"));
 const BookHome = lazy(() => import("./pages/book/BookHome"));
 const BookSearch = lazy(() => import("./pages/book/BookSearch"));
 const BookAdd = lazy(() => import("./pages/book/BookAdd"));
-const BookCollections = lazy(() => import("./pages/book/CollectionsPage"));
-const BookListDetail = lazy(() => import("./pages/book/ListDetailPage"));
+const BookCollections = lazy(() => import("./pages/book/BookCollectionsPage")); // ✅ matchar filnamn
+const BookListDetail = lazy(() => import("./pages/book/BookListDetailPage"));   // ✅ matchar filnamn
 const BookEdit = lazy(() => import("./pages/book/BookEdit"));
 
 /* Game (speglar film) */
@@ -33,9 +34,9 @@ const GameLayout = lazy(() => import("./pages/game/GameLayout"));
 const GameHome = lazy(() => import("./pages/game/GameHome"));
 const GameSearch = lazy(() => import("./pages/game/GameSearch"));
 const GameAdd = lazy(() => import("./pages/game/GameAdd"));
-const GameCollections = lazy(() => import("./pages/game/CollectionsPage"));
-const GameListDetail = lazy(() => import("./pages/game/ListDetailPage"));
-const GameEdit = lazy(() => import("./pages/game/EditPage"));
+const GameCollections = lazy(() => import("./pages/game/GameCollectionsPage")); // ✅ matchar filnamn
+const GameListDetail = lazy(() => import("./pages/game/GameListDetailPage"));   // ✅ matchar filnamn
+const GameEdit = lazy(() => import("./pages/game/GameEdit"));
 
 export default function App() {
   return (
@@ -83,8 +84,9 @@ export default function App() {
               <Route path="edit/:id" element={<GameEdit />} />
             </Route>
 
-            {/* Profil */}
+            {/* Profil & instruktioner */}
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/instructions" element={<InstructionsPage />} />
           </Routes>
         </Suspense>
       </main>
