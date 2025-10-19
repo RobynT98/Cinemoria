@@ -1,123 +1,178 @@
 // src/components/game/GameForm.tsx
-import { useState } from "react";
-import { db } from "@/db";
+import { useMemo, useState } from "react";
 import type { Game } from "@/db";
-import { useNavigate } from "react-router-dom";
 
 type Props = {
-  initial?: Game;
-  submitLabel: string;
-  onSubmit?: (g: Game) => Promise<void>;
+  initial?: Partial<Game>;
+  submitLabel?: string;
+  onSubmit: (data: Omit<Game, "id" | "createdAt">) => void | Promise<void>;
 };
 
-export default function GameForm({ initial, submitLabel, onSubmit }: Props) {
-  const nav = useNavigate();
-  const [g, setG] = useState<Game>(
-    initial ?? {
-      title: "",
-      year: undefined,
-      platform: "",
-      coverUrl: "",
-      owned: true,
-      digital: false,
-      wishlisted: false,
-      createdAt: Date.now(),
-    }
+export default function GameForm({ initial, submitLabel = "Spara spel", onSubmit }: Props) {
+  const [title, setTitle] = useState(initial?.title ?? "");
+  const [year, setYear] = useState<number | "">(initial?.year ?? "");
+  const [platform, setPlatform] = useState(initial?.platform ?? "");
+  const [coverUrl, setCoverUrl] = useState(initial?.coverUrl ?? "");
+  const [notes, setNotes] = useState(initial?.notes ?? "");
+  const [owned, setOwned] = useState<boolean>(!!initial?.owned);
+  const [digital, setDigital] = useState<boolean>(!!initial?.digital);
+  const [wishlisted, setWishlisted] = useState<boolean>(!!initial?.wishlisted);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+
+  const platforms = useMemo(
+    () => [
+      "PS5",
+      "PS4",
+      "Xbox Series",
+      "Xbox One",
+      "Switch",
+      "PC",
+      "Steam Deck",
+      "Mobile",
+      "Retro",
+      "Övrigt",
+    ],
+    []
   );
 
-  function set<K extends keyof Game>(key: K, val: Game[K]) {
-    setG((x) => ({ ...x, [key]: val }));
+  function validate(): string | null {
+    if (!title.trim()) return "Titel krävs.";
+    if (year !== "" && (year < 1970 || year > new Date().getFullYear() + 1)) {
+      return "År ser orimligt ut.";
+    }
+    return null;
   }
 
-  async function save() {
-    if (!g.title.trim()) return alert("Titel krävs");
-    const data: Game = { ...g, createdAt: g.createdAt || Date.now() };
-
-    if (onSubmit) {
-      await onSubmit(data);
-    } else {
-      // Fallback om addGame inte finns ännu
-      if (initial?.id) await db.games.update(initial.id, data);
-      else await db.games.add(data);
-      nav("/game");
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    const v = validate();
+    if (v) {
+      setErr(v);
+      return;
+    }
+    setErr(null);
+    setBusy(true);
+    try {
+      await onSubmit({
+        title: title.trim(),
+        year: year === "" ? undefined : Number(year),
+        platform: platform.trim() || undefined,
+        coverUrl: coverUrl.trim() || undefined,
+        owned,
+        digital,
+        wishlisted,
+        notes: notes.trim() || undefined,
+      });
+    } finally {
+      setBusy(false);
     }
   }
 
   return (
-    <div className="card p-4 space-y-3">
-      <div>
-        <label className="block text-sm mb-1">Titel</label>
-        <input
-          type="text"
-          value={g.title}
-          onChange={(e) => set("title", e.target.value)}
-        />
-      </div>
-
-      <div className="grid grid-cols-2 gap-3">
+    <form className="space-y-4" onSubmit={handleSubmit}>
+      <div className="card p-4 space-y-4">
         <div>
-          <label className="block text-sm mb-1">År</label>
+          <label className="label">Titel</label>
           <input
-            type="number"
-            value={g.year ?? ""}
-            onChange={(e) => set("year", Number(e.target.value) || undefined)}
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Elden Ring"
+            autoFocus
           />
         </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label className="label">År</label>
+            <input
+              inputMode="numeric"
+              pattern="[0-9]*"
+              value={year}
+              onChange={(e) => {
+                const v = e.target.value.trim();
+                setYear(v === "" ? "" : Number(v));
+              }}
+              placeholder="2024"
+            />
+          </div>
+
+          <div>
+            <label className="label">Plattform</label>
+            <input
+              list="platforms"
+              value={platform}
+              onChange={(e) => setPlatform(e.target.value)}
+              placeholder="PS5, Switch, PC …"
+            />
+            <datalist id="platforms">
+              {platforms.map((p) => (
+                <option key={p} value={p} />
+              ))}
+            </datalist>
+          </div>
+        </div>
+
         <div>
-          <label className="block text-sm mb-1">Plattform</label>
+          <label className="label">Omslagsbild (URL)</label>
           <input
-            type="text"
-            placeholder="PS5, Switch, PC …"
-            value={g.platform ?? ""}
-            onChange={(e) => set("platform", e.target.value)}
+            value={coverUrl}
+            onChange={(e) => setCoverUrl(e.target.value)}
+            placeholder="https://…/cover.jpg"
           />
         </div>
-      </div>
 
-      <div>
-        <label className="block text-sm mb-1">Omslagsbild (URL)</label>
-        <input
-          type="url"
-          value={g.coverUrl ?? ""}
-          onChange={(e) => set("coverUrl", e.target.value)}
-        />
-      </div>
+        <fieldset className="space-y-2">
+          <legend className="label">Ägande</legend>
+          <div className="flex flex-wrap gap-2">
+            <label className="chip cursor-pointer">
+              <input
+                type="checkbox"
+                className="mr-2"
+                checked={owned}
+                onChange={(e) => setOwned(e.target.checked)}
+              />
+              Ägd
+            </label>
+            <label className="chip cursor-pointer">
+              <input
+                type="checkbox"
+                className="mr-2"
+                checked={digital}
+                onChange={(e) => setDigital(e.target.checked)}
+              />
+              Digital
+            </label>
+            <label className="chip cursor-pointer">
+              <input
+                type="checkbox"
+                className="mr-2"
+                checked={wishlisted}
+                onChange={(e) => setWishlisted(e.target.checked)}
+              />
+              Önskelista
+            </label>
+          </div>
+        </fieldset>
 
-      <div className="card p-3">
-        <h3 className="font-semibold mb-2">Ägande</h3>
-        <div className="flex flex-wrap gap-4">
-          <label className="inline-flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={!!g.owned}
-              onChange={(e) => set("owned", e.target.checked)}
-            />
-            Ägd
-          </label>
-          <label className="inline-flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={!!g.digital}
-              onChange={(e) => set("digital", e.target.checked)}
-            />
-            Digital
-          </label>
-          <label className="inline-flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={!!g.wishlisted}
-              onChange={(e) => set("wishlisted", e.target.checked)}
-            />
-            Önskelista
-          </label>
+        <div>
+          <label className="label">Anteckningar</label>
+          <textarea
+            rows={3}
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            placeholder="Edition, DLC-planer, var spelet ligger, osv."
+          />
         </div>
+
+        {err && <div className="text-red-400 text-sm">{err}</div>}
       </div>
 
-      <div className="pt-2">
-        <button className="btn btn-primary" onClick={save}>
+      <div className="flex gap-2">
+        <button className="btn btn-primary" disabled={busy}>
           {submitLabel}
         </button>
       </div>
-    </div>
+    </form>
   );
 }
