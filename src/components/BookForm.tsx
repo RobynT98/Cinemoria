@@ -1,21 +1,24 @@
 import { useState } from "react";
-import type { Book, BookFormat } from "@/db";
+import { db, type Book, type BookFormat } from "@/db";
+import { useNavigate } from "react-router-dom";
 
-type Props = {
+interface BookFormProps {
   initial?: Book;
   submitLabel: string;
-  onSubmit: (data: Omit<Book, "id"> & { id?: number }) => Promise<void> | void;
-};
+  onSubmit?: (data: Book) => Promise<void>;
+}
 
-const formats: { value: BookFormat; label: string }[] = [
-  { value: "hardcover", label: "Inbunden" },
+const formatOptions: { value: BookFormat; label: string }[] = [
+  { value: "other", label: "Övrigt" },
   { value: "paperback", label: "Pocket" },
+  { value: "hardcover", label: "Inbunden" },
   { value: "ebook", label: "E-bok" },
   { value: "audiobook", label: "Ljudbok" },
-  { value: "other", label: "Övrigt" },
 ];
 
-export default function BookForm({ initial, submitLabel, onSubmit }: Props) {
+export default function BookForm({ initial, submitLabel, onSubmit }: BookFormProps) {
+  const nav = useNavigate();
+
   const [b, setB] = useState<Book>(
     initial ?? {
       title: "",
@@ -24,8 +27,8 @@ export default function BookForm({ initial, submitLabel, onSubmit }: Props) {
       genres: [],
       coverUrl: "",
       owned: true,
-      wishlisted: false,
       digital: false,
+      wishlisted: false,
       format: "other",
       isbn: "",
       language: "sv",
@@ -40,32 +43,53 @@ export default function BookForm({ initial, submitLabel, onSubmit }: Props) {
     setB((x) => ({ ...x, [key]: val }));
   }
 
-  async function save(e: React.FormEvent) {
-    e.preventDefault();
+  async function save() {
     if (!b.title.trim()) return alert("Titel krävs");
-    await onSubmit({ ...b, createdAt: b.createdAt || Date.now() });
+    const data: Book = { ...b, createdAt: b.createdAt || Date.now() };
+
+    if (onSubmit) {
+      await onSubmit(data);
+    } else {
+      if (initial?.id != null) {
+        await db.books.put({ ...data, id: initial.id });
+      } else {
+        await db.books.add(data);
+      }
+      nav("/book");
+    }
   }
 
   return (
-    <form onSubmit={save} className="card p-4 space-y-3">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <div>
-          <label className="block text-sm mb-1">Titel</label>
-          <input value={b.title} onChange={(e) => set("title", e.target.value)} />
-        </div>
-        <div>
-          <label className="block text-sm mb-1">Författare</label>
-          <input value={b.author ?? ""} onChange={(e) => set("author", e.target.value)} />
-        </div>
+    <div className="card p-4 space-y-3">
+      {/* Titel & Författare */}
+      <div>
+        <label className="block text-sm mb-1">Titel</label>
+        <input
+          type="text"
+          value={b.title}
+          onChange={(e) => set("title", e.target.value)}
+          placeholder="Den hemliga historien"
+        />
+      </div>
+      <div>
+        <label className="block text-sm mb-1">Författare</label>
+        <input
+          type="text"
+          value={b.author ?? ""}
+          onChange={(e) => set("author", e.target.value)}
+          placeholder="Donna Tartt"
+        />
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      {/* År & Sidor */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <label className="block text-sm mb-1">År</label>
           <input
             type="number"
             value={b.year ?? ""}
             onChange={(e) => set("year", Number(e.target.value) || undefined)}
+            placeholder="1992"
           />
         </div>
         <div>
@@ -74,14 +98,20 @@ export default function BookForm({ initial, submitLabel, onSubmit }: Props) {
             type="number"
             value={b.pages ?? ""}
             onChange={(e) => set("pages", Number(e.target.value) || undefined)}
+            placeholder="560"
           />
         </div>
+      </div>
+
+      {/* Språk & Format */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <label className="block text-sm mb-1">Språk</label>
           <input
-            placeholder="sv, en, …"
+            type="text"
             value={b.language ?? ""}
             onChange={(e) => set("language", e.target.value)}
+            placeholder="sv"
           />
         </div>
         <div>
@@ -90,51 +120,75 @@ export default function BookForm({ initial, submitLabel, onSubmit }: Props) {
             value={b.format ?? "other"}
             onChange={(e) => set("format", e.target.value as BookFormat)}
           >
-            {formats.map((f) => (
-              <option key={f.value} value={f.value}>{f.label}</option>
+            {formatOptions.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
             ))}
           </select>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <div>
-          <label className="block text-sm mb-1">ISBN</label>
-          <input value={b.isbn ?? ""} onChange={(e) => set("isbn", e.target.value)} />
-        </div>
-        <div>
-          <label className="block text-sm mb-1">Förlag</label>
-          <input value={b.publisher ?? ""} onChange={(e) => set("publisher", e.target.value)} />
-        </div>
-      </div>
-
+      {/* ISBN & Förlag */}
       <div>
-        <label className="block text-sm mb-1">Genrer (kommaseparerade)</label>
+        <label className="block text-sm mb-1">ISBN</label>
         <input
-          value={b.genres?.join(", ") ?? ""}
-          onChange={(e) =>
-            set(
-              "genres",
-              e.target.value.split(",").map((s) => s.trim()).filter(Boolean)
-            )
-          }
+          type="text"
+          value={b.isbn ?? ""}
+          onChange={(e) => set("isbn", e.target.value)}
+        />
+      </div>
+      <div>
+        <label className="block text-sm mb-1">Förlag</label>
+        <input
+          type="text"
+          value={b.publisher ?? ""}
+          onChange={(e) => set("publisher", e.target.value)}
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <div>
-          <label className="block text-sm mb-1">Omslagsbild (URL)</label>
-          <input value={b.coverUrl ?? ""} onChange={(e) => set("coverUrl", e.target.value)} />
-        </div>
-        <div>
-          <label className="block text-sm mb-1">Anteckningar</label>
-          <input value={b.notes ?? ""} onChange={(e) => set("notes", e.target.value)} />
-        </div>
+      {/* Genrer */}
+      <div>
+        <label className="block text-sm mb-1">Genrer (kommaseparerade)</label>
+        <input
+          type="text"
+          value={(b.genres ?? []).join(", ")}
+          onChange={(e) =>
+            set(
+              "genres",
+              e.target.value
+                .split(",")
+                .map((s) => s.trim())
+                .filter(Boolean)
+            )
+          }
+          placeholder="Skräck, Fantasy …"
+        />
       </div>
 
+      {/* Omslag & Anteckningar */}
+      <div>
+        <label className="block text-sm mb-1">Omslagsbild (URL)</label>
+        <input
+          type="url"
+          value={b.coverUrl ?? ""}
+          onChange={(e) => set("coverUrl", e.target.value)}
+          placeholder="https://…"
+        />
+      </div>
+      <div>
+        <label className="block text-sm mb-1">Anteckningar</label>
+        <textarea
+          rows={4}
+          value={b.notes ?? ""}
+          onChange={(e) => set("notes", e.target.value)}
+        />
+      </div>
+
+      {/* Status */}
       <div className="card p-3">
         <h3 className="font-semibold mb-2">Status</h3>
-        <div className="flex gap-4 flex-wrap">
+        <div className="flex items-center gap-4 flex-wrap">
           <label className="inline-flex items-center gap-2">
             <input
               type="checkbox"
@@ -163,8 +217,10 @@ export default function BookForm({ initial, submitLabel, onSubmit }: Props) {
       </div>
 
       <div className="pt-2">
-        <button className="btn btn-primary" type="submit">{submitLabel}</button>
+        <button className="btn btn-primary" onClick={save}>
+          {submitLabel}
+        </button>
       </div>
-    </form>
+    </div>
   );
 }
