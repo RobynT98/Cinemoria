@@ -19,7 +19,7 @@ export default function MovieLayout() {
             <Tab to="." label="Översikt" icon={<Home size={16} />} />
             <Tab to="search" label="Sök" icon={<Search size={16} />} />
             <Tab to="add" label="Lägg till" icon={<PlusCircle size={16} />} />
-            <Tab to="collections" label="Samlingar" icon={<Library size={16} />} />
+            <Tab to="collections" label="Listor" icon={<Library size={16} />} />
           </nav>
         </div>
       </header>
