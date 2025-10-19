@@ -8,53 +8,89 @@
     <meta name="theme-color" content="#c18a47" />
     <link rel="manifest" href="manifest.webmanifest" />
     <link rel="icon" href="favicon.ico" />
+    <link rel="preload" as="image" href="icons/icon-192.png" />
 
     <!-- Tema tidigt -->
     <script>
       (function () {
         try {
-          var root = document.documentElement;
-          var t = localStorage.getItem('cm_theme'); // 'dark' | 'light' | 'sepia'
-          root.classList.remove('dark', 'sepia');
-          if (t === 'dark') root.classList.add('dark');
-          else if (t === 'sepia') root.classList.add('sepia');
-          else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            root.classList.add('dark');
-          }
+          const root = document.documentElement;
+          const t = localStorage.getItem("cm_theme");
+          root.classList.remove("dark", "sepia");
+          if (t === "dark") root.classList.add("dark");
+          else if (t === "sepia") root.classList.add("sepia");
+          else if (window.matchMedia("(prefers-color-scheme: dark)").matches)
+            root.classList.add("dark");
         } catch {}
       })();
     </script>
 
     <!-- Minimal direkt-stil så splashen syns och kan fadas innan bundlarna laddas -->
     <style>
-      html, body, #splash { margin: 0; padding: 0; height: 100%; }
+      html,
+      body,
+      #splash {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+      }
       #splash {
         position: fixed;
         inset: 0;
         display: grid;
         place-items: center;
-        background: #ffffff;            /* light */
-        z-index: 9999;                  /* ovanför allt */
-        opacity: 1;                     /* synlig som default */
-        transition: opacity .35s ease;  /* möjliggör fade-out direkt */
+        background: #ffffff;
+        z-index: 9999;
+        opacity: 1;
+        transition: opacity 0.35s ease;
       }
-      .dark #splash { background: #1f2429; }  /* dark bakgrund */
-      .sepia #splash { background: #f5e6c5; } /* sepia bakgrund */
-
-      /* Basstil så loggan syns även utan appens CSS */
+      .dark #splash {
+        background: #1f2429;
+      }
+      .sepia #splash {
+        background: #f5e6c5;
+      }
       #splash .logo {
-        width: 120px; height: 120px; border-radius: 24px;
+        width: 120px;
+        height: 120px;
+        border-radius: 24px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+        opacity: 0;
+        transform: translateY(6px) scale(0.98);
+        animation: splash-in 0.4s ease forwards;
       }
-
-      /* Klass som triggas när vi ska dölja */
-      #splash.hide { opacity: 0; pointer-events: none; }
+      #splash.hide {
+        opacity: 0;
+        pointer-events: none;
+      }
+      @keyframes splash-in {
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #splash .logo {
+          animation: none !important;
+          opacity: 1 !important;
+          transform: none !important;
+        }
+      }
     </style>
   </head>
 
   <body class="h-full">
     <!-- Enkel splash-overlay -->
     <div id="splash" aria-hidden="true">
-      <img class="logo" src="icons/icon-192.png" alt="Cinemoria" />
+      <img
+        class="logo"
+        src="icons/icon-192.png"
+        alt="Cinemoria"
+        width="120"
+        height="120"
+        decoding="async"
+        fetchpriority="high"
+      />
     </div>
 
     <div id="root" class="h-full"></div>
@@ -65,18 +101,20 @@
     <!-- Splash fade ut -->
     <script>
       (function () {
-        const splash = document.getElementById('splash');
-        const root = document.getElementById('root');
+        const splash = document.getElementById("splash");
+        const root = document.getElementById("root");
         if (!splash) return;
 
         function hideSplash() {
-          if (!splash || splash.classList.contains('hide')) return;
-          splash.classList.add('hide');
-          splash.addEventListener('transitionend', () => splash.remove(), { once: true });
+          if (!splash || splash.classList.contains("hide")) return;
+          splash.classList.add("hide");
+          splash.addEventListener("transitionend", () => splash.remove(), {
+            once: true,
+          });
         }
 
-        // 1) När React har mountat något i #root – vänta en liten beat och faden
-        if ('MutationObserver' in window && root) {
+        // När React mountar något
+        if ("MutationObserver" in window && root) {
           const obs = new MutationObserver(() => {
             if (root.childElementCount > 0) {
               requestAnimationFrame(() => setTimeout(hideSplash, 220));
@@ -86,10 +124,10 @@
           obs.observe(root, { childList: true });
         }
 
-        // 2) Reserv om allt redan är laddat
-        window.addEventListener('load', () => setTimeout(hideSplash, 300));
+        // Reserv
+        window.addEventListener("load", () => setTimeout(hideSplash, 300));
 
-        // 3) Hård timeout ifall något skulle hänga
+        // Nödfall
         setTimeout(hideSplash, 2500);
       })();
     </script>
