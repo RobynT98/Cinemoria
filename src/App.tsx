@@ -5,11 +5,12 @@ import { Suspense, lazy } from "react";
 import clsx from "classnames";
 
 /* Home */
+const HomeLayout = lazy(() => import("./pages/home/HomeLayout"));
 const HomePage = lazy(() => import("./pages/home/HomePage"));
 
 /* Profile + Instructions */
 const ProfileLayout = lazy(() => import("./pages/profile/ProfileLayout"));
-const ProfilePage   = lazy(() => import("./pages/profile/ProfilePage"));
+const ProfilePage = lazy(() => import("./pages/profile/ProfilePage"));
 const InstructionsPage = lazy(() => import("./pages/home/InstructionsPage"));
 
 /* Movie */
@@ -52,10 +53,13 @@ export default function App() {
       <main className="pb-20 max-w-3xl mx-auto px-3">
         <Suspense fallback={<div className="p-4">Laddar…</div>}>
           <Routes>
-            {/* Hem */}
-            <Route path="/" element={<HomePage />} />
+            {/* HEM – layout + index */}
+            <Route path="/" element={<HomeLayout />}>
+              <Route index element={<HomePage />} />
+              <Route path="instructions" element={<InstructionsPage />} />
+            </Route>
 
-            {/* Film */}
+            {/* FILM */}
             <Route path="/movie" element={<MovieLayout />}>
               <Route index element={<MovieHome />} />
               <Route path="search" element={<MovieSearch />} />
@@ -65,7 +69,7 @@ export default function App() {
               <Route path="edit/:id" element={<MovieEdit />} />
             </Route>
 
-            {/* Böcker */}
+            {/* BÖCKER */}
             <Route path="/book" element={<BookLayout />}>
               <Route index element={<BookHome />} />
               <Route path="search" element={<BookSearch />} />
@@ -75,7 +79,7 @@ export default function App() {
               <Route path="edit/:id" element={<BookEdit />} />
             </Route>
 
-            {/* Spel */}
+            {/* SPEL */}
             <Route path="/game" element={<GameLayout />}>
               <Route index element={<GameHome />} />
               <Route path="search" element={<GameSearch />} />
@@ -85,13 +89,10 @@ export default function App() {
               <Route path="edit/:id" element={<GameEdit />} />
             </Route>
 
-            {/* Profil (egen layout/scope) */}
+            {/* PROFIL – egen layout (grå accent) */}
             <Route path="/profile" element={<ProfileLayout />}>
               <Route index element={<ProfilePage />} />
             </Route>
-
-            {/* Instruktioner (global sida) */}
-            <Route path="/instructions" element={<InstructionsPage />} />
           </Routes>
         </Suspense>
       </main>
@@ -118,14 +119,8 @@ export default function App() {
 }
 
 function NavItem({
-  to,
-  label,
-  icon,
-}: {
-  to: string;
-  label: string;
-  icon: React.ReactNode;
-}) {
+  to, label, icon,
+}: { to: string; label: string; icon: React.ReactNode }) {
   return (
     <NavLink
       to={to}
