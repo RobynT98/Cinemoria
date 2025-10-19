@@ -1,41 +1,18 @@
+// src/pages/movie/ListDetailPage.tsx
 import { useEffect, useMemo, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import {
   db,
   type Movie,
   type List as DbList,
-} from "@/db";
-import {
-  getLists,
-  getListCounts,
+  getListById,
+  getMoviesInList,
+  linkMovieToList,
+  unlinkMovieFromList,
   renameList,
   deleteList,
 } from "@/db";
 import { Plus, Trash2, Edit3, ArrowLeft, X, Search } from "lucide-react";
-
-async function getListById(id: number): Promise<DbList | undefined> {
-  return db.lists.get(id);
-}
-
-async function getMoviesInList(listId: number): Promise<Movie[]> {
-  const links = await db.movieList.where("listId").equals(listId).toArray();
-  const ids = links.map((l) => l.movieId);
-  if (!ids.length) return [];
-  return db.movies.where("id").anyOf(ids).toArray();
-}
-
-async function linkMovieToList(listId: number, movieId: number) {
-  // undvik dubbletter
-  const exists = await db.movieList
-    .where({ listId, movieId })
-    .first();
-  if (!exists) await db.movieList.add({ listId, movieId } as any);
-}
-
-async function unlinkMovieFromList(listId: number, movieId: number) {
-  const row = await db.movieList.where({ listId, movieId }).first();
-  if (row?.id) await db.movieList.delete(row.id);
-}
 
 export default function ListDetailPage() {
   const params = useParams<{ id: string }>();
@@ -47,15 +24,23 @@ export default function ListDetailPage() {
   const [inList, setInList] = useState<Movie[]>([]);
   const [busy, setBusy] = useState(false);
   const [q, setQ] = useState("");
+  const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {
-    if (!Number.isFinite(listId)) return;
+    if (!Number.isFinite(listId)) {
+      setNotFound(true);
+      return;
+    }
     (async () => {
       const [l, movies, mIn] = await Promise.all([
         getListById(listId),
         db.movies.toArray(),
         getMoviesInList(listId),
       ]);
+      if (!l) {
+        setNotFound(true);
+        return;
+      }
       setList(l);
       setAllMovies(movies);
       setInList(mIn);
@@ -73,22 +58,27 @@ export default function ListDetailPage() {
           String(m.year || "").includes(needle)
       );
     }
-    // sortera alpha
     return base.sort((a, b) => a.title.localeCompare(b.title, "sv"));
   }, [allMovies, inList, q]);
 
   async function handleAdd(m: Movie) {
     setBusy(true);
-    await linkMovieToList(listId, m.id!);
-    setInList(await getMoviesInList(listId));
-    setBusy(false);
+    try {
+      await linkMovieToList(listId, m.id!);
+      setInList(await getMoviesInList(listId));
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function handleRemove(m: Movie) {
     setBusy(true);
-    await unlinkMovieFromList(listId, m.id!);
-    setInList(await getMoviesInList(listId));
-    setBusy(false);
+    try {
+      await unlinkMovieFromList(listId, m.id!);
+      setInList(await getMoviesInList(listId));
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function handleRename() {
@@ -96,9 +86,12 @@ export default function ListDetailPage() {
     const name = prompt("Byt namn på listan:", list.name);
     if (!name || !name.trim() || name === list.name) return;
     setBusy(true);
-    await renameList(list.id!, name.trim());
-    setList(await getListById(listId));
-    setBusy(false);
+    try {
+      await renameList(list.id!, name.trim());
+      setList(await getListById(listId));
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function handleDelete() {
@@ -110,15 +103,35 @@ export default function ListDetailPage() {
     )
       return;
     setBusy(true);
-    await deleteList(list.id!);
-    nav("/collections");
+    try {
+      await deleteList(list.id!);
+      nav("/movie/collections");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  if (notFound) {
+    return (
+      <section className="p-4">
+        <div className="flex items-center gap-2 mb-2">
+          <Link to="/movie/collections" className="chip">
+            <ArrowLeft size={16} /> Tillbaka
+          </Link>
+          <h1 className="text-2xl font-semibold">Listan hittades inte</h1>
+        </div>
+        <p className="text-sand-300">
+          Antingen finns den inte, eller så var länken ogiltig.
+        </p>
+      </section>
+    );
   }
 
   return (
     <section className="p-4 space-y-3">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <Link to="/collections" className="chip">
+          <Link to="/movie/collections" className="chip">
             <ArrowLeft size={16} />
             Tillbaka
           </Link>
@@ -142,9 +155,7 @@ export default function ListDetailPage() {
       <div className="card p-4">
         <h2 className="font-semibold mb-2">
           Filmer i listan{" "}
-          <span className="text-sand-300 text-sm">
-            ({inList.length} st)
-          </span>
+          <span className="text-sand-300 text-sm">({inList.length} st)</span>
         </h2>
 
         {inList.length === 0 ? (
