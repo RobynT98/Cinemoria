@@ -24,6 +24,7 @@ html, body, #root { height: 100%; }
 .scope-book  { --accent: #2e7d32; } /* böcker = skogsgrön */
 .scope-game  { --accent: #2563eb; } /* spel = blå */
 .scope-home  { --accent: #a855f7; } /* hem = lila */
+.scope-profile { --accent: #6b7280; } /* ~gray-500 */
 /* ────────────────────────────────────────────────────────────
    Komponenter (neutral baseline = ljust läge)
 ────────────────────────────────────────────────────────────── */
