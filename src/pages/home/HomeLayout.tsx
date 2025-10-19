@@ -4,7 +4,7 @@ import { Home as HomeIcon, HelpCircle } from "lucide-react";
 
 export default function HomeLayout() {
   return (
-    // Egen scope för Hem
+    // Egen scope så var(--accent) blir lila på Hem
     <div className="scope-home min-h-full flex flex-col">
       <header
         className={clsx(
