@@ -1,4 +1,4 @@
-// src/pages/ProfilePage.tsx
+// src/pages/profile/ProfilePage.tsx
 import { exportJson, importJson, wipeAll } from "@/db";
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useThemeStore } from "@/store/themeStore";
@@ -93,8 +93,22 @@ export default function ProfilePage() {
     try {
       const text = await file.text();
       const res = await importJson(text);
+
+      // Res kan (utifrån db.ts) innehålla dessa fält:
+      // addedMovies, addedLists, addedLinks, addedBooks, addedBookLists, addedBookLinks
+      const {
+        addedMovies = 0,
+        addedLists = 0,
+        addedLinks = 0,
+        addedBooks = 0,
+        addedBookLists = 0,
+        addedBookLinks = 0,
+      } = (res ?? {}) as any;
+
       setMsg(
-        `Import: filmer +${res.addedMovies}, listor +${res.addedLists}, kopplingar +${res.addedLinks}.`
+        `Import klar:
+• Filmer +${addedMovies}, Listor +${addedLists}, Film-kopplingar +${addedLinks}
+• Böcker +${addedBooks}, Boklistor +${addedBookLists}, Bok-kopplingar +${addedBookLinks}`
       );
     } catch (e: any) {
       setMsg(e?.message || "Import misslyckades");
@@ -104,7 +118,7 @@ export default function ProfilePage() {
   async function handleWipe() {
     if (
       !confirm(
-        "Rensa all din data? (Filmer, listor och kopplingar tas bort. Appen ligger kvar.)"
+        "Rensa all din data? (Filmer, listor, kopplingar, böcker och boklistor tas bort. Appen ligger kvar.)"
       )
     )
       return;
@@ -187,7 +201,7 @@ export default function ProfilePage() {
             onChange={(e) => e.target.files?.[0] && handleImport(e.target.files[0])}
           />
         </div>
-        {msg && <div className="text-sand-300 text-sm">{msg}</div>}
+        {msg && <div className="text-sand-300 text-sm whitespace-pre-line">{msg}</div>}
       </div>
 
       {/* Länk till instruktioner */}
