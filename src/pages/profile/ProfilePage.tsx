@@ -1,90 +1,242 @@
-// src/pages/InstructionsPage.tsx
+// src/pages/profile/ProfilePage.tsx
+import { exportJson, importJson, wipeAll } from "@/db";
+import { useEffect, useRef, useState, useCallback } from "react";
+import { useThemeStore } from "@/store/themeStore";
 import { Link } from "react-router-dom";
 
-export default function InstructionsPage() {
-  return (
-    <section className="p-4 space-y-4">
-      <header className="mb-2">
-        <h1 className="text-2xl font-semibold">Instruktioner</h1>
-        <p className="text-sand-300">
-          En snabbguide till <strong>Cinemoria</strong>. All data sparas lokalt (IndexedDB)
-          och appen funkar offline efter första laddningen.
-        </p>
-      </header>
+// Inofficiell typ för beforeinstallprompt-eventet
+type BeforeInstallPromptEvent = Event & {
+prompt: () => Promise<void>;
+userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
+};
 
-      {/* Kom igång */}
-      <article className="card p-4 space-y-3">
-        <h2 className="font-semibold">Kom igång</h2>
-        <ul className="list-disc pl-6 space-y-1 text-sand-300">
-          <li>Tryck <Link to="/movie/add" className="underline">Lägg till film</Link> för att spara din första titel.</li>
-          <li>Skapa <Link to="/movie/collections" className="underline">filmsamlingar</Link> (t.ex. Hylla A, Favoriter).</li>
-          <li>Motsvarande finns för <Link to="/book" className="underline">böcker</Link> och <Link to="/game" className="underline">spel</Link>.</li>
-          <li>Under <Link to="/profile" className="underline">Profil</Link> kan du exportera/importera backup (JSON) och byta tema.</li>
-        </ul>
-        <div className="flex gap-2 pt-1 flex-wrap">
-          <Link to="/movie/add" className="btn btn-primary">+ Ny film</Link>
-          <Link to="/book/add" className="btn">+ Ny bok</Link>
-          <Link to="/game/add" className="btn">+ Nytt spel</Link>
-        </div>
-      </article>
+export default function ProfilePage() {
+const fileRef = useRef<HTMLInputElement>(null);
+const [msg, setMsg] = useState<string | null>(null);
+const { theme, setTheme } = useThemeStore();
 
-      {/* Lägga till & redigera */}
-      <article className="card p-4 space-y-3">
-        <h2 className="font-semibold">Lägga till & redigera</h2>
-        <ol className="list-decimal pl-6 space-y-1 text-sand-300">
-          <li>Fyll i titel, valfritt år och genrer.</li>
-          <li>Markera <span className="chip">Ägd</span>, <span className="chip">Digital</span> eller <span className="chip">Önskelista</span>.</li>
-          <li>För film: format (UHD/Blu-ray/DVD), region, videostandard m.m.</li>
-          <li>Spara. Senaste poster syns på respektive startsida.</li>
-        </ol>
-      </article>
+// ---- PWA Install state ----
+const deferredRef = useRef<BeforeInstallPromptEvent | null>(null);
+const [isInstallable, setInstallable] = useState(false);
+const [installed, setInstalled] = useState(false);
+const [isIOS, setIsIOS] = useState(false);
 
-      {/* Listor */}
-      <article className="card p-4 space-y-3">
-        <h2 className="font-semibold">Samlingar (listor)</h2>
-        <p className="text-sand-300">
-          Skapa valfria listor: “Hylla B”, “Att köpa”, “Halloween”. Antalet objekt visas direkt.
-        </p>
-        <div className="flex gap-2 flex-wrap">
-          <Link to="/movie/collections" className="btn">Film-listor</Link>
-          <Link to="/book/collections" className="btn">Bok-listor</Link>
-          <Link to="/game/collections" className="btn">Spel-listor</Link>
-        </div>
-      </article>
+// Är vi redan i standalone?
+const checkStandalone = useCallback(() => {
+const standaloneMedia = window.matchMedia?.("(display-mode: standalone)")?.matches;
+// iOS Safari (old school)
+const iosStandalone = (navigator as any).standalone;
+return Boolean(standaloneMedia || iosStandalone);
+}, []);
 
-      {/* Sök & filter */}
-      <article className="card p-4 space-y-3">
-        <h2 className="font-semibold">Sök & filter</h2>
-        <p className="text-sand-300">
-          Hitta via titel, genrer, och metadata. Filtrera på ägd/digital/önskelista
-          och (för film) format.
-        </p>
-        <div className="flex gap-2 flex-wrap">
-          <Link to="/movie/search" className="btn">Sök film</Link>
-          <Link to="/book/search" className="btn">Sök bok</Link>
-          <Link to="/game/search" className="btn">Sök spel</Link>
-        </div>
-      </article>
+useEffect(() => {
+setInstalled(checkStandalone());
 
-      {/* Backup */}
-      <article className="card p-4 space-y-3">
-        <h2 className="font-semibold">Backup & flytta data</h2>
-        <ul className="list-disc pl-6 space-y-1 text-sand-300">
-          <li><strong>Exportera</strong> skapar en JSON med alla filmer/böcker/spel och listkopplingar.</li>
-          <li><strong>Importera</strong> lägger till innehållet från en tidigare export (dubbletter kan uppstå).</li>
-          <li><strong>Rensa allt</strong> tar bort lokal data (appen ligger kvar).</li>
-        </ul>
-        <Link to="/profile" className="btn">Öppna Profil</Link>
-      </article>
+const onBIP = (e: Event) => {  
+  e.preventDefault();  
+  deferredRef.current = e as BeforeInstallPromptEvent;  
+  setInstallable(true);  
+};  
+const onInstalled = () => {  
+  deferredRef.current = null;  
+  setInstallable(false);  
+  setInstalled(true);  
+};  
 
-      {/* PWA */}
-      <article className="card p-4 space-y-3">
-        <h2 className="font-semibold">Installera som app (PWA)</h2>
-        <p className="text-sand-300">
-          I stödda webbläsare: välj <em>Installera</em> / <em>Lägg till på startskärmen</em>.
-          Då körs Cinemoria helskärm och fungerar offline.
-        </p>
-      </article>
-    </section>
-  );
+window.addEventListener("beforeinstallprompt", onBIP);  
+window.addEventListener("appinstalled", onInstalled);  
+
+// Uppdatera installed om display-mode ändras (Chrome m.fl.)  
+const mm = window.matchMedia?.("(display-mode: standalone)");  
+const onMM = () => setInstalled(checkStandalone());  
+mm?.addEventListener?.("change", onMM);  
+
+// iOS-koll  
+const ua = navigator.userAgent;  
+setIsIOS(/iPad|iPhone|iPod/.test(ua) && !("MSStream" in window));  
+
+return () => {  
+  window.removeEventListener("beforeinstallprompt", onBIP);  
+  window.removeEventListener("appinstalled", onInstalled);  
+  mm?.removeEventListener?.("change", onMM);  
+};
+
+}, [checkStandalone]);
+
+const handleInstall = useCallback(async () => {
+const ev = deferredRef.current;
+if (!ev) return;
+await ev.prompt();
+try {
+const choice = await ev.userChoice;
+if (choice.outcome === "accepted") {
+deferredRef.current = null;
+setInstallable(false);
+}
+} catch {
+// användaren avbröt – inget att göra
+}
+}, []);
+
+// ---- Backup / Import / Wipe ----
+async function handleExport() {
+const data = await exportJson();
+const blob = new Blob([data], { type: "application/json" });
+const url = URL.createObjectURL(blob);
+const a = document.createElement("a");
+a.href = url;
+a.download = cinemoria-backup-${new Date().toISOString().slice(0, 10)}.json;
+a.click();
+URL.revokeObjectURL(url);
+}
+
+async function handleImport(file: File) {
+try {
+const text = await file.text();
+const res = await importJson(text);
+
+// Res kan (utifrån db.ts) innehålla dessa fält:  
+  // addedMovies, addedLists, addedLinks, addedBooks, addedBookLists, addedBookLinks  
+  const {  
+    addedMovies = 0,  
+    addedLists = 0,  
+    addedLinks = 0,  
+    addedBooks = 0,  
+    addedBookLists = 0,  
+    addedBookLinks = 0,  
+  } = (res ?? {}) as any;  
+
+  setMsg(  
+    `Import klar:
+
+• Filmer +${addedMovies}, Listor +${addedLists}, Film-kopplingar +${addedLinks}
+• Böcker +${addedBooks}, Boklistor +${addedBookLists}, Bok-kopplingar +${addedBookLinks}`
+);
+} catch (e: any) {
+setMsg(e?.message || "Import misslyckades");
+}
+}
+
+async function handleWipe() {
+if (
+!confirm(
+"Rensa all din data? (Filmer, listor, kopplingar, böcker och boklistor tas bort. Appen ligger kvar.)"
+)
+)
+return;
+await wipeAll();
+setMsg("All data rensad.");
+}
+
+return (
+<section className="p-4">
+<h1 className="text-2xl font-semibold mb-3">Profil & Inställningar</h1>
+
+{/* Installera som app */}  
+  {!installed && (  
+    <>  
+      {isInstallable ? (  
+        <div className="card p-4 mb-4">  
+          <div className="flex items-center justify-between gap-3">  
+            <div>  
+              <h2 className="font-semibold">Installera som app</h2>  
+              <p className="text-sand-300 text-sm">Fungerar offline och startar helskärm.</p>  
+            </div>  
+            <button className="btn btn-primary" onClick={handleInstall}>  
+              Installera  
+            </button>  
+          </div>  
+        </div>  
+      ) : isIOS ? (  
+        <div className="card p-4 mb-4">  
+          <h2 className="font-semibold mb-1">Installera på iPhone/iPad</h2>  
+          <p className="text-sand-300 text-sm">  
+            Öppna delnings-menyn och välj{" "}  
+            <span className="font-semibold">“Lägg till på hemskärmen”</span>.  
+          </p>  
+        </div>  
+      ) : null}  
+    </>  
+  )}  
+
+  {/* Tema */}  
+  <div className="card p-4 mb-4 space-y-3">  
+    <h2 className="font-semibold">Tema</h2>  
+    <p className="text-sand-300 text-sm">Välj mellan mörkt, ljust eller sepia.</p>  
+    <div className="flex gap-2 flex-wrap">  
+      <button  
+        className={`btn ${theme === "dark" ? "btn-primary" : ""}`}  
+        onClick={() => setTheme("dark")}  
+      >  
+        Mörkt  
+      </button>  
+      <button  
+        className={`btn ${theme === "light" ? "btn-primary" : ""}`}  
+        onClick={() => setTheme("light")}  
+      >  
+        Ljust  
+      </button>  
+      <button  
+        className={`btn ${theme === "sepia" ? "btn-primary" : ""}`}  
+        onClick={() => setTheme("sepia")}  
+      >  
+        Sepia  
+      </button>  
+    </div>  
+  </div>  
+
+  {/* Backup */}  
+  <div className="card p-4 mb-2 space-y-3">  
+    <h2 className="font-semibold">Backup</h2>  
+    <div className="flex gap-2 flex-wrap">  
+      <button className="btn btn-primary" onClick={handleExport}>  
+        Exportera JSON  
+      </button>  
+      <button className="btn" onClick={() => fileRef.current?.click()}>  
+        Importera JSON  
+      </button>  
+      <input  
+        ref={fileRef}  
+        type="file"  
+        accept="application/json"  
+        className="hidden"  
+        onChange={(e) => e.target.files?.[0] && handleImport(e.target.files[0])}  
+      />  
+    </div>  
+    {msg && <div className="text-sand-300 text-sm whitespace-pre-line">{msg}</div>}  
+  </div>  
+
+  {/* Länk till instruktioner */}  
+  <div className="card p-4 mb-4">  
+    <h2 className="font-semibold mb-2">Behöver du hjälp?</h2>  
+    <p className="text-sand-300 text-sm mb-2">  
+      Läs en kort guide med tips om hur du använder appen.  
+    </p>  
+    <Link to="/instructions" className="btn">  
+      Instruktioner  
+    </Link>  
+  </div>  
+
+  {/* Datahantering */}  
+  <div className="card p-4 mb-4">  
+    <h2 className="font-semibold">Datahantering</h2>  
+    <p className="text-sand-300 text-sm mb-2">  
+      Behöver du börja om från noll? Du kan rensa all lokal data.  
+    </p>  
+    <button className="btn" onClick={handleWipe}>  
+      Rensa allt  
+    </button>  
+  </div>  
+
+  {/* Om-appen */}  
+  <div className="text-sand-300 text-sm">  
+    <ul className="list-disc pl-6 space-y-1">  
+      <li>App: Cinemoria v0.6.0</li>  
+      <li>Lagring: Offline (IndexedDB). Ingen server krävs.</li>  
+      <li>Plattform: GitHub Pages.</li>  
+    </ul>  
+  </div>  
+</section>
+
+);
 }
