@@ -1,5 +1,5 @@
 // src/pages/book/BookAdd.tsx
-import BookForm from "@/components/book/BookForm";
+import BookForm from "@/components/BookForm";
 import { addBook } from "@/db";
 import { useNavigate } from "react-router-dom";
 
@@ -14,7 +14,7 @@ export default function BookAdd() {
         onSubmit={async (data) => {
           await addBook(data);
           alert("Bok sparad!");
-          navigate("/book"); // samma upplevelse som spel/film
+          navigate("/book");
         }}
       />
     </section>
