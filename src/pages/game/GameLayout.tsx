@@ -36,6 +36,7 @@ function Tab({
   return (
     <NavLink
       to={to}
+      end={to === "."} // exakt /game
       className={({ isActive }) =>
         clsx(
           "inline-flex items-center gap-1 px-3 py-1.5 rounded-full border text-sm transition",
@@ -44,6 +45,7 @@ function Tab({
             : "border-sand-300 text-ink-700 hover:bg-sand-200 dark:border-ink-700 dark:text-sand-200 dark:hover:bg-ink-800 sepia:border-[#d8c6a2] sepia:hover:bg-[#f3e8c7]"
         )
       }
+      aria-label={label}
     >
       {icon}<span>{label}</span>
     </NavLink>
