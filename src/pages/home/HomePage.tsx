@@ -1,24 +1,25 @@
 // src/pages/home/HomePage.tsx
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { db, Movie, getLists, getListCounts } from "@/db";
+import { db, type Movie, type Book, type Game } from "@/db";
 import MovieCard from "@/components/MovieCard";
+import BookCard from "@/components/BookCard";
+import GameCard from "@/components/game/GameCard";
 
-type ListPreview = { id: number; name: string; count: number; createdAt: number };
+type Stats = { total: number; owned: number; digital: number; wish: number; lists: number };
 
 export default function HomePage() {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
-  const [recent, setRecent] = useState<Movie[]>([]);
-  const [movieStats, setMovieStats] = useState({
-    total: 0,
-    owned: 0,
-    digital: 0,
-    wish: 0,
-    lists: 0,
-  });
-  const [listsPreview, setListsPreview] = useState<ListPreview[]>([]);
+
+  const [movieStats, setMovieStats] = useState<Stats>({ total: 0, owned: 0, digital: 0, wish: 0, lists: 0 });
+  const [bookStats, setBookStats]   = useState<Stats>({ total: 0, owned: 0, digital: 0, wish: 0, lists: 0 });
+  const [gameStats, setGameStats]   = useState<Stats>({ total: 0, owned: 0, digital: 0, wish: 0, lists: 0 });
+
+  const [recentMovies, setRecentMovies] = useState<Movie[]>([]);
+  const [recentBooks,  setRecentBooks]  = useState<Book[]>([]);
+  const [recentGames,  setRecentGames]  = useState<Game[]>([]);
 
   useEffect(() => {
     let alive = true;
@@ -26,57 +27,60 @@ export default function HomePage() {
     (async () => {
       try {
         const [
-          total,
-          owned,
-          digital,
-          wish,
-          listsCount,
-          recentMovies,
-          lists,
-          listCounts,
+          // Film
+          mvTotal, mvOwned, mvDigital, mvWish, mvLists, mvRecent,
+          // Bok
+          bkTotal, bkOwned, bkDigital, bkWish, bkLists, bkRecent,
+          // Spel
+          gmTotal, gmOwned, gmDigital, gmWish, gmLists, gmRecent,
         ] = await Promise.all([
+          // ----- FILM -----
           db.movies.count(),
           db.movies.filter((m) => !!m.owned).count(),
           db.movies.filter((m) => !!m.digital).count(),
           db.movies.filter((m) => !!m.wishlisted).count(),
           db.lists.count(),
-          db.movies.orderBy("createdAt").reverse().limit(12).toArray(),
-          getLists(),
-          getListCounts(),
+          db.movies.orderBy("createdAt").reverse().limit(4).toArray(),
+
+          // ----- BÖCKER -----
+          db.books.count(),
+          db.books.filter((b) => !!b.owned).count(),
+          db.books.filter((b) => !!b.digital).count(),
+          db.books.filter((b) => !!b.wishlisted).count(),
+          db.bookLists.count(),
+          db.books.orderBy("createdAt").reverse().limit(4).toArray(),
+
+          // ----- SPEL -----
+          db.games.count(),
+          db.games.filter((g) => !!g.owned).count(),
+          db.games.filter((g) => !!g.digital).count(),
+          db.games.filter((g) => !!g.wishlisted).count(),
+          db.gameLists.count(),
+          db.games.orderBy("createdAt").reverse().limit(4).toArray(),
         ]);
 
         if (!alive) return;
 
-        setMovieStats({ total, owned, digital, wish, lists: listsCount });
-        setRecent(recentMovies);
+        setMovieStats({ total: mvTotal, owned: mvOwned, digital: mvDigital, wish: mvWish, lists: mvLists });
+        setBookStats ({ total: bkTotal, owned: bkOwned, digital: bkDigital, wish: bkWish, lists: bkLists });
+        setGameStats ({ total: gmTotal, owned: gmOwned, digital: gmDigital, wish: gmWish, lists: gmLists });
 
-        // Senaste 3 listorna (med antal)
-        const withCounts: ListPreview[] = lists
-          .map((l) => ({
-            id: l.id as number,
-            name: l.name,
-            createdAt: l.createdAt,
-            count: (listCounts as any)[String(l.id)] ?? 0,
-          }))
-          .sort((a, b) => b.createdAt - a.createdAt)
-          .slice(0, 3);
-
-        setListsPreview(withCounts);
+        setRecentMovies(mvRecent);
+        setRecentBooks(bkRecent);
+        setRecentGames(gmRecent);
       } finally {
         if (alive) setLoading(false);
       }
     })();
 
-    return () => {
-      alive = false;
-    };
+    return () => { alive = false; };
   }, []);
 
-  const showEmptyWelcome =
-    !loading && movieStats.total === 0 && movieStats.lists === 0;
+  const totallyEmpty =
+    !loading && movieStats.total === 0 && bookStats.total === 0 && gameStats.total === 0;
 
   return (
-    <section className="p-4 space-y-4">
+    <section className="p-4 space-y-6">
       {/* Hero */}
       <header>
         <h1 className="text-2xl font-semibold">Cinemoria</h1>
@@ -85,7 +89,7 @@ export default function HomePage() {
         </p>
       </header>
 
-      {/* Välj sektion / Snabbstart */}
+      {/* Snabbstart */}
       <div className="card p-4">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
@@ -102,80 +106,122 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Nyckeltal – film (bok/spel kommer efter DB-migration) */}
-      <section className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
-        <StatCard label="Filmer" value={movieStats.total} />
-        <StatCard label="Ägda (film)" value={movieStats.owned} />
-        <StatCard label="Digitalt (film)" value={movieStats.digital} />
-        <StatCard label="Önskelista (film)" value={movieStats.wish} />
-        <StatCard label="Listor (film)" value={movieStats.lists} />
-      </section>
+      {/* FILM */}
+      <Section
+        title="Filmer"
+        stats={movieStats}
+        onAdd={() => navigate("/movie/add")}
+        onSearch={() => navigate("/movie/search")}
+        onLists={() => navigate("/movie/collections")}
+        recent={
+          <div className="space-y-3">
+            {recentMovies.map((m) => <MovieCard key={m.id} movie={m} />)}
+            {!loading && recentMovies.length === 0 && <EmptyLine label="Inga filmer ännu." />}
+          </div>
+        }
+      />
 
-      {/* Tomt läge – snabb CTA till film */}
-      {showEmptyWelcome && (
+      {/* BÖCKER */}
+      <Section
+        title="Böcker"
+        stats={bookStats}
+        onAdd={() => navigate("/book/add")}
+        onSearch={() => navigate("/book/search")}
+        onLists={() => navigate("/book/collections")}
+        recent={
+          <div className="space-y-3">
+            {recentBooks.map((b) => <BookCard key={b.id} book={b} />)}
+            {!loading && recentBooks.length === 0 && <EmptyLine label="Inga böcker ännu." />}
+          </div>
+        }
+      />
+
+      {/* SPEL */}
+      <Section
+        title="Spel"
+        stats={gameStats}
+        onAdd={() => navigate("/game/add")}
+        onSearch={() => navigate("/game/search")}
+        onLists={() => navigate("/game/collections")}
+        recent={
+          <div className="space-y-3">
+            {recentGames.map((g) => (
+              <GameCard
+                key={g.id}
+                id={g.id}
+                title={g.title}
+                platform={g.platform}
+                year={g.year}
+                coverUrl={g.coverUrl}
+                owned={g.owned}
+                digital={g.digital}
+                wishlisted={g.wishlisted}
+                to={`/game/edit/${g.id}`}
+              />
+            ))}
+            {!loading && recentGames.length === 0 && <EmptyLine label="Inga spel ännu." />}
+          </div>
+        }
+      />
+
+      {/* Tomt heltläge */}
+      {totallyEmpty && (
         <div className="card p-4">
           <h3 className="font-semibold mb-1">Din hylla väntar ✨</h3>
           <p className="text-sand-300 text-sm mb-3">
-            Lägg till din första film eller importera en JSON-backup via Profil.
+            Börja i den sektion som känns roligast. Du kan alltid importera en JSON-backup via Profil.
           </p>
           <div className="flex gap-2 flex-wrap">
-            <button className="btn btn-primary" onClick={() => navigate("/movie/add")}>
-              Lägg till film
-            </button>
+            <button className="btn btn-primary" onClick={() => navigate("/movie/add")}>Lägg till film</button>
+            <button className="btn" onClick={() => navigate("/book/add")}>Lägg till bok</button>
+            <button className="btn" onClick={() => navigate("/game/add")}>Lägg till spel</button>
             <Link to="/profile" className="btn">Importera backup</Link>
           </div>
         </div>
       )}
+    </section>
+  );
+}
 
-      {/* Mina filmhyllor – snabb översikt */}
-      {listsPreview.length > 0 && (
-        <section className="card p-4">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="font-semibold">Mina filmhyllor</h2>
-            <Link to="/movie/collections" className="text-sm hover:underline">Visa alla</Link>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            {listsPreview.map((l) => (
-              <Link
-                key={l.id}
-                to={`/movie/collections/${l.id}`}
-                className="chip no-underline hover:opacity-90 flex items-center justify-between"
-              >
-                <span className="truncate">{l.name}</span>
-                <span className="text-xs opacity-80">
-                  {l.count} film{l.count === 1 ? "" : "er"}
-                </span>
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
+/* ====== Små helpers ====== */
 
-      {/* Senast tillagda (film) */}
-      <section>
-        <div className="flex items-center justify-between">
-          <h2 className="font-semibold mb-2">Senast tillagda (film)</h2>
-          <Link to="/movie/search" className="text-sm hover:underline">Visa alla</Link>
+function Section({
+  title,
+  stats,
+  onAdd,
+  onSearch,
+  onLists,
+  recent,
+}: {
+  title: string;
+  stats: { total: number; owned: number; digital: number; wish: number; lists: number };
+  onAdd(): void;
+  onSearch(): void;
+  onLists(): void;
+  recent: React.ReactNode;
+}) {
+  return (
+    <section className="space-y-3">
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-semibold">{title}</h2>
+        <div className="flex gap-2">
+          <button className="btn" onClick={onSearch}>Sök</button>
+          <button className="btn" onClick={onAdd}>Lägg till</button>
+          <button className="btn" onClick={onLists}>Listor</button>
         </div>
-        <div className="space-y-3">
-          {recent.map((m) => (
-            <MovieCard key={m.id} movie={m} />
-          ))}
-          {!loading && recent.length === 0 && (
-            <div className="text-sand-300 text-sm">Inga filmer ännu.</div>
-          )}
-        </div>
-      </section>
+      </div>
 
-      {/* Snabbgenvägar */}
-      <div className="card p-4">
-        <h3 className="font-semibold mb-2">Genvägar</h3>
-        <div className="flex gap-2 flex-wrap">
-          <button className="btn" onClick={() => navigate("/movie/search")}>Sök film</button>
-          <button className="btn" onClick={() => navigate("/movie/add")}>Lägg till film</button>
-          <button className="btn" onClick={() => navigate("/movie/collections")}>Filmhyllor</button>
-          <Link className="btn" to="/profile">Profil & backup</Link>
-        </div>
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+        <StatCard label="Totalt" value={stats.total} />
+        <StatCard label="Ägda" value={stats.owned} />
+        <StatCard label="Digitalt" value={stats.digital} />
+        <StatCard label="Önskelista" value={stats.wish} />
+        <StatCard label="Listor" value={stats.lists} />
+      </div>
+
+      <div>
+        <h3 className="font-semibold mb-2">Senast tillagda</h3>
+        {recent}
       </div>
     </section>
   );
@@ -188,4 +234,8 @@ function StatCard({ label, value }: { label: string; value: number }) {
       <div className="text-sand-300 text-xs">{label}</div>
     </div>
   );
+}
+
+function EmptyLine({ label }: { label: string }) {
+  return <div className="text-sand-300 text-sm">{label}</div>;
 }
