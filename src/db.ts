@@ -188,7 +188,7 @@ class CinemoriaDB extends Dexie {
         }
       });
 
-    // v4 – böcker (första versionen)
+    // v4 – böcker
     this.version(4)
       .stores({
         movies:
@@ -197,9 +197,6 @@ class CinemoriaDB extends Dexie {
         movieList: "++id, movieId, listId",
         books:
           "++id, title, author, year, createdAt, owned, wishlisted, digital, format, isbn",
-      })
-      .upgrade(async (tx) => {
-        await tx.table<Book>("books").toCollection().modify(() => {});
       });
 
     // v5 – böcker: extra fält + index
@@ -211,9 +208,6 @@ class CinemoriaDB extends Dexie {
         movieList: "++id, movieId, listId",
         books:
           "++id, title, author, year, createdAt, owned, wishlisted, digital, format, isbn, language, pages, publisher",
-      })
-      .upgrade(async (tx) => {
-        await tx.table<Book>("books").toCollection().modify(() => {});
       });
 
     // v6 – boklistor
@@ -229,7 +223,7 @@ class CinemoriaDB extends Dexie {
       bookList: "++id, bookId, listId",
     });
 
-    // v7 – spel (egen tabell)
+    // v7 – spel
     this.version(7).stores({
       movies:
         "++id, title, year, createdAt, owned, wishlisted, digital, format, region, videoStandard, barcode, edition, releaseYear",
@@ -638,7 +632,7 @@ export async function exportJson(): Promise<string> {
   );
 }
 
-// Exportera subset (film) – t.ex. bara ägda/önskelista eller urval av id:n
+/** Exportera ett subset av filmer, med bara berörda listor/links. */
 export async function exportSubset(opts: {
   owned?: boolean;
   wishlisted?: boolean;
@@ -646,98 +640,233 @@ export async function exportSubset(opts: {
   ids?: number[];
 }) {
   const { owned, wishlisted, digital, ids } = opts;
-  let q = db.movies.toCollection();
+  let col = db.movies.toCollection();
 
   if (ids?.length) {
-    q = db.movies.where("id").anyOf(ids as number[]);
+    col = db.movies.where("id").anyOf(ids as number[]);
   } else {
-    if (owned !== undefined) q = q.filter((m) => !!m.owned === owned);
-    if (wishlisted !== undefined) q = q.filter((m) => !!m.wishlisted === wishlisted);
-    if (digital !== undefined) q = q.filter((m) => !!m.digital === digital);
+    if (owned !== undefined) col = col.filter((m) => !!m.owned === owned);
+    if (wishlisted !== undefined) col = col.filter((m) => !!m.wishlisted === wishlisted);
+    if (digital !== undefined) col = col.filter((m) => !!m.digital === digital);
   }
 
-  const movies = await q.toArray();
-  const [
-    lists, links, books, bookLists, bookLinks, games, gameLists, gameLinks
-  ] = await Promise.all([
-    db.lists.toArray(),
-    db.movieList.toArray(),
-    db.books.toArray(),
-    db.bookLists.toArray(),
-    db.bookList.toArray(),
-    db.games.toArray(),
-    db.gameLists.toArray(),
-    db.gameList.toArray(),
-  ]);
+  const movies = await col.toArray();
+
+  // Endast länkar som rör dessa filmer
+  const movieIds = new Set(movies.map(m => m.id!));
+  const allLinks = await db.movieList.toArray();
+  const links = allLinks.filter(l => movieIds.has(l.movieId));
+
+  // Endast listor som förekommer i länkarna
+  const listIds = new Set(links.map(l => l.listId));
+  const lists = (await db.lists.toArray()).filter(l => listIds.has(l.id!));
 
   return JSON.stringify(
-    { movies, lists, links, books, bookLists, bookLinks, games, gameLists, gameLinks },
-    null, 2
+    { movies, lists, links, books: [], bookLists: [], bookLinks: [], games: [], gameLists: [], gameLinks: [] },
+    null,
+    2
   );
 }
 
-export async function importJson(json: string) {
-  const {
-    movies = [],
-    lists = [],
-    links = [],
-    books = [],
-    bookLists = [],
-    bookLinks = [],
-    games = [],
-    gameLists = [],
-    gameLinks = [],
-  } = JSON.parse(json || "{}");
+/**
+ * Importera JSON-export (samtliga entiteter).
+ * - Upsert-likt: försöker hitta befintligt (barcode, annars title+year)
+ * - Lägger annars till nytt objekt (ignorerar inkommande id)
+ * - Återskapar list-länkar via id-mappar
+ * Returnerar counters för UI-feedback.
+ */
+export async function importJson(text: string) {
+  const data = JSON.parse(text || "{}") as {
+    movies?: Movie[];
+    lists?: List[];
+    links?: MovieListLink[];
+    books?: Book[];
+    bookLists?: BookList[];
+    bookLinks?: BookListLink[];
+    games?: Game[];
+    gameLists?: GameList[];
+    gameLinks?: GameListLink[];
+  };
 
-  let addedMovies = 0,
-    addedLists = 0,
-    addedLinks = 0,
-    addedBooks = 0,
-    addedBookLists = 0,
-    addedBookLinks = 0,
-    addedGames = 0,
-    addedGameLists = 0,
-    addedGameLinks = 0;
+  const moviesIn = data.movies ?? [];
+  const listsIn = data.lists ?? [];
+  const linksIn = data.links ?? [];
+
+  const booksIn = data.books ?? [];
+  const bookListsIn = data.bookLists ?? [];
+  const bookLinksIn = data.bookLinks ?? [];
+
+  const gamesIn = data.games ?? [];
+  const gameListsIn = data.gameLists ?? [];
+  const gameLinksIn = data.gameLinks ?? [];
+
+  let addedMovies = 0, addedLists = 0, addedLinks = 0;
+  let addedBooks = 0, addedBookLists = 0, addedBookLinks = 0;
+  let addedGames = 0, addedGameLists = 0, addedGameLinks = 0;
 
   await db.transaction(
     "rw",
-    [db.movies, db.lists, db.movieList, db.books, db.bookLists, db.bookList, db.games, db.gameLists, db.gameList],
+    db.movies, db.lists, db.movieList,
+    db.books, db.bookLists, db.bookList,
+    db.games, db.gameLists, db.gameList,
     async () => {
-      for (const m of movies) {
-        const copy = { ...m }; delete (copy as any).id;
-        await db.movies.add(copy); addedMovies++;
+      // ID-mappar från import-id -> lokalt id
+      const movieIdMap = new Map<number, number>();
+      const listIdMap = new Map<number, number>();
+      const bookIdMap = new Map<number, number>();
+      const bookListIdMap = new Map<number, number>();
+      const gameIdMap = new Map<number, number>();
+      const gameListIdMap = new Map<number, number>();
+
+      // Helpers
+      const findMovie = async (m: Movie) => {
+        if (m.barcode) {
+          const hit = await db.movies.where("barcode").equals(m.barcode).first();
+          if (hit?.id) return hit.id;
+        }
+        const hit = await db.movies
+          .filter(x => (x.title || "").toLowerCase() === (m.title || "").toLowerCase()
+            && (x.year || 0) === (m.year || 0))
+          .first();
+        return hit?.id;
+      };
+
+      const findBook = async (b: Book) => {
+        if (b.isbn) {
+          const hit = await db.books.where("isbn").equals(b.isbn).first();
+          if (hit?.id) return hit.id;
+        }
+        const hit = await db.books
+          .filter(x => (x.title || "").toLowerCase() === (b.title || "").toLowerCase()
+            && (x.author || "").toLowerCase() === (b.author || "").toLowerCase()
+            && (x.year || 0) === (b.year || 0))
+          .first();
+        return hit?.id;
+      };
+
+      const findGame = async (g: Game) => {
+        const hit = await db.games
+          .filter(x => (x.title || "").toLowerCase() === (g.title || "").toLowerCase()
+            && (x.platform || "").toLowerCase() === (g.platform || "").toLowerCase()
+            && (x.year || 0) === (g.year || 0))
+          .first();
+        return hit?.id;
+      };
+
+      const getOrCreateList = async (name: string) => {
+        const existing = await db.lists.where("name").equals(name).first();
+        if (existing?.id) return existing.id;
+        const id = await db.lists.add({ name, createdAt: Date.now() });
+        addedLists++;
+        return id;
+      };
+
+      const getOrCreateBookList = async (name: string) => {
+        const existing = await db.bookLists.where("name").equals(name).first();
+        if (existing?.id) return existing.id;
+        const id = await db.bookLists.add({ name, createdAt: Date.now() });
+        addedBookLists++;
+        return id;
+      };
+
+      const getOrCreateGameList = async (name: string) => {
+        const existing = await db.gameLists.where("name").equals(name).first();
+        if (existing?.id) return existing.id;
+        const id = await db.gameLists.add({ name, createdAt: Date.now() });
+        addedGameLists++;
+        return id;
+      };
+
+      // 1) Filmer
+      for (const m of moviesIn) {
+        const foundId = await findMovie(m);
+        let localId = foundId;
+        if (!localId) {
+          const copy = { ...m };
+          delete (copy as any).id;
+          copy.createdAt = copy.createdAt || Date.now();
+          localId = await db.movies.add(copy);
+          addedMovies++;
+        }
+        movieIdMap.set(m.id!, localId!);
       }
-      for (const l of lists) {
-        const copy = { ...l }; delete (copy as any).id;
-        await db.lists.add(copy); addedLists++;
+
+      // 2) Film-listor
+      for (const l of listsIn) {
+        const localId = await getOrCreateList(l.name.trim());
+        listIdMap.set(l.id!, localId);
       }
-      for (const x of links) {
-        const copy = { ...x }; delete (copy as any).id;
-        await db.movieList.add(copy); addedLinks++;
+
+      // 3) Film-länkar
+      for (const link of linksIn) {
+        const movieLocal = movieIdMap.get(link.movieId);
+        const listLocal = listIdMap.get(link.listId);
+        if (!movieLocal || !listLocal) continue;
+        const exists = await db.movieList.where({ movieId: movieLocal, listId: listLocal }).first();
+        if (!exists) {
+          await db.movieList.add({ movieId: movieLocal, listId: listLocal } as any);
+          addedLinks++;
+        }
       }
-      for (const b of books) {
-        const copy = { ...b }; delete (copy as any).id;
-        await db.books.add(copy); addedBooks++;
+
+      // 4) Böcker
+      for (const b of booksIn) {
+        const foundId = await findBook(b);
+        let localId = foundId;
+        if (!localId) {
+          const copy = { ...b };
+          delete (copy as any).id;
+          copy.createdAt = copy.createdAt || Date.now();
+          localId = await db.books.add(copy);
+          addedBooks++;
+        }
+        bookIdMap.set(b.id!, localId!);
       }
-      for (const bl of bookLists) {
-        const copy = { ...bl }; delete (copy as any).id;
-        await db.bookLists.add(copy); addedBookLists++;
+
+      // 5) Boklistor + länkar
+      for (const l of bookListsIn) {
+        const localId = await getOrCreateBookList(l.name.trim());
+        bookListIdMap.set(l.id!, localId);
       }
-      for (const y of bookLinks) {
-        const copy = { ...y }; delete (copy as any).id;
-        await db.bookList.add(copy); addedBookLinks++;
+      for (const link of bookLinksIn) {
+        const bookLocal = bookIdMap.get(link.bookId);
+        const listLocal = bookListIdMap.get(link.listId);
+        if (!bookLocal || !listLocal) continue;
+        const exists = await db.bookList.where({ bookId: bookLocal, listId: listLocal }).first();
+        if (!exists) {
+          await db.bookList.add({ bookId: bookLocal, listId: listLocal } as any);
+          addedBookLinks++;
+        }
       }
-      for (const g of games) {
-        const copy = { ...g }; delete (copy as any).id;
-        await db.games.add(copy); addedGames++;
+
+      // 6) Spel
+      for (const g of gamesIn) {
+        const foundId = await findGame(g);
+        let localId = foundId;
+        if (!localId) {
+          const copy = { ...g };
+          delete (copy as any).id;
+          copy.createdAt = copy.createdAt || Date.now();
+          localId = await db.games.add(copy);
+          addedGames++;
+        }
+        gameIdMap.set(g.id!, localId!);
       }
-      for (const gl of gameLists) {
-        const copy = { ...gl }; delete (copy as any).id;
-        await db.gameLists.add(copy); addedGameLists++;
+
+      // 7) Spellistor + länkar
+      for (const l of gameListsIn) {
+        const localId = await getOrCreateGameList(l.name.trim());
+        gameListIdMap.set(l.id!, localId);
       }
-      for (const z of gameLinks) {
-        const copy = { ...z }; delete (copy as any).id;
-        await db.gameList.add(copy); addedGameLinks++;
+      for (const link of gameLinksIn) {
+        const gameLocal = gameIdMap.get(link.gameId);
+        const listLocal = gameListIdMap.get(link.listId);
+        if (!gameLocal || !listLocal) continue;
+        const exists = await db.gameList.where({ gameId: gameLocal, listId: listLocal }).first();
+        if (!exists) {
+          await db.gameList.add({ gameId: gameLocal, listId: listLocal } as any);
+          addedGameLinks++;
+        }
       }
     }
   );
@@ -745,24 +874,29 @@ export async function importJson(json: string) {
   return {
     addedMovies, addedLists, addedLinks,
     addedBooks, addedBookLists, addedBookLinks,
-    addedGames, addedGameLists, addedGameLinks
+    addedGames, addedGameLists, addedGameLinks,
   };
 }
 
+/** Töm allt lokalt innehåll (appens DB-struktur ligger kvar). */
 export async function wipeAll() {
   await db.transaction(
     "rw",
-    [db.movies, db.lists, db.movieList, db.books, db.bookLists, db.bookList, db.games, db.gameLists, db.gameList],
+    db.movies, db.lists, db.movieList,
+    db.books, db.bookLists, db.bookList,
+    db.games, db.gameLists, db.gameList,
     async () => {
-      await db.movies.clear();
-      await db.lists.clear();
       await db.movieList.clear();
-      await db.books.clear();
-      await db.bookLists.clear();
+      await db.lists.clear();
+      await db.movies.clear();
+
       await db.bookList.clear();
-      await db.games.clear();
-      await db.gameLists.clear();
+      await db.bookLists.clear();
+      await db.books.clear();
+
       await db.gameList.clear();
+      await db.gameLists.clear();
+      await db.games.clear();
     }
   );
 }
