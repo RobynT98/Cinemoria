@@ -5,140 +5,72 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Cinemoria</title>
 
-    <!-- PWA/meta -->
     <meta name="theme-color" content="#c18a47" />
     <link rel="manifest" href="manifest.webmanifest" />
     <link rel="icon" href="favicon.ico" />
 
-    <!-- Tema: sätt tidigt (stöd för dark/light/sepia) -->
+    <!-- Tema tidigt -->
     <script>
       (function () {
         try {
           var root = document.documentElement;
-          var t = localStorage.getItem('cm_theme'); // 'dark' | 'light' | 'sepia' | null
+          var t = localStorage.getItem('cm_theme');
           root.classList.remove('dark', 'sepia');
           if (t === 'dark') root.classList.add('dark');
           else if (t === 'sepia') root.classList.add('sepia');
-          else {
-            var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-            if (prefersDark) root.classList.add('dark');
-          }
+          else if (window.matchMedia('(prefers-color-scheme: dark)').matches)
+            root.classList.add('dark');
         } catch {}
       })();
     </script>
 
-    <!-- Splash styles (enkel och snabb) -->
+    <!-- Minimal direkt-stil så splashen visas direkt -->
     <style>
-      :root { --splash-bg: #ffffff; }
-      .dark { --splash-bg: #1f2429; }   /* ink-900-ish */
-      .sepia { --splash-bg: #f5e6c5; }
-
-      /* Fullscreen overlay */
+      html, body, #splash { margin: 0; padding: 0; height: 100%; }
       #splash {
         position: fixed;
         inset: 0;
         display: grid;
         place-items: center;
-        background: var(--splash-bg);
-        z-index: 9999;
-        opacity: 1;
-        transition: opacity .35s ease;
+        background: #ffffff;
       }
-      /* Bild/ikon animation */
-      #splash .logo {
-        width: 120px;
-        height: 120px;
-        border-radius: 24px;
-        /* reducera hårda kanter lite i dark */
-        box-shadow: 0 8px 30px rgba(0,0,0,.15);
-        opacity: 0;
-        transform: translateY(6px) scale(.98);
-        animation: splash-in .4s ease forwards;
-      }
-      @keyframes splash-in {
-        to {
-          opacity: 1;
-          transform: translateY(0) scale(1);
-        }
-      }
-      /* Stäng animation */
-      #splash.hide {
-        opacity: 0;
-        pointer-events: none;
-      }
-      /* Respekt för “reduce motion” */
-      @media (prefers-reduced-motion: reduce) {
-        #splash,
-        #splash .logo {
-          animation: none !important;
-          transition: none !important;
-          transform: none !important;
-          opacity: 1 !important;
-        }
-      }
+      .dark #splash { background: #1f2429; }
+      .sepia #splash { background: #f5e6c5; }
     </style>
   </head>
 
   <body class="h-full">
-    <!-- Enkel splash-overlay. Relativ sökväg funkar både lokalt och på GitHub Pages med Vite base. -->
     <div id="splash" aria-hidden="true">
       <img class="logo" src="icons/icon-192.png" alt="Cinemoria" />
     </div>
 
     <div id="root" class="h-full"></div>
 
-    <!-- SPA GitHub Pages redirect fix -->
-    <script>
-      (function () {
-        const p = new URLSearchParams(location.search);
-        if (p.get("redirect") === "1" && location.hash.startsWith("#")) {
-          try {
-            const original = decodeURIComponent(location.hash.slice(1));
-            history.replaceState(null, "", original);
-          } catch {}
-        }
-      })();
-    </script>
-
-    <!-- Ladda appen (Vite reskriver med base=/Cinemoria/ i build) -->
     <script type="module" src="/src/main.tsx"></script>
 
-    <!-- Stäng splash när appen är redo (fallbacks inkluderade) -->
+    <!-- Splash fade ut -->
     <script>
       (function () {
-        var splash = document.getElementById('splash');
+        const splash = document.getElementById('splash');
         if (!splash) return;
 
         function hideSplash() {
-          if (!splash || splash.classList.contains('hide')) return;
           splash.classList.add('hide');
-          // rensa från DOM efter transition
-          splash.addEventListener('transitionend', function () {
-            splash && splash.remove();
-          }, { once: true });
+          splash.addEventListener('transitionend', () => splash.remove(), { once: true });
         }
 
-        // 1) När fönstret har laddat allt
-        window.addEventListener('load', function () {
-          // liten delay så användaren hinner se ikonen kort
-          setTimeout(hideSplash, 150);
-        });
+        window.addEventListener('load', () => setTimeout(hideSplash, 150));
 
-        // 2) Om React root börjar fyllas – stäng splash (snabbare)
-        try {
-          var root = document.getElementById('root');
-          if (root && 'MutationObserver' in window) {
-            var obs = new MutationObserver(function (list) {
-              if (root && root.childElementCount > 0) {
-                hideSplash();
-                obs.disconnect();
-              }
-            });
-            obs.observe(root, { childList: true });
-          }
-        } catch {}
+        if ('MutationObserver' in window) {
+          const obs = new MutationObserver(() => {
+            if (document.getElementById('root')?.childElementCount) {
+              hideSplash();
+              obs.disconnect();
+            }
+          });
+          obs.observe(document.getElementById('root'), { childList: true });
+        }
 
-        // 3) Stenhård timeout ifall något går snett
         setTimeout(hideSplash, 2000);
       })();
     </script>
