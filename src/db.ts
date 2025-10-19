@@ -701,9 +701,7 @@ export async function importJson(json: string) {
 
   await db.transaction(
     "rw",
-    db.movies, db.lists, db.movieList,
-    db.books, db.bookLists, db.bookList,
-    db.games, db.gameLists, db.gameList,
+    [db.movies, db.lists, db.movieList, db.books, db.bookLists, db.bookList, db.games, db.gameLists, db.gameList],
     async () => {
       for (const m of movies) {
         const copy = { ...m }; delete (copy as any).id;
@@ -754,18 +752,14 @@ export async function importJson(json: string) {
 export async function wipeAll() {
   await db.transaction(
     "rw",
-    db.movies, db.lists, db.movieList,
-    db.books, db.bookLists, db.bookList,
-    db.games, db.gameLists, db.gameList,
+    [db.movies, db.lists, db.movieList, db.books, db.bookLists, db.bookList, db.games, db.gameLists, db.gameList],
     async () => {
       await db.movies.clear();
       await db.lists.clear();
       await db.movieList.clear();
-
       await db.books.clear();
       await db.bookLists.clear();
       await db.bookList.clear();
-
       await db.games.clear();
       await db.gameLists.clear();
       await db.gameList.clear();
