@@ -98,15 +98,33 @@ export interface BookListLink {
   listId: number;
 }
 
+/* ---------- Typer: Spel ---------- */
+
+export interface Game {
+  id?: number;
+  title: string;
+  year?: number;
+  platform?: string;     // "PS5", "Switch", "PC"...
+  coverUrl?: string;
+  owned?: boolean;
+  digital?: boolean;
+  wishlisted?: boolean;
+  notes?: string;
+  createdAt: number;
+}
+
 /* ---------- Dexie DB ---------- */
 
 class CinemoriaDB extends Dexie {
   movies!: Table<Movie, number>;
   lists!: Table<List, number>;
   movieList!: Table<MovieListLink, number>;
+
   books!: Table<Book, number>;
   bookLists!: Table<BookList, number>;
   bookList!: Table<BookListLink, number>;
+
+  games!: Table<Game, number>; // ⬅️ NY
 
   constructor() {
     super("cinemoria");
@@ -193,6 +211,22 @@ class CinemoriaDB extends Dexie {
         "++id, title, author, year, createdAt, owned, wishlisted, digital, format, isbn, language, pages, publisher",
       bookLists: "++id, name, createdAt",
       bookList: "++id, bookId, listId",
+    });
+
+    // v7 – spel (egen tabell)
+    this.version(7).stores({
+      movies:
+        "++id, title, year, createdAt, owned, wishlisted, digital, format, region, videoStandard, barcode, edition, releaseYear",
+      lists: "++id, name, createdAt",
+      movieList: "++id, movieId, listId",
+
+      books:
+        "++id, title, author, year, createdAt, owned, wishlisted, digital, format, isbn, language, pages, publisher",
+      bookLists: "++id, name, createdAt",
+      bookList: "++id, bookId, listId",
+
+      games:
+        "++id, title, platform, year, createdAt, owned, digital, wishlisted",
     });
   }
 }
@@ -437,18 +471,74 @@ export async function unlinkBookFromList(listId: number, bookId: number) {
   if (row?.id) await db.bookList.delete(row.id);
 }
 
+/* ---------- Spel: CRUD & sök ---------- */
+
+export async function addGame(game: Omit<Game, "id" | "createdAt">) {
+  const id = await db.games.add({ ...game, createdAt: Date.now() });
+  return id;
+}
+
+export async function updateGame(id: number, patch: Partial<Game>) {
+  await db.games.update(id, patch);
+}
+
+export async function deleteGame(id: number) {
+  await db.games.delete(id);
+}
+
+export async function getGame(id: number) {
+  return db.games.get(id);
+}
+
+export async function getGames() {
+  return db.games.orderBy("createdAt").reverse().toArray();
+}
+
+export async function getRecentGames(limit = 20) {
+  return db.games.orderBy("createdAt").reverse().limit(limit).toArray();
+}
+
+export async function searchGames(opts: {
+  text?: string;
+  platform?: string;
+  owned?: boolean;
+  digital?: boolean;
+  wishlisted?: boolean;
+}) {
+  const { text, platform, owned, digital, wishlisted } = opts;
+  let col = db.games.toCollection();
+
+  if (owned !== undefined) col = col.filter((g) => !!g.owned === owned);
+  if (digital !== undefined) col = col.filter((g) => !!g.digital === digital);
+  if (wishlisted !== undefined) col = col.filter((g) => !!g.wishlisted === wishlisted);
+  if (platform && platform.trim())
+    col = col.filter((g) => (g.platform || "").toLowerCase() === platform.trim().toLowerCase());
+
+  if (text && text.trim()) {
+    const q = text.trim().toLowerCase();
+    col = col.filter((g) => {
+      if (g.title?.toLowerCase().includes(q)) return true;
+      if (g.platform?.toLowerCase().includes(q)) return true;
+      return false;
+    });
+  }
+
+  return col.toArray();
+}
+
 /* ---------- Export / Import / Wipe ---------- */
 
 export async function exportJson(): Promise<string> {
-  const [movies, lists, links, books, bookLists, bookLinks] = await Promise.all([
+  const [movies, lists, links, books, bookLists, bookLinks, games] = await Promise.all([
     db.movies.toArray(),
     db.lists.toArray(),
     db.movieList.toArray(),
     db.books.toArray(),
     db.bookLists.toArray(),
     db.bookList.toArray(),
+    db.games.toArray(),
   ]);
-  return JSON.stringify({ movies, lists, links, books, bookLists, bookLinks }, null, 2);
+  return JSON.stringify({ movies, lists, links, books, bookLists, bookLinks, games }, null, 2);
 }
 
 // Exportera subset (film) – t.ex. bara ägda/önskelista eller urval av id:n
@@ -470,14 +560,15 @@ export async function exportSubset(opts: {
   }
 
   const movies = await q.toArray();
-  const [lists, links, books, bookLists, bookLinks] = await Promise.all([
+  const [lists, links, books, bookLists, bookLinks, games] = await Promise.all([
     db.lists.toArray(),
     db.movieList.toArray(),
     db.books.toArray(),
     db.bookLists.toArray(),
     db.bookList.toArray(),
+    db.games.toArray(),
   ]);
-  return JSON.stringify({ movies, lists, links, books, bookLists, bookLinks }, null, 2);
+  return JSON.stringify({ movies, lists, links, books, bookLists, bookLinks, games }, null, 2);
 }
 
 export async function importJson(json: string) {
@@ -488,47 +579,71 @@ export async function importJson(json: string) {
     books = [],
     bookLists = [],
     bookLinks = [],
+    games = [],
   } = JSON.parse(json || "{}");
 
-  let addedMovies = 0, addedLists = 0, addedLinks = 0, addedBooks = 0, addedBookLists = 0, addedBookLinks = 0;
+  let addedMovies = 0,
+    addedLists = 0,
+    addedLinks = 0,
+    addedBooks = 0,
+    addedBookLists = 0,
+    addedBookLinks = 0,
+    addedGames = 0;
 
-  await db.transaction("rw", db.movies, db.lists, db.movieList, db.books, db.bookLists, db.bookList, async () => {
-    for (const m of movies) {
-      const copy = { ...m }; delete (copy as any).id;
-      await db.movies.add(copy); addedMovies++;
-    }
-    for (const l of lists) {
-      const copy = { ...l }; delete (copy as any).id;
-      await db.lists.add(copy); addedLists++;
-    }
-    for (const x of links) {
-      const copy = { ...x }; delete (copy as any).id;
-      await db.movieList.add(copy); addedLinks++;
-    }
-    for (const b of books) {
-      const copy = { ...b }; delete (copy as any).id;
-      await db.books.add(copy); addedBooks++;
-    }
-    for (const bl of bookLists) {
-      const copy = { ...bl }; delete (copy as any).id;
-      await db.bookLists.add(copy); addedBookLists++;
-    }
-    for (const y of bookLinks) {
-      const copy = { ...y }; delete (copy as any).id;
-      await db.bookList.add(copy); addedBookLinks++;
-    }
-  });
+  await db.transaction("rw",
+    db.movies, db.lists, db.movieList,
+    db.books, db.bookLists, db.bookList,
+    db.games,
+    async () => {
+      for (const m of movies) {
+        const copy = { ...m }; delete (copy as any).id;
+        await db.movies.add(copy); addedMovies++;
+      }
+      for (const l of lists) {
+        const copy = { ...l }; delete (copy as any).id;
+        await db.lists.add(copy); addedLists++;
+      }
+      for (const x of links) {
+        const copy = { ...x }; delete (copy as any).id;
+        await db.movieList.add(copy); addedLinks++;
+      }
+      for (const b of books) {
+        const copy = { ...b }; delete (copy as any).id;
+        await db.books.add(copy); addedBooks++;
+      }
+      for (const bl of bookLists) {
+        const copy = { ...bl }; delete (copy as any).id;
+        await db.bookLists.add(copy); addedBookLists++;
+      }
+      for (const y of bookLinks) {
+        const copy = { ...y }; delete (copy as any).id;
+        await db.bookList.add(copy); addedBookLinks++;
+      }
+      for (const g of games) {
+        const copy = { ...g }; delete (copy as any).id;
+        await db.games.add(copy); addedGames++;
+      }
+    });
 
-  return { addedMovies, addedLists, addedLinks, addedBooks, addedBookLists, addedBookLinks };
+  return {
+    addedMovies, addedLists, addedLinks,
+    addedBooks, addedBookLists, addedBookLinks,
+    addedGames
+  };
 }
 
 export async function wipeAll() {
-  await db.transaction("rw", db.movies, db.lists, db.movieList, db.books, db.bookLists, db.bookList, async () => {
-    await db.movies.clear();
-    await db.lists.clear();
-    await db.movieList.clear();
-    await db.books.clear();
-    await db.bookLists.clear();
-    await db.bookList.clear();
-  });
+  await db.transaction("rw",
+    db.movies, db.lists, db.movieList,
+    db.books, db.bookLists, db.bookList,
+    db.games,
+    async () => {
+      await db.movies.clear();
+      await db.lists.clear();
+      await db.movieList.clear();
+      await db.books.clear();
+      await db.bookLists.clear();
+      await db.bookList.clear();
+      await db.games.clear();
+    });
 }
