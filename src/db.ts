@@ -1,7 +1,7 @@
 // src/db.ts
 import Dexie, { Table } from "dexie";
 
-/* ---------- Typer ---------- */
+/* ---------- Typer: Film ---------- */
 
 export type Format =
   | "uhd"      // 4K UHD
@@ -47,6 +47,8 @@ export interface Movie {
   notes?: string;
 }
 
+/* ---------- Typer: Listor (film) ---------- */
+
 export interface List {
   id?: number;
   name: string;
@@ -59,12 +61,34 @@ export interface MovieListLink {
   listId: number;
 }
 
+/* ---------- Typer: Böcker ---------- */
+
+export type BookFormat = "paperback" | "hardcover" | "ebook" | "audiobook" | "other";
+
+export interface Book {
+  id?: number;
+  title: string;
+  author?: string;
+  year?: number;
+  genres?: string[];
+  coverUrl?: string;
+  owned?: boolean;
+  wishlisted?: boolean;
+  digital?: boolean;      // e-bok/ljudbok
+  format?: BookFormat;    // ex. hardcover/paperback/ebook/audiobook
+  isbn?: string;
+  language?: string;      // "sv", "en", …
+  notes?: string;
+  createdAt: number;
+}
+
 /* ---------- Dexie DB ---------- */
 
 class CinemoriaDB extends Dexie {
   movies!: Table<Movie, number>;
   lists!: Table<List, number>;
   movieList!: Table<MovieListLink, number>;
+  books!: Table<Book, number>;
 
   constructor() {
     super("cinemoria");
@@ -76,7 +100,7 @@ class CinemoriaDB extends Dexie {
       movieList: "++id, movieId, listId",
     });
 
-    // v2 – samlarfält
+    // v2 – samlarfält (film)
     this.version(2)
       .stores({
         movies:
@@ -95,7 +119,7 @@ class CinemoriaDB extends Dexie {
         }
       });
 
-    // v3 – utgåva/teknik/streckkod + några index
+    // v3 – utgåva/teknik/streckkod + index (film)
     this.version(3)
       .stores({
         movies:
@@ -110,6 +134,22 @@ class CinemoriaDB extends Dexie {
           if (!m.region) m.region = m.format === "digital" ? "NONE" : undefined;
           await table.put(m);
         }
+      });
+
+    // v4 – böcker (egen tabell)
+    this.version(4)
+      .stores({
+        movies:
+          "++id, title, year, createdAt, owned, wishlisted, digital, format, region, videoStandard, barcode, edition, releaseYear",
+        lists: "++id, name, createdAt",
+        movieList: "++id, movieId, listId",
+        books:
+          "++id, title, author, year, createdAt, owned, wishlisted, digital, format, isbn",
+      })
+      .upgrade(async (tx) => {
+        // Inget att migrera från tidigare versioner (ny tabell),
+        // men här skulle vi kunna normalisera data om det behövs framåt.
+        await tx.table<Book>("books").toCollection().modify(() => {});
       });
   }
 }
@@ -187,7 +227,7 @@ export async function searchMovies(opts: {
   return col.toArray();
 }
 
-/* ---------- Listor ---------- */
+/* ---------- Listor (film) ---------- */
 
 export async function createList(name: string) {
   const id = await db.lists.add({ name: name.trim(), createdAt: Date.now() });
@@ -210,10 +250,7 @@ export async function deleteList(id: number) {
   });
 }
 
-/**
- * Returnerar antal filmer per lista.
- * Nycklar är strängar (t.ex. "3") för att spela snällt med UI:t.
- */
+/** Antal filmer per lista (nycklar som strängar för UI-kompat). */
 export async function getListCounts(): Promise<Record<string, number>> {
   const all = await db.movieList.toArray();
   const out: Record<string, number> = {};
@@ -245,18 +282,76 @@ export async function unlinkMovieFromList(listId: number, movieId: number) {
   if (row?.id) await db.movieList.delete(row.id);
 }
 
+/* ---------- Böcker: CRUD & sök ---------- */
+
+export async function addBook(book: Omit<Book, "id" | "createdAt">) {
+  const now = Date.now();
+  const id = await db.books.add({ ...book, createdAt: now });
+  return id;
+}
+
+export async function updateBook(id: number, patch: Partial<Book>) {
+  await db.books.update(id, patch);
+}
+
+export async function deleteBook(id: number) {
+  await db.books.delete(id);
+}
+
+export async function getBook(id: number) {
+  return db.books.get(id);
+}
+
+export async function getBooks() {
+  return db.books.orderBy("createdAt").reverse().toArray();
+}
+
+export async function getRecentBooks(limit = 20) {
+  return db.books.orderBy("createdAt").reverse().limit(limit).toArray();
+}
+
+export async function searchBooks(opts: {
+  text?: string;
+  owned?: boolean;
+  wishlisted?: boolean;
+  digital?: boolean;
+  format?: BookFormat;
+}) {
+  const { text, owned, wishlisted, digital, format } = opts;
+  let col = db.books.toCollection();
+
+  if (owned !== undefined) col = col.filter((b) => !!b.owned === owned);
+  if (wishlisted !== undefined) col = col.filter((b) => !!b.wishlisted === wishlisted);
+  if (digital !== undefined) col = col.filter((b) => !!b.digital === digital);
+  if (format) col = col.filter((b) => b.format === format);
+
+  if (text && text.trim()) {
+    const q = text.trim().toLowerCase();
+    col = col.filter((b) => {
+      if (b.title?.toLowerCase().includes(q)) return true;
+      if (b.author?.toLowerCase().includes(q)) return true;
+      if (b.genres?.some((g) => g.toLowerCase().includes(q))) return true;
+      if (b.isbn?.toLowerCase().includes(q)) return true;
+      return false;
+    });
+  }
+
+  return col.toArray();
+}
+
 /* ---------- Export / Import / Wipe ---------- */
 
 export async function exportJson(): Promise<string> {
-  const [movies, lists, links] = await Promise.all([
+  const [movies, lists, links, books] = await Promise.all([
     db.movies.toArray(),
     db.lists.toArray(),
     db.movieList.toArray(),
+    db.books.toArray(),
   ]);
-  return JSON.stringify({ movies, lists, links }, null, 2);
+  return JSON.stringify({ movies, lists, links, books }, null, 2);
 }
 
-// Exportera subset (t.ex. bara ägda/önskelista eller urval av id:n)
+// Exportera subset (film) – t.ex. bara ägda/önskelista eller urval av id:n
 export async function exportSubset(opts: {
   owned?: boolean;
   wishlisted?: boolean;
@@ -275,15 +370,19 @@ export async function exportSubset(opts: {
   }
 
   const movies = await q.toArray();
-  const [lists, links] = await Promise.all([db.lists.toArray(), db.movieList.toArray()]);
-  return JSON.stringify({ movies, lists, links }, null, 2);
+  const [lists, links, books] = await Promise.all([
+    db.lists.toArray(),
+    db.movieList.toArray(),
+    db.books.toArray(),
+  ]);
+  return JSON.stringify({ movies, lists, links, books }, null, 2);
 }
 
 export async function importJson(json: string) {
-  const { movies = [], lists = [], links = [] } = JSON.parse(json || "{}");
-  let addedMovies = 0, addedLists = 0, addedLinks = 0;
+  const { movies = [], lists = [], links = [], books = [] } = JSON.parse(json || "{}");
+  let addedMovies = 0, addedLists = 0, addedLinks = 0, addedBooks = 0;
 
-  await db.transaction("rw", db.movies, db.lists, db.movieList, async () => {
+  await db.transaction("rw", db.movies, db.lists, db.movieList, db.books, async () => {
     for (const m of movies) {
       const copy = { ...m }; delete (copy as any).id;
       await db.movies.add(copy); addedMovies++;
@@ -296,15 +395,20 @@ export async function importJson(json: string) {
       const copy = { ...x }; delete (copy as any).id;
       await db.movieList.add(copy); addedLinks++;
     }
+    for (const b of books) {
+      const copy = { ...b }; delete (copy as any).id;
+      await db.books.add(copy); addedBooks++;
+    }
   });
 
-  return { addedMovies, addedLists, addedLinks };
+  return { addedMovies, addedLists, addedLinks, addedBooks };
 }
 
 export async function wipeAll() {
-  await db.transaction("rw", db.movies, db.lists, db.movieList, async () => {
+  await db.transaction("rw", db.movies, db.lists, db.movieList, db.books, async () => {
     await db.movies.clear();
     await db.lists.clear();
     await db.movieList.clear();
+    await db.books.clear();
   });
 }
