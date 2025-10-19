@@ -1,12 +1,6 @@
-// src/pages/movie/MovieHome.tsx
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import {
-  db,
-  Movie,
-  getLists,
-  getListCounts,
-} from "@/db";
+import { db, Movie, getLists, getListCounts } from "@/db";
 import MovieCard from "@/components/MovieCard";
 
 type ListPreview = { id: number; name: string; count: number; createdAt: number };
@@ -54,13 +48,12 @@ export default function MovieHome() {
         setStats({ total, owned, digital, wish, lists: listsCount });
         setRecent(recentMovies);
 
-        // Senaste 3 listorna (med antal)
         const withCounts: ListPreview[] = lists
           .map((l) => ({
             id: l.id as number,
             name: l.name,
             createdAt: l.createdAt,
-            count: listCounts[String(l.id)] ?? 0,
+            count: (listCounts as any)[String(l.id)] ?? 0,
           }))
           .sort((a, b) => b.createdAt - a.createdAt)
           .slice(0, 3);
@@ -70,7 +63,9 @@ export default function MovieHome() {
         if (alive) setLoading(false);
       }
     })();
-    return () => { alive = false; };
+    return () => {
+      alive = false;
+    };
   }, []);
 
   const showEmptyWelcome = !loading && stats.total === 0 && stats.lists === 0;
@@ -79,7 +74,7 @@ export default function MovieHome() {
     <section className="p-4 space-y-4">
       {/* Hero */}
       <header>
-        <h1 className="text-2xl font-semibold">Filmer</h1>
+        <h1 className="text-2xl font-semibold">🎬 Filmer</h1>
         <p className="text-sand-300">
           Din samling, dina regler. Spåra ägda, digitala och önskade titlar — helt offline.
         </p>
@@ -129,7 +124,7 @@ export default function MovieHome() {
         </div>
       )}
 
-      {/* Mina listor – snabb översikt */}
+      {/* Mina listor */}
       {listsPreview.length > 0 && (
         <section className="card p-4">
           <div className="flex items-center justify-between mb-2">
