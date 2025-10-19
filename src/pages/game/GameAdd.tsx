@@ -1,10 +1,18 @@
+// src/pages/game/GameAdd.tsx
+import GameForm from "@/components/game/GameForm";
+import { addGame } from "@/db";
+
 export default function GameAdd() {
   return (
-    <div className="card p-4">
-      <h2 className="font-semibold mb-2">Lägg till spel</h2>
-      <p className="text-sand-300 text-sm">
-        Här kommer formulär med t.ex. plattform, edition, digital/butik, status.
-      </p>
-    </div>
+    <section className="p-4">
+      <h1 className="text-2xl font-semibold mb-3">Lägg till spel</h1>
+      <GameForm
+        submitLabel="Spara spel"
+        onSubmit={async (data) => {
+          await addGame(data);
+          alert("Sparat!");
+        }}
+      />
+    </section>
   );
 }
