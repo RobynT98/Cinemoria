@@ -7,9 +7,9 @@ import clsx from "classnames";
 /* Home */
 const HomePage = lazy(() => import("./pages/home/HomePage"));
 
-/* Profile */
+/* Profile + Instructions (fixad sökväg) */
 const ProfilePage = lazy(() => import("./pages/profile/ProfilePage"));
-const InstructionsPage = lazy(() => import("./pages/InstructionsPage"));
+const InstructionsPage = lazy(() => import("./pages/home/InstructionsPage"));
 
 /* Movie */
 const MovieLayout = lazy(() => import("./pages/movie/MovieLayout"));
@@ -25,8 +25,8 @@ const BookLayout = lazy(() => import("./pages/book/BookLayout"));
 const BookHome = lazy(() => import("./pages/book/BookHome"));
 const BookSearch = lazy(() => import("./pages/book/BookSearch"));
 const BookAdd = lazy(() => import("./pages/book/BookAdd"));
-const BookCollections = lazy(() => import("./pages/book/BookCollectionsPage")); // ✅ matchar filnamn
-const BookListDetail = lazy(() => import("./pages/book/BookListDetailPage"));   // ✅ matchar filnamn
+const BookCollections = lazy(() => import("./pages/book/BookCollectionsPage"));
+const BookListDetail = lazy(() => import("./pages/book/BookListDetailPage"));
 const BookEdit = lazy(() => import("./pages/book/BookEdit"));
 
 /* Game (speglar film) */
@@ -34,8 +34,8 @@ const GameLayout = lazy(() => import("./pages/game/GameLayout"));
 const GameHome = lazy(() => import("./pages/game/GameHome"));
 const GameSearch = lazy(() => import("./pages/game/GameSearch"));
 const GameAdd = lazy(() => import("./pages/game/GameAdd"));
-const GameCollections = lazy(() => import("./pages/game/GameCollectionsPage")); // ✅ matchar filnamn
-const GameListDetail = lazy(() => import("./pages/game/GameListDetailPage"));   // ✅ matchar filnamn
+const GameCollections = lazy(() => import("./pages/game/GameCollectionsPage"));
+const GameListDetail = lazy(() => import("./pages/game/GameListDetailPage"));
 const GameEdit = lazy(() => import("./pages/game/GameEdit"));
 
 export default function App() {
