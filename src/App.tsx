@@ -1,30 +1,34 @@
+// src/App.tsx
 import { NavLink, Route, Routes } from "react-router-dom";
 import { Home, Library, User, BookOpen, Gamepad2 } from "lucide-react";
+import { Suspense, lazy } from "react";
 import clsx from "classnames";
 
-// Huvudsidor
-import HomePage from "./pages/home/HomePage";
-import ProfilePage from "./pages/ProfilePage";
+/* Home */
+const HomePage = lazy(() => import("./pages/home/HomePage"));
 
-// Film – återanvänd dina befintliga sidor
-import MovieHub from "./pages/movie/MovieHub";
-import SearchPage from "./pages/SearchPage";
-import AddPage from "./pages/AddPage";
-import CollectionsPage from "./pages/CollectionsPage";
-import ListDetailPage from "./pages/ListDetailPage";
-import EditPage from "./pages/EditPage";
+/* Profile */
+const ProfilePage = lazy(() => import("./pages/profile/ProfilePage")); // flytta filen hit, eller ändra sökvägen tillbaka
 
-// Böcker (nya placeholders)
-import BookHub from "./pages/book/BookHub";
-import BookHome from "./pages/book/BookHome";
-import BookSearch from "./pages/book/BookSearch";
-import BookAdd from "./pages/book/BookAdd";
+/* Movie (återanvänd dina befintliga sidor) */
+const MovieHub = lazy(() => import("./pages/movie/MovieHub"));
+const MovieSearch = lazy(() => import("./pages/movie/SearchPage"));      // flytta filen eller re-exportera
+const MovieAdd = lazy(() => import("./pages/movie/AddPage"));
+const MovieCollections = lazy(() => import("./pages/movie/CollectionsPage"));
+const MovieListDetail = lazy(() => import("./pages/movie/ListDetailPage"));
+const MovieEdit = lazy(() => import("./pages/movie/EditPage"));
 
-// Spel (nya placeholders)
-import GameHub from "./pages/game/GameHub";
-import GameHome from "./pages/game/GameHome";
-import GameSearch from "./pages/game/GameSearch";
-import GameAdd from "./pages/game/GameAdd";
+/* Book (placeholders) */
+const BookHub = lazy(() => import("./pages/book/BookHub"));
+const BookHome = lazy(() => import("./pages/book/BookHome"));
+const BookSearch = lazy(() => import("./pages/book/BookSearch"));
+const BookAdd = lazy(() => import("./pages/book/BookAdd"));
+
+/* Game (placeholders) */
+const GameHub = lazy(() => import("./pages/game/GameHub"));
+const GameHome = lazy(() => import("./pages/game/GameHome"));
+const GameSearch = lazy(() => import("./pages/game/GameSearch"));
+const GameAdd = lazy(() => import("./pages/game/GameAdd"));
 
 export default function App() {
   return (
@@ -37,37 +41,39 @@ export default function App() {
       )}
     >
       <main className="pb-20 max-w-3xl mx-auto px-3">
-        <Routes>
-          {/* Hem */}
-          <Route path="/" element={<HomePage />} />
+        <Suspense fallback={<div className="p-4">Laddar…</div>}>
+          <Routes>
+            {/* Hem */}
+            <Route path="/" element={<HomePage />} />
 
-          {/* Film – hub med undersidor */}
-          <Route path="/movie" element={<MovieHub />}>
-            <Route index element={<SearchPage />} />
-            <Route path="search" element={<SearchPage />} />
-            <Route path="add" element={<AddPage />} />
-            <Route path="collections" element={<CollectionsPage />} />
-            <Route path="collections/:id" element={<ListDetailPage />} />
-            <Route path="edit/:id" element={<EditPage />} />
-          </Route>
+            {/* Film – hub + undersidor */}
+            <Route path="/movie" element={<MovieHub />}>
+              <Route index element={<MovieSearch />} />
+              <Route path="search" element={<MovieSearch />} />
+              <Route path="add" element={<MovieAdd />} />
+              <Route path="collections" element={<MovieCollections />} />
+              <Route path="collections/:id" element={<MovieListDetail />} />
+              <Route path="edit/:id" element={<MovieEdit />} />
+            </Route>
 
-          {/* Böcker – hub med undersidor (placeholder) */}
-          <Route path="/book" element={<BookHub />}>
-            <Route index element={<BookHome />} />
-            <Route path="search" element={<BookSearch />} />
-            <Route path="add" element={<BookAdd />} />
-          </Route>
+            {/* Böcker – hub + undersidor */}
+            <Route path="/book" element={<BookHub />}>
+              <Route index element={<BookHome />} />
+              <Route path="search" element={<BookSearch />} />
+              <Route path="add" element={<BookAdd />} />
+            </Route>
 
-          {/* Spel – hub med undersidor (placeholder) */}
-          <Route path="/game" element={<GameHub />}>
-            <Route index element={<GameHome />} />
-            <Route path="search" element={<GameSearch />} />
-            <Route path="add" element={<GameAdd />} />
-          </Route>
+            {/* Spel – hub + undersidor */}
+            <Route path="/game" element={<GameHub />}>
+              <Route index element={<GameHome />} />
+              <Route path="search" element={<GameSearch />} />
+              <Route path="add" element={<GameAdd />} />
+            </Route>
 
-          {/* Profil */}
-          <Route path="/profile" element={<ProfilePage />} />
-        </Routes>
+            {/* Profil */}
+            <Route path="/profile" element={<ProfilePage />} />
+          </Routes>
+        </Suspense>
       </main>
 
       {/* Bottennavigation – huvudflikar */}
@@ -112,6 +118,7 @@ function NavItem({
             : "text-ink-600 hover:text-ink-900 dark:text-sand-400 dark:hover:text-sand-200 sepia:text-[#6b5637] sepia:hover:text-[#3c2f1b]"
         )
       }
+      end={to === "/"} // gör att 'Hem' bara är aktivt exakt på "/"
     >
       {icon}
       <span>{label}</span>
