@@ -7,7 +7,7 @@ import clsx from "classnames";
 /* Home */
 const HomePage = lazy(() => import("./pages/home/HomePage"));
 
-/* Profile + Instructions (fixad sökväg) */
+/* Profile + Instructions (ligger i pages/home) */
 const ProfilePage = lazy(() => import("./pages/profile/ProfilePage"));
 const InstructionsPage = lazy(() => import("./pages/home/InstructionsPage"));
 
