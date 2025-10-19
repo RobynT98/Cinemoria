@@ -177,33 +177,17 @@ textarea:focus { @apply ring-2 ring-accent-500; }
   transform: translateY(0);
 }
 
-/* Splash animationer och finstil */
-#splash {
-  z-index: 9999;
-  opacity: 1;
-  transition: opacity .35s ease;
-}
-
+/* index.css – splash “fancy” */
 #splash .logo {
-  width: 120px;
-  height: 120px;
-  border-radius: 24px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, .15);
+  /* dessa värden bygger vidare på basen i index.html */
+  box-shadow: 0 8px 30px rgba(0,0,0,.15);
   opacity: 0;
   transform: translateY(6px) scale(.98);
   animation: splash-in .4s ease forwards;
 }
 
 @keyframes splash-in {
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-#splash.hide {
-  opacity: 0;
-  pointer-events: none;
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 @media (prefers-reduced-motion: reduce) {
