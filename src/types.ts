@@ -1,62 +1,138 @@
 // src/types.ts
 
-// --- Filmstatus (för “planerad”, “pågående”, “sett”) ---
-export type MovieStatus = 'planned' | 'watching' | 'watched';
+/* ============================================================
+   FILM
+   ============================================================ */
 
-// --- Fysisk/digital utgåveinfo ---
+export type MovieStatus = "planned" | "watching" | "watched";
+
 export type Format =
-  | 'uhd'      // 4K UHD
-  | 'bluray'
-  | 'dvd'
-  | 'digital'
-  | 'vhs'
-  | 'other';
+  | "uhd"      // 4K UHD
+  | "bluray"
+  | "dvd"
+  | "digital"
+  | "vhs"
+  | "other";
 
-export type VideoStandard = 'PAL' | 'NTSC' | 'SECAM';
+export type VideoStandard = "PAL" | "NTSC" | "SECAM";
 
 export type RegionCode =
-  | 'BD-A' | 'BD-B' | 'BD-C'
-  | 'DVD-1' | 'DVD-2' | 'DVD-3' | 'DVD-4' | 'DVD-5' | 'DVD-6' | 'DVD-ALL'
-  | 'NONE';
+  | "BD-A" | "BD-B" | "BD-C"
+  | "DVD-1" | "DVD-2" | "DVD-3" | "DVD-4" | "DVD-5" | "DVD-6" | "DVD-ALL"
+  | "NONE";
 
-// --- Filmobjekt som lagras i Dexie ---
 export interface Movie {
-  id?: number;                 // Dexie PK (auto)
+  id?: number;
   title: string;
   year?: number;
-
   posterUrl?: string;
   trailerUrl?: string;
+  genres?: string[];
+  tags?: string[];
 
-  genres?: string[];           // exempel: ["Fantasy", "Family"]
-  tags?: string[];             // fria etiketter: ["köpt", "UK-dub", "Steelbook"]
-
-  status?: MovieStatus;        // planned | watching | watched
-  rating?: number;             // 0–10
+  status?: MovieStatus;
+  rating?: number;
   notes?: string;
 
-  // Samlarfält / “inventarie”
-  owned?: boolean;             // äger fysisk/digital
-  wishlisted?: boolean;        // önskelista
-  digital?: boolean;           // digitalt ägd (köp/stream-länk i provider)
-  format?: Format;             // bluray/dvd/uhd/vhs/digital/other
-  location?: string;           // hylla/låda/konto
-  provider?: string;           // t.ex. iTunes/Google/Plex
+  owned?: boolean;
+  wishlisted?: boolean;
+  digital?: boolean;
+  format?: Format;
+  location?: string;
+  provider?: string;
 
-  // Utgåvedetaljer
-  edition?: string;            // "First Press UK", "Steelbook"…
-  releaseYear?: number;        // utgåvans år (inte filmens)
-  cut?: string;                // "Theatrical", "Extended", "Director's Cut"
-  audioVariant?: string;       // "Original UK", "US dub"
-  videoStandard?: VideoStandard; // PAL/NTSC/SECAM
-  region?: RegionCode;         // BD-B, DVD-2 etc (eller NONE för digitalt)
-  barcode?: string;            // EAN/UPC
+  edition?: string;
+  releaseYear?: number;
+  cut?: string;
+  audioVariant?: string;
+  videoStandard?: VideoStandard;
+  region?: RegionCode;
+  barcode?: string;
 
   createdAt: number;
   updatedAt: number;
 }
 
-// --- Listor / kopplingar ---
+/* ============================================================
+   BOK
+   ============================================================ */
+
+export type BookFormat = "paperback" | "hardcover" | "ebook" | "audiobook" | "other";
+
+export interface Book {
+  id?: number;
+  title: string;
+  author?: string;
+  year?: number;
+  coverUrl?: string;
+  genres?: string[];
+  tags?: string[];
+
+  rating?: number;
+  notes?: string;
+
+  owned?: boolean;
+  wishlisted?: boolean;
+  digital?: boolean;
+  format?: BookFormat;
+  isbn?: string;
+  language?: string;
+  pages?: number;
+  publisher?: string;
+  location?: string;
+
+  createdAt: number;
+  updatedAt: number;
+}
+
+/* ============================================================
+   SPEL
+   ============================================================ */
+
+export type GamePlatform =
+  | "PC"
+  | "PlayStation"
+  | "Xbox"
+  | "Switch"
+  | "Mobile"
+  | "Retro"
+  | "Other";
+
+export type GameFormat = "physical" | "digital" | "cartridge" | "disc" | "other";
+
+export type GameStatus = "planned" | "playing" | "completed" | "abandoned";
+
+export interface Game {
+  id?: number;
+  title: string;
+  developer?: string;
+  publisher?: string;
+  year?: number;
+  coverUrl?: string;
+  genres?: string[];
+  tags?: string[];
+
+  status?: GameStatus;
+  rating?: number;
+  notes?: string;
+
+  owned?: boolean;
+  wishlisted?: boolean;
+  digital?: boolean;
+  format?: GameFormat;
+  platform?: GamePlatform;
+  edition?: string;
+  barcode?: string;
+  location?: string;
+
+  createdAt: number;
+  updatedAt: number;
+}
+
+/* ============================================================
+   LISTOR (gemensam struktur för film/bok/spel)
+   ============================================================ */
+
 export interface List {
   id?: number;
   name: string;
@@ -65,8 +141,22 @@ export interface List {
 }
 
 export interface MovieListLink {
-  id?: number;                 // Dexie PK (auto)
+  id?: number;
   movieId: number;
+  listId: number;
+  createdAt: number;
+}
+
+export interface BookListLink {
+  id?: number;
+  bookId: number;
+  listId: number;
+  createdAt: number;
+}
+
+export interface GameListLink {
+  id?: number;
+  gameId: number;
   listId: number;
   createdAt: number;
 }
