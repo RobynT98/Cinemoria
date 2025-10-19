@@ -5,10 +5,19 @@
 /* ────────────────────────────────────────────────────────────
    Bas / tema
 ────────────────────────────────────────────────────────────── */
-:root { 
-  color-scheme: light; 
+:root {
+  color-scheme: light;
+
   /* Default-accent (film fallback) */
   --accent: #d97706; /* amber-600-ish */
+
+  /* Basfärger för knappar (kan överskrivas av tema) */
+  --btn-bg: #f5f5f4;
+  --btn-border: #e5e7eb;
+  --btn-fg: #111827;
+
+  /* Hover/active subtilt */
+  --hover-mult: 0.98;
 }
 .dark  { color-scheme: dark; }
 html, body, #root { height: 100%; }
@@ -18,30 +27,76 @@ html, body, #root { height: 100%; }
 
 /* ────────────────────────────────────────────────────────────
    Scopes per databas (accentkulör)
-   - override med !important så vi vinner över Tailwinds utilities
 ────────────────────────────────────────────────────────────── */
-.scope-movie { --accent: #d97706; } /* film = amber/guld */
-.scope-book  { --accent: #2e7d32; } /* böcker = skogsgrön */
-.scope-game  { --accent: #2563eb; } /* spel = blå */
-.scope-home  { --accent: #a855f7; } /* hem = lila */
-.scope-profile { --accent: #6b7280; } /* ~gray-500 */
+.scope-movie   { --accent: #d97706; } /* film = amber/guld */
+.scope-book    { --accent: #2e7d32; } /* böcker = skogsgrön */
+.scope-game    { --accent: #2563eb; } /* spel = blå */
+.scope-home    { --accent: #a855f7; } /* hem = lila */
+.scope-profile { --accent: #6b7280; } /* profil = grå */
+
 /* ────────────────────────────────────────────────────────────
-   Komponenter (neutral baseline = ljust läge)
+   Knappar – konsekvent baseline + varianter
 ────────────────────────────────────────────────────────────── */
 .btn {
-  @apply inline-flex items-center justify-center px-4 py-2 rounded-2xl font-medium transition;
+  @apply inline-flex items-center justify-center rounded-2xl font-medium transition select-none;
+  @apply px-4 py-2;
+  background-color: var(--btn-bg);
+  color: var(--btn-fg);
+  border: 1px solid var(--btn-border);
 }
+.btn:hover { filter: brightness(var(--hover-mult)); }
+.btn:active { transform: translateY(0.5px); }
+.btn:disabled { opacity: .55; pointer-events: none; }
+
+/* Primär – alltid accent */
 .btn-primary {
-  /* Bakåtkompatibel: använd var(--accent) oavsett tema/scope */
   background-color: var(--accent) !important;
   color: #fff !important;
+  border: 1px solid color-mix(in oklab, var(--accent) 85%, #0000) !important;
   @apply hover:opacity-90 active:opacity-80;
 }
 
+/* Outline – transparens, accentram + accenttext */
+.btn-outline {
+  background-color: transparent !important;
+  color: var(--accent) !important;
+  border: 1px solid var(--accent) !important;
+}
+.btn-outline:hover {
+  background-color: color-mix(in oklab, var(--accent) 10%, #0000) !important;
+}
+
+/* Ghost – ingen ram/bakgrund tills hover */
+.btn-ghost {
+  background-color: transparent !important;
+  color: var(--btn-fg);
+  border: 1px solid transparent !important;
+}
+.btn-ghost:hover {
+  background-color: color-mix(in oklab, var(--accent) 10%, var(--btn-bg)) !important;
+  border-color: color-mix(in oklab, var(--accent) 25%, var(--btn-border)) !important;
+}
+
+/* Soft – subtil bakgrund i accentens ton + tydlig text */
+.btn-soft {
+  background-color: color-mix(in oklab, var(--accent) 16%, var(--btn-bg)) !important;
+  color: color-mix(in oklab, var(--accent) 70%, var(--btn-fg)) !important;
+  border: 1px solid color-mix(in oklab, var(--accent) 28%, var(--btn-border)) !important;
+}
+
+/* Storlekar (valfritt) */
+.btn-sm { @apply px-3 py-1.5 text-sm; border-radius: 1rem; }
+.btn-lg { @apply px-5 py-2.5 text-base; }
+
+/* Ikonknapp (fyrkantig) */
+.btn-icon { @apply p-2 rounded-xl; width: 2.5rem; height: 2.5rem; }
+
+/* ────────────────────────────────────────────────────────────
+   Kort, chip, inputs
+────────────────────────────────────────────────────────────── */
 .card {
   @apply rounded-2xl shadow-card border bg-white border-sand-200 text-ink-900;
 }
-/* LJUST läge: rubriker mörk text */
 .card h2, .card h3 { @apply text-ink-900 font-semibold; }
 
 /* Chip (neutral) */
@@ -49,7 +104,7 @@ html, body, #root { height: 100%; }
   @apply inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full border;
   @apply bg-sand-200 border-sand-300 text-ink-700;
 }
-/* Accent-chip (frivillig klass om du vill färga specifika) */
+/* Accent-chip */
 .chip-accent {
   background-color: color-mix(in oklab, var(--accent) 15%, white) !important;
   border-color: color-mix(in oklab, var(--accent) 25%, #e5e7eb) !important;
@@ -69,28 +124,21 @@ input[type="text"]:focus,
 input[type="number"]:focus,
 input[type="url"]:focus,
 select:focus,
-textarea:focus { 
+textarea:focus {
   box-shadow: 0 0 0 2px var(--accent);
 }
 
-/* “Sekundärknappar” inuti cards */
-.card button { 
-  @apply border;
-  background-color: color-mix(in oklab, var(--accent) 10%, #f5f5f4);
-  border-color: color-mix(in oklab, var(--accent) 25%, #e7e5e4);
-  color: #111827;
-}
-.card button:hover { 
-  background-color: color-mix(in oklab, var(--accent) 16%, #e7e5e4);
-}
-
 /* ────────────────────────────────────────────────────────────
-   Mörkt läge overrides
+   Mörkt läge
 ────────────────────────────────────────────────────────────── */
+.dark {
+  --btn-bg: #1f2429;   /* ink-800 */
+  --btn-border: #374151;
+  --btn-fg: #e5e7eb;
+}
 .dark .card {
   @apply bg-ink-800/70 backdrop-blur border-ink-700 text-sand-100;
 }
-/* MÖRKT läge: rubriker ljus text */
 .dark .card h2, .dark .card h3 { @apply text-sand-100; }
 
 .dark .chip {
@@ -112,25 +160,23 @@ textarea:focus {
 }
 
 .dark .text-sand-300, .dark .text-sand-400 { @apply text-sand-200; }
-
-/* Gör primärknappar mörkt-tema-kompatibla */
-.dark .btn-primary {
-  background-color: var(--accent) !important;
-  color: #fff !important;
-}
+.dark .btn-primary { background-color: var(--accent) !important; color: #fff !important; }
 
 /* ────────────────────────────────────────────────────────────
    Sepia (boksida) – varm men med bra kontrast
 ────────────────────────────────────────────────────────────── */
 .sepia {
   color-scheme: light;
-  --bg-base:   #f4ead5; /* sida */
-  --bg-card:   #efe1bf; /* papper */
-  --ink:       #3b2a15; /* text */
+  --bg-base:   #f4ead5;
+  --bg-card:   #efe1bf;
+  --ink:       #3b2a15;
   --muted:     #7a6846;
   --border:    #e5d5af;
-  /* Låter accent komma från scope men ger fallback för sepia */
-  --accent:    var(--accent, #c18a47);
+
+  /* Knappbas i sepia */
+  --btn-bg: #f3e8c7;
+  --btn-border: var(--border);
+  --btn-fg: var(--ink);
 }
 .sepia body {
   background-color: var(--bg-base);
@@ -163,29 +209,6 @@ textarea:focus {
   color: var(--ink) !important;
 }
 
-/* Knappar */
-.sepia .btn {
-  background-color: #e8d6a4;
-  color: #3b2a15;
-  border: 1px solid #d6c08a;
-  transition: background-color .2s, transform .1s;
-}
-.sepia .btn:hover { background-color: #decb8e; transform: translateY(-1px); }
-.sepia .btn:active { background-color: #d4bf7b; transform: translateY(0); }
-
-/* Primärknapp i sepia följer scope-accent */
-.sepia .btn-primary {
-  background-color: var(--accent) !important;
-  color: #fff !important;
-  border-color: transparent !important;
-}
-.sepia .card button {
-  background-color: #ead8b2;
-  color: var(--ink);
-  border-color: var(--border);
-}
-.sepia .card button:hover { background-color: #e2cea4; }
-
 /* Inputs */
 .sepia input[type="text"],
 .sepia input[type="number"],
@@ -206,8 +229,15 @@ textarea:focus {
 }
 .sepia .text-sand-300, .sepia .text-sand-400 { color: var(--muted); }
 
+/* Primärknapp i sepia följer accent */
+.sepia .btn-primary {
+  background-color: var(--accent) !important;
+  color: #fff !important;
+  border-color: transparent !important;
+}
+
 /* ────────────────────────────────────────────────────────────
-   Små helpers för “tabs” som använder accent
+   Tabs / helpers
 ────────────────────────────────────────────────────────────── */
 .tab-active {
   background-color: var(--accent) !important;
