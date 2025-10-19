@@ -1,12 +1,7 @@
 // src/pages/HomePage.tsx
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import {
-  db,
-  Movie,
-  getLists,
-  getListCounts,
-} from "@/db";
+import { db, Movie, getLists, getListCounts } from "@/db";
 import MovieCard from "@/components/MovieCard";
 
 type ListPreview = { id: number; name: string; count: number; createdAt: number };
@@ -27,6 +22,7 @@ export default function HomePage() {
 
   useEffect(() => {
     let alive = true;
+
     (async () => {
       try {
         const [
@@ -40,9 +36,9 @@ export default function HomePage() {
           listCounts,
         ] = await Promise.all([
           db.movies.count(),
-          db.movies.where("owned").equals(true).count(),
-          db.movies.where("digital").equals(true).count(),
-          db.movies.where("wishlisted").equals(true).count(),
+          db.movies.filter((m) => !!m.owned).count(),
+          db.movies.filter((m) => !!m.digital).count(),
+          db.movies.filter((m) => !!m.wishlisted).count(),
           db.lists.count(),
           db.movies.orderBy("createdAt").reverse().limit(12).toArray(),
           getLists(),
@@ -54,13 +50,13 @@ export default function HomePage() {
         setStats({ total, owned, digital, wish, lists: listsCount });
         setRecent(recentMovies);
 
-        // Bygg en snabb översikt av de senaste 3 listorna (med antal)
+        // Senaste 3 listorna med antal
         const withCounts: ListPreview[] = lists
           .map((l) => ({
-            id: l.id as number,
+            id: (l.id as number),
             name: l.name,
             createdAt: l.createdAt,
-            count: listCounts[String(l.id)] ?? 0,
+            count: listCounts[l.id as number] ?? 0, // <- indexera med number
           }))
           .sort((a, b) => b.createdAt - a.createdAt)
           .slice(0, 3);
@@ -76,8 +72,7 @@ export default function HomePage() {
     };
   }, []);
 
-  const showEmptyWelcome =
-    !loading && stats.total === 0 && stats.lists === 0;
+  const showEmptyWelcome = !loading && stats.total === 0 && stats.lists === 0;
 
   return (
     <section className="p-4 space-y-4">
