@@ -18,8 +18,8 @@ const MovieCollections = lazy(() => import("./pages/movie/CollectionsPage"));
 const MovieListDetail = lazy(() => import("./pages/movie/ListDetailPage"));
 const MovieEdit = lazy(() => import("./pages/movie/EditPage"));
 
-/* Book (placeholders) */
-const BookHub = lazy(() => import("./pages/book/BookHub"));
+/* Book */
+const BookLayout = lazy(() => import("./pages/book/BookLayout"));
 const BookHome = lazy(() => import("./pages/book/BookHome"));
 const BookSearch = lazy(() => import("./pages/book/BookSearch"));
 const BookAdd = lazy(() => import("./pages/book/BookAdd"));
@@ -56,8 +56,8 @@ export default function App() {
               <Route path="edit/:id" element={<MovieEdit />} />
             </Route>
 
-            {/* Böcker */}
-            <Route path="/book" element={<BookHub />}>
+            {/* Böcker – layout + undersidor */}
+            <Route path="/book" element={<BookLayout />}>
               <Route index element={<BookHome />} />
               <Route path="search" element={<BookSearch />} />
               <Route path="add" element={<BookAdd />} />
