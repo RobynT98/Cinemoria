@@ -1,3 +1,4 @@
+// src/pages/game/GameListDetailPage.tsx
 import { useEffect, useMemo, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import {
@@ -46,7 +47,7 @@ export default function GameListDetailPage() {
       base = base.filter(
         (g) =>
           g.title.toLowerCase().includes(needle) ||
-          (g.developer || "").toLowerCase().includes(needle) ||
+          (g.platform || "").toLowerCase().includes(needle) ||
           String(g.year || "").includes(needle)
       );
     }
@@ -121,15 +122,23 @@ export default function GameListDetailPage() {
               .slice()
               .sort((a, b) => a.title.localeCompare(b.title, "sv"))
               .map((g) => (
-                <div key={g.id} className="flex items-center justify-between gap-2 border-b border-ink-700/30 pb-2">
+                <div
+                  key={g.id}
+                  className="flex items-center justify-between gap-2 border-b border-ink-700/30 pb-2"
+                >
                   <div className="min-w-0">
                     <div className="font-medium truncate">{g.title}</div>
                     <div className="text-sand-300 text-xs">
-                      {(g.developer || "Okänd")} {g.year ? `• ${g.year}` : ""}
-                      {g.platform ? ` • ${labelPlatform(g.platform)}` : ""}
+                      {g.platform ? labelPlatform(g.platform) : "Okänd plattform"}{" "}
+                      {g.year ? `• ${g.year}` : ""}
                     </div>
                   </div>
-                  <button className="chip" onClick={() => handleRemove(g)} disabled={busy} title="Ta bort från listan">
+                  <button
+                    className="chip"
+                    onClick={() => handleRemove(g)}
+                    disabled={busy}
+                    title="Ta bort från listan"
+                  >
                     <X size={14} /> Ta bort
                   </button>
                 </div>
@@ -184,13 +193,16 @@ export default function GameListDetailPage() {
   );
 }
 
-function labelPlatform(p?: import("@/db").GamePlatform) {
-  switch (p) {
-    case "pc": return "PC";
-    case "playstation": return "PlayStation";
-    case "xbox": return "Xbox";
-    case "switch": return "Switch";
-    case "mobile": return "Mobil";
-    default: return "Övrigt";
-  }
+function labelPlatform(p?: string) {
+  if (!p) return "Övrigt";
+  const s = p.toLowerCase().trim();
+  if (["pc"].includes(s)) return "PC";
+  if (["ps5", "ps4", "playstation", "playstation 5", "playstation 4"].includes(s))
+    return s.toUpperCase().startsWith("PS") ? s.toUpperCase() : "PlayStation";
+  if (["xbox", "xone", "xbox one", "series", "xbox series", "xsx", "xss"].includes(s))
+    return "Xbox";
+  if (["switch", "nintendo switch", "nsw"].includes(s)) return "Switch";
+  if (["mobile", "ios", "android"].includes(s)) return "Mobil";
+  // fallback – visa originaltext
+  return p;
 }
