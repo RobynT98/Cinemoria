@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getGame, updateGame, type Game } from "@/db";
-import GameForm from "./GameForm";
+import GameForm from "@/components/game/GameForm";
 
 export default function GameEdit() {
   const { id } = useParams();
