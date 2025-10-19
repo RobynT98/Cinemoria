@@ -3,15 +3,30 @@
   <head>
     <meta charset="utf-8" />
     <title>Redirecting…</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <!-- No-JS fallback -->
-    <meta http-equiv="refresh" content="0; url=./index.html?redirect=1#/" />
     <script>
       (function () {
         var l = window.location;
-        var full = l.pathname + l.search + l.hash; // bevara allt
-        // Hoppa till index i samma katalog (Pages under-repo), med payload i hash
-        l.replace("./index.html?redirect=1#" + encodeURIComponent(full));
+
+        // Full original path inkl. query + hash
+        var full = l.pathname + l.search + l.hash;
+
+        // För GitHub Pages projekt-sidor:
+        // /<user>.github.io/<repo>/<rest>
+        // Plocka ut "/<repo>" som base. Om du hostar på root blir base = "".
+        var m = l.pathname.match(/^\/([^\/]+)\//);
+        var base = m ? "/" + m[1] : "";
+
+        // Bygg absolut URL till index.html + bädda in den gamla pathen i hash
+        var target = base + "/index.html?redirect=1#" + encodeURIComponent(full);
+
+        // Meta-refresh för no-JS-klienter
+        var meta = document.createElement("meta");
+        meta.setAttribute("http-equiv", "refresh");
+        meta.setAttribute("content", "0; url=" + target);
+        document.head.appendChild(meta);
+
+        // Och gör en JS-redirect direkt
+        l.replace(target);
       })();
     </script>
   </head>
