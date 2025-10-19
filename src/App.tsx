@@ -1,15 +1,15 @@
-// src/App.tsx
 import { NavLink, Route, Routes } from "react-router-dom";
 import { Home, Library, User, BookOpen, Gamepad2 } from "lucide-react";
 import { Suspense, lazy } from "react";
 import clsx from "classnames";
 
 /* Home */
-const HomePage = lazy(() => import("./pages/home/HomePage"));
-
-/* Profile + Instructions (ligger i pages/home) */
-const ProfilePage = lazy(() => import("./pages/profile/ProfilePage"));
+const HomeLayout = lazy(() => import("./pages/home/HomeLayout"));
+const HomePage   = lazy(() => import("./pages/home/HomePage"));
 const InstructionsPage = lazy(() => import("./pages/home/InstructionsPage"));
+
+/* Profile */
+const ProfilePage = lazy(() => import("./pages/profile/ProfilePage"));
 
 /* Movie */
 const MovieLayout = lazy(() => import("./pages/movie/MovieLayout"));
@@ -20,7 +20,7 @@ const MovieCollections = lazy(() => import("./pages/movie/CollectionsPage"));
 const MovieListDetail = lazy(() => import("./pages/movie/ListDetailPage"));
 const MovieEdit = lazy(() => import("./pages/movie/EditPage"));
 
-/* Book (speglar film) */
+/* Book */
 const BookLayout = lazy(() => import("./pages/book/BookLayout"));
 const BookHome = lazy(() => import("./pages/book/BookHome"));
 const BookSearch = lazy(() => import("./pages/book/BookSearch"));
@@ -29,7 +29,7 @@ const BookCollections = lazy(() => import("./pages/book/BookCollectionsPage"));
 const BookListDetail = lazy(() => import("./pages/book/BookListDetailPage"));
 const BookEdit = lazy(() => import("./pages/book/BookEdit"));
 
-/* Game (speglar film) */
+/* Game */
 const GameLayout = lazy(() => import("./pages/game/GameLayout"));
 const GameHome = lazy(() => import("./pages/game/GameHome"));
 const GameSearch = lazy(() => import("./pages/game/GameSearch"));
@@ -51,10 +51,13 @@ export default function App() {
       <main className="pb-20 max-w-3xl mx-auto px-3">
         <Suspense fallback={<div className="p-4">Laddar…</div>}>
           <Routes>
-            {/* Hem */}
-            <Route path="/" element={<HomePage />} />
+            {/* Hem – egen layout + nested routes */}
+            <Route path="/" element={<HomeLayout />}>
+              <Route index element={<HomePage />} />
+              <Route path="instructions" element={<InstructionsPage />} />
+            </Route>
 
-            {/* Film – layout + undersidor */}
+            {/* Film */}
             <Route path="/movie" element={<MovieLayout />}>
               <Route index element={<MovieHome />} />
               <Route path="search" element={<MovieSearch />} />
@@ -64,7 +67,7 @@ export default function App() {
               <Route path="edit/:id" element={<MovieEdit />} />
             </Route>
 
-            {/* Böcker – layout + undersidor */}
+            {/* Böcker */}
             <Route path="/book" element={<BookLayout />}>
               <Route index element={<BookHome />} />
               <Route path="search" element={<BookSearch />} />
@@ -74,7 +77,7 @@ export default function App() {
               <Route path="edit/:id" element={<BookEdit />} />
             </Route>
 
-            {/* Spel – layout + undersidor */}
+            {/* Spel */}
             <Route path="/game" element={<GameLayout />}>
               <Route index element={<GameHome />} />
               <Route path="search" element={<GameSearch />} />
@@ -84,9 +87,8 @@ export default function App() {
               <Route path="edit/:id" element={<GameEdit />} />
             </Route>
 
-            {/* Profil & instruktioner */}
+            {/* Profil */}
             <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/instructions" element={<InstructionsPage />} />
           </Routes>
         </Suspense>
       </main>
