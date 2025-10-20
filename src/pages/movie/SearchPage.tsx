@@ -11,7 +11,7 @@ export default function MovieSearch() {
   const [filter, setFilter] = useState<Filter>("all");
   const [movies, setMovies] = useState<Movie[]>([]);
 
-  // för detalj-dialog
+  // detalj-dialog
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<Movie | null>(null);
 
@@ -60,10 +60,7 @@ export default function MovieSearch() {
           onChange={(e) => setQuery(e.target.value)}
           type="text"
         />
-        <select
-          value={filter}
-          onChange={(e) => setFilter(e.target.value as Filter)}
-        >
+        <select value={filter} onChange={(e) => setFilter(e.target.value as Filter)}>
           <option value="all">Alla</option>
           <option value="owned">Ägd</option>
           <option value="digital">Digital</option>
@@ -72,11 +69,12 @@ export default function MovieSearch() {
       </div>
 
       {/* Resultatlista */}
-      <div className="space-y-3">
+      <div className="space-y-2">
         {shown.map((m) => (
           <MovieCard
             key={m.id}
             movie={m}
+            compact
             onOpenDetails={() => {
               setSelected(m);
               setOpen(true);
@@ -84,9 +82,7 @@ export default function MovieSearch() {
           />
         ))}
         {shown.length === 0 && (
-          <div className="text-sand-300 text-sm">
-            Inget matchar din filtrering.
-          </div>
+          <div className="text-sand-300 text-sm">Inget matchar din filtrering.</div>
         )}
       </div>
 
