@@ -1,6 +1,8 @@
-// src/types.ts
+/* ============================================================
+   FILM
+   ============================================================ */
 
-/* ---------- Typer: Film ---------- */
+export type MovieStatus = "planned" | "watching" | "watched";
 
 export type Format =
   | "uhd"      // 4K UHD
@@ -21,49 +23,37 @@ export interface Movie {
   id?: number;
   title: string;
   year?: number;
-  genres?: string[];
   posterUrl?: string;
-  seen?: boolean;
-  rating?: number;          // 1–10
   trailerUrl?: string;
-  createdAt: number;
-  updatedAt?: number;
+  genres?: string[];
+  tags?: string[];
 
-  // Samlarinfo
+  status?: MovieStatus;
+  rating?: number;
+  notes?: string;
+
   owned?: boolean;
   wishlisted?: boolean;
   digital?: boolean;
   format?: Format;
-  location?: string;        // hylla/låda/konto
-  provider?: string;        // iTunes/Google/Plex …
+  location?: string;
+  provider?: string;
 
-  // Utgåva/teknik
-  edition?: string;         // "First Press UK", "Steelbook" …
-  releaseYear?: number;     // utgåvans år
-  cut?: string;             // "Theatrical", "Extended" …
-  audioVariant?: string;    // "Original UK", "US dub"
+  edition?: string;
+  releaseYear?: number;
+  cut?: string;
+  audioVariant?: string;
   videoStandard?: VideoStandard;
   region?: RegionCode;
-  barcode?: string;         // EAN/UPC
-  notes?: string;
-}
+  barcode?: string;
 
-/* ---------- Typer: Listor (film) ---------- */
-
-export interface List {
-  id?: number;
-  name: string;
   createdAt: number;
   updatedAt?: number;
 }
 
-export interface MovieListLink {
-  id?: number;
-  movieId: number;
-  listId: number;
-}
-
-/* ---------- Typer: Böcker ---------- */
+/* ============================================================
+   BÖCKER
+   ============================================================ */
 
 export type BookFormat =
   | "paperback"
@@ -77,22 +67,87 @@ export interface Book {
   title: string;
   author?: string;
   year?: number;
-  genres?: string[];
   coverUrl?: string;
+  genres?: string[];
+  tags?: string[];
+
+  rating?: number;
+  notes?: string;
+
   owned?: boolean;
   wishlisted?: boolean;
-  digital?: boolean;   // e-bok/ljudbok
-  format?: BookFormat; // hardcover/paperback/ebook/audiobook/other
+  digital?: boolean;
+  format?: BookFormat;
   isbn?: string;
-  language?: string;   // "sv", "en", …
+  language?: string;
   pages?: number;
   publisher?: string;
-  notes?: string;
+  location?: string;
+
   createdAt: number;
   updatedAt?: number;
 }
 
-/* ---------- Typer: Boklistor ---------- */
+/* ============================================================
+   SPEL
+   ============================================================ */
+
+export type GamePlatform =
+  | "PC"
+  | "PlayStation"
+  | "Xbox"
+  | "Switch"
+  | "Mobile"
+  | "Retro"
+  | "Other";
+
+export type GameFormat = "physical" | "digital" | "cartridge" | "disc" | "other";
+export type GameStatus = "planned" | "playing" | "completed" | "abandoned";
+
+export interface Game {
+  id?: number;
+  title: string;
+  developer?: string;
+  publisher?: string;
+  year?: number;
+  coverUrl?: string;
+  genres?: string[];
+  tags?: string[];
+
+  status?: GameStatus;
+  rating?: number;
+  notes?: string;
+
+  owned?: boolean;
+  wishlisted?: boolean;
+  digital?: boolean;
+  format?: GameFormat;
+  platform?: GamePlatform | string;
+  edition?: string;
+  barcode?: string;
+  location?: string;
+
+  createdAt: number;
+  updatedAt?: number;
+}
+
+/* ============================================================
+   LISTOR (gemensamt)
+   ============================================================ */
+
+export interface List {
+  id?: number;
+  name: string;
+  createdAt: number;
+  updatedAt?: number;
+}
+
+export interface MovieListLink {
+  id?: number;
+  movieId: number;
+  listId: number;
+  createdAt: number;
+}
 
 export interface BookList {
   id?: number;
@@ -100,31 +155,12 @@ export interface BookList {
   createdAt: number;
   updatedAt?: number;
 }
-
 export interface BookListLink {
   id?: number;
   bookId: number;
   listId: number;
-}
-
-/* ---------- Typer: Spel ---------- */
-
-export interface Game {
-  id?: number;
-  title: string;
-  year?: number;
-  platform?: string;     // "PS5", "Switch", "PC"...
-  coverUrl?: string;
-  owned?: boolean;
-  digital?: boolean;
-  wishlisted?: boolean;
-  notes?: string;
-  barcode?: string;      // ✅ för skanning/offline-spar
   createdAt: number;
-  updatedAt?: number;
 }
-
-/* ---------- Typer: Spellistor ---------- */
 
 export interface GameList {
   id?: number;
@@ -132,9 +168,9 @@ export interface GameList {
   createdAt: number;
   updatedAt?: number;
 }
-
 export interface GameListLink {
   id?: number;
   gameId: number;
   listId: number;
+  createdAt: number;
 }
