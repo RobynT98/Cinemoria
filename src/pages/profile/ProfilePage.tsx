@@ -1,4 +1,5 @@
-import { exportJson, importJson, wipeAll } from "@/db";
+// src/pages/profile/ProfilePage.tsx
+import { exportJson, importJson, wipeAll } from "@/lib/backup";
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useThemeStore } from "@/store/themeStore";
 import { Link } from "react-router-dom";
