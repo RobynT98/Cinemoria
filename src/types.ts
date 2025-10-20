@@ -21,6 +21,8 @@ export type RegionCode =
 
 export interface Movie {
   id?: number;
+
+  // Bas
   title: string;
   year?: number;
   posterUrl?: string;
@@ -28,10 +30,14 @@ export interface Movie {
   genres?: string[];
   tags?: string[];
 
+  // Status/omdöme
   status?: MovieStatus;
+  /** Används i UI som “Sett”-chip — separat från status för bakåtkomp. */
+  seen?: boolean;
   rating?: number;
   notes?: string;
 
+  // Ägande/samling
   owned?: boolean;
   wishlisted?: boolean;
   digital?: boolean;
@@ -39,6 +45,7 @@ export interface Movie {
   location?: string;
   provider?: string;
 
+  // Tekniska/utgåve-detaljer
   edition?: string;
   releaseYear?: number;
   cut?: string;
@@ -64,6 +71,8 @@ export type BookFormat =
 
 export interface Book {
   id?: number;
+
+  // Bas
   title: string;
   author?: string;
   year?: number;
@@ -71,12 +80,16 @@ export interface Book {
   genres?: string[];
   tags?: string[];
 
+  // Omdöme/anteckningar
   rating?: number;
   notes?: string;
 
+  // Ägande
   owned?: boolean;
   wishlisted?: boolean;
   digital?: boolean;
+
+  // Metadata
   format?: BookFormat;
   isbn?: string;
   language?: string;
@@ -106,6 +119,8 @@ export type GameStatus = "planned" | "playing" | "completed" | "abandoned";
 
 export interface Game {
   id?: number;
+
+  // Bas
   title: string;
   developer?: string;
   publisher?: string;
@@ -114,16 +129,21 @@ export interface Game {
   genres?: string[];
   tags?: string[];
 
+  // Status/omdöme
   status?: GameStatus;
   rating?: number;
   notes?: string;
 
+  // Ägande
   owned?: boolean;
   wishlisted?: boolean;
   digital?: boolean;
+
+  // Metadata
   format?: GameFormat;
   platform?: GamePlatform | string;
   edition?: string;
+  /** EAN/UPC – används i GameForm */
   barcode?: string;
   location?: string;
 
@@ -142,6 +162,7 @@ export interface List {
   updatedAt?: number;
 }
 
+/* Film-listor */
 export interface MovieListLink {
   id?: number;
   movieId: number;
@@ -149,6 +170,7 @@ export interface MovieListLink {
   createdAt: number;
 }
 
+/* Bok-listor */
 export interface BookList {
   id?: number;
   name: string;
@@ -162,6 +184,7 @@ export interface BookListLink {
   createdAt: number;
 }
 
+/* Spel-listor */
 export interface GameList {
   id?: number;
   name: string;
