@@ -1,7 +1,9 @@
+// src/pages/movie/MovieHome.tsx
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { db, Movie, getLists, getListCounts } from "@/db";
+import { db, type Movie, getLists, getListCounts } from "@/db";
 import MovieCard from "@/components/MovieCard";
+import MovieDetailsDialog from "@/components/MovieDetailsDialog";
 
 type ListPreview = { id: number; name: string; count: number; createdAt: number };
 
@@ -18,6 +20,10 @@ export default function MovieHome() {
     lists: 0,
   });
   const [listsPreview, setListsPreview] = useState<ListPreview[]>([]);
+
+  // För detalj-dialog
+  const [open, setOpen] = useState(false);
+  const [selected, setSelected] = useState<Movie | null>(null);
 
   useEffect(() => {
     let alive = true;
@@ -158,16 +164,28 @@ export default function MovieHome() {
         </div>
         <div className="space-y-3">
           {recent.map((m) => (
-            <MovieCard key={m.id} movie={m} />
+            <MovieCard
+              key={m.id}
+              movie={m}
+              onOpenDetails={() => {
+                setSelected(m);
+                setOpen(true);
+              }}
+            />
           ))}
           {!loading && recent.length === 0 && (
             <div className="text-sand-300 text-sm">Inga filmer ännu.</div>
           )}
         </div>
       </section>
+
+      {/* Detaljvy-dialog */}
+      <MovieDetailsDialog open={open} movie={selected} onClose={() => setOpen(false)} />
     </section>
   );
 }
+
+/* --- Småhjälpare --- */
 
 function StatCard({ label, value }: { label: string; value: number }) {
   return (
