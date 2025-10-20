@@ -96,27 +96,15 @@ export default function GameForm({ initial, submitLabel, onSubmit }: GameFormPro
         <h3 className="font-semibold mb-2">Ägande</h3>
         <div className="flex items-center gap-4 flex-wrap">
           <label className="inline-flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={!!g.owned}
-              onChange={(e) => set("owned", e.target.checked)}
-            />
+            <input type="checkbox" checked={!!g.owned} onChange={(e) => set("owned", e.target.checked)} />
             Ägd
           </label>
           <label className="inline-flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={!!g.digital}
-              onChange={(e) => set("digital", e.target.checked)}
-            />
+            <input type="checkbox" checked={!!g.digital} onChange={(e) => set("digital", e.target.checked)} />
             Digital
           </label>
           <label className="inline-flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={!!g.wishlisted}
-              onChange={(e) => set("wishlisted", e.target.checked)}
-            />
+            <input type="checkbox" checked={!!g.wishlisted} onChange={(e) => set("wishlisted", e.target.checked)} />
             Önskelista
           </label>
         </div>
@@ -133,6 +121,7 @@ export default function GameForm({ initial, submitLabel, onSubmit }: GameFormPro
         />
       </div>
 
+      {/* Actions */}
       <div className="pt-2">
         <button className="btn btn-primary" onClick={save}>
           {submitLabel}
