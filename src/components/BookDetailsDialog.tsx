@@ -35,7 +35,6 @@ export default function BookDetailsDialog({ open, book, onClose }: Props) {
       aria-label={`Detaljer för ${book.title}`}
     >
       <div className="card w-full max-w-2xl p-0 overflow-hidden">
-        {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-ink-700/20">
           <h2 className="font-semibold text-lg truncate">{book.title}</h2>
           <button className="btn btn-ghost btn-icon" onClick={onClose} aria-label="Stäng">
@@ -43,9 +42,7 @@ export default function BookDetailsDialog({ open, book, onClose }: Props) {
           </button>
         </div>
 
-        {/* Body */}
         <div className="p-4 grid grid-cols-1 sm:grid-cols-[120px_1fr] gap-4">
-          {/* Omslag */}
           <div>
             {book.coverUrl ? (
               <img
@@ -61,30 +58,29 @@ export default function BookDetailsDialog({ open, book, onClose }: Props) {
             )}
           </div>
 
-          {/* Text */}
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               {book.author && <span className="chip">{book.author}</span>}
               {book.year && <span className="chip">{book.year}</span>}
               {book.owned && (
-                <span className="chip"><Check className="w-3 h-3" /> Ägd</span>
+                <span className="chip">
+                  <Check className="w-3 h-3" /> Ägd
+                </span>
               )}
-              {book.digital && <span className="chip">Digital</span>}
-              {book.wishlisted && <span className="chip">Önskelista</span>}
               {book.format && <span className="chip">{labelFormat(book.format)}</span>}
               {book.language && <span className="chip">{book.language.toUpperCase()}</span>}
               {book.isbn && <span className="chip">ISBN: {short(book.isbn)}</span>}
-              {book.publisher && <span className="chip">{book.publisher}</span>}
             </div>
 
-            <div className="mt-3 flex gap-2">
+            <div className="mt-3 flex gap-2 flex-wrap">
               {typeof book.id === "number" && (
-                <Link to={`/book/edit/${book.id}`} className="btn btn-primary">Redigera</Link>
+                <Link to={`/book/edit/${book.id}`} className="btn btn-primary">
+                  Redigera
+                </Link>
               )}
             </div>
           </div>
 
-          {/* Anteckningar */}
           {book.notes && (
             <div className="sm:col-span-2">
               <div className="font-semibold mb-1">Anteckningar</div>
@@ -101,10 +97,9 @@ function labelFormat(f?: Book["format"]) {
   switch (f) {
     case "paperback": return "Pocket";
     case "hardcover": return "Inbunden";
-    case "ebook":     return "E-bok";
+    case "ebook": return "E-bok";
     case "audiobook": return "Ljudbok";
-    case "other":
-    default:          return "Övrigt";
+    default: return "Övrigt";
   }
 }
 function short(s: string) {
