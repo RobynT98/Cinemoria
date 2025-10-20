@@ -22,13 +22,8 @@ export default function MovieCard({
   compact = false,
   className,
 }: MovieCardProps) {
-  // Samma ratio som Game/Book (3:4) – styr bredd, lås höjd via aspect
-  const posterWidth = compact ? "w-16" : "w-24";
-  const posterFrame = clsx(
-    posterWidth,
-    "aspect-[3/4] rounded-xl border border-ink-700/30 object-cover"
-  );
-
+  // Samma ratio som Game/Book (3:4)
+  const posterSize = compact ? "w-16 h-24" : "w-24 h-32";
   const containerPad = compact ? "p-2.5" : "p-3";
   const titleCls = clsx("font-semibold truncate", compact && "text-sm");
   const metaCls = clsx("text-sand-300", compact ? "text-xs" : "text-[13px]");
@@ -42,11 +37,11 @@ export default function MovieCard({
         <img
           src={movie.posterUrl}
           alt={movie.title}
-          className={posterFrame}
+          className={clsx(posterSize, "object-cover rounded-xl border border-ink-700/30")}
           loading="lazy"
         />
       ) : (
-        <div className={clsx(posterWidth, "aspect-[3/4] rounded-xl grid place-items-center bg-ink-700/40")}>
+        <div className={clsx(posterSize, "rounded-xl grid place-items-center bg-ink-700/40")}>
           <Film className="opacity-70" />
         </div>
       )}
@@ -72,7 +67,9 @@ export default function MovieCard({
         {!compact && movie.genres?.length ? (
           <div className="mt-1 flex flex-wrap gap-2">
             {movie.genres.map((g) => (
-              <span className="chip" key={g}>{g}</span>
+              <span className="chip" key={g}>
+                {g}
+              </span>
             ))}
           </div>
         ) : null}
@@ -82,23 +79,33 @@ export default function MovieCard({
           {movie.owned && <span className={clsx("chip", chipTight)}>Ägd</span>}
           {movie.digital && <span className={clsx("chip", chipTight)}>Digital</span>}
           {movie.wishlisted && <span className={clsx("chip", chipTight)}>Önskelista</span>}
-          {movie.format && <span className={clsx("chip", chipTight)}>{labelFormat(movie.format)}</span>}
-          {/* Dölj “tunga” metadata i compact, visa i full */}
-          {!compact && movie.region && movie.region !== "NONE" && <span className="chip">{movie.region}</span>}
+          {movie.format && (
+            <span className={clsx("chip", chipTight)}>{labelFormat(movie.format)}</span>
+          )}
+          {/* “Tyngre” metadata döljs i compact */}
+          {!compact && movie.region && movie.region !== "NONE" && (
+            <span className="chip">{movie.region}</span>
+          )}
           {!compact && movie.videoStandard && <span className="chip">{movie.videoStandard}</span>}
           {!compact && movie.edition && <span className="chip">{movie.edition}</span>}
           {!compact && movie.audioVariant && <span className="chip">{movie.audioVariant}</span>}
-          {movie.barcode && <span className={clsx("chip", chipTight)}>EAN: {short(movie.barcode)}</span>}
+          {movie.barcode && (
+            <span className={clsx("chip", chipTight)}>EAN: {short(movie.barcode)}</span>
+          )}
         </div>
 
         {/* Actions – bara i icke-kompakt */}
         {!compact && (
           <div className="mt-3 flex gap-2">
             {typeof movie.id === "number" && (
-              <Link to={`/movie/edit/${movie.id}`} className="btn">Redigera</Link>
+              <Link to={`/movie/edit/${movie.id}`} className="btn">
+                Redigera
+              </Link>
             )}
             {movie.trailerUrl && (
-              <a className="btn" href={movie.trailerUrl} target="_blank" rel="noreferrer">Trailer</a>
+              <a className="btn" href={movie.trailerUrl} target="_blank" rel="noreferrer">
+                Trailer
+              </a>
             )}
           </div>
         )}
@@ -141,12 +148,18 @@ export default function MovieCard({
 
 function labelFormat(f?: Movie["format"]) {
   switch (f) {
-    case "uhd": return "4K UHD";
-    case "bluray": return "Blu-ray";
-    case "dvd": return "DVD";
-    case "digital": return "Digital";
-    case "vhs": return "VHS";
-    default: return "Övrigt";
+    case "uhd":
+      return "4K UHD";
+    case "bluray":
+      return "Blu-ray";
+    case "dvd":
+      return "DVD";
+    case "digital":
+      return "Digital";
+    case "vhs":
+      return "VHS";
+    default:
+      return "Övrigt";
   }
 }
 function short(s: string) {
