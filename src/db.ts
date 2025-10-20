@@ -1,54 +1,40 @@
 // src/db.ts
 import Dexie, { type Table } from "dexie";
 import type {
-  Movie,
-  Book,
-  Game,
-  List,
-  MovieListLink,
-  BookList,
-  BookListLink,
-  GameList,
-  GameListLink,
+  Movie, Book, Game,
+  List, MovieListLink,
+  BookList, BookListLink,
+  GameList, GameListLink,
 } from "@/types";
 
-// Re-export types so pages can keep importing from "@/db"
+// Re-exporta typer så resten av koden kan `import type {...} from "@/db"`
 export type {
-  Movie,
-  Book,
-  Game,
-  List,
-  MovieListLink,
-  BookList,
-  BookListLink,
-  GameList,
-  GameListLink,
-  MovieStatus,
-  RegionCode,
-  VideoStandard,
-  Format,
+  Movie, Book, Game,
+  List, MovieListLink,
+  BookList, BookListLink,
+  GameList, GameListLink,
+  // film
+  MovieStatus, RegionCode, VideoStandard, Format,
+  // bok
   BookFormat,
-  GamePlatform,
-  GameFormat,
-  GameStatus,
+  // spel
+  GamePlatform, GameFormat, GameStatus,
 } from "@/types";
 
-/* =========================
-   Dexie DB
-========================= */
 class AppDB extends Dexie {
   movies!: Table<Movie, number>;
   books!: Table<Book, number>;
   games!: Table<Game, number>;
 
-  // Generic (old) lists used for movies
+  // Movie lists (kallas "lists" i UI)
   lists!: Table<List, number>;
   movieListLinks!: Table<MovieListLink, number>;
 
-  // Dedicated lists per media type
+  // Book lists
   bookLists!: Table<BookList, number>;
   bookListLinks!: Table<BookListLink, number>;
 
+  // Game lists
   gameLists!: Table<GameList, number>;
   gameListLinks!: Table<GameListLink, number>;
 
@@ -60,17 +46,17 @@ class AppDB extends Dexie {
       books:  "++id, title, createdAt, owned, digital, wishlisted, isbn",
       games:  "++id, title, createdAt, owned, digital, wishlisted, barcode",
 
-      // Movie lists (legacy/shared)
-      lists:           "++id, name, createdAt",
-      movieListLinks:  "++id, listId, movieId, createdAt",
+      // movie
+      lists: "++id, name, createdAt",
+      movieListLinks: "++id, listId, movieId, createdAt",
 
-      // Book lists
-      bookLists:       "++id, name, createdAt",
-      bookListLinks:   "++id, listId, bookId, createdAt",
+      // book
+      bookLists: "++id, name, createdAt",
+      bookListLinks: "++id, listId, bookId, createdAt",
 
-      // Game lists
-      gameLists:       "++id, name, createdAt",
-      gameListLinks:   "++id, listId, gameId, createdAt",
+      // game
+      gameLists: "++id, name, createdAt",
+      gameListLinks: "++id, listId, gameId, createdAt",
     });
 
     this.movies = this.table("movies");
@@ -90,10 +76,10 @@ class AppDB extends Dexie {
 
 export const db = new AppDB();
 
-/* =========================
-   MOVIES – CRUD
-========================= */
-export async function addMovie(data: Movie): Promise<number> {
+/* ============================================================
+   MOVIES: CRUD
+   ============================================================ */
+export async function addMovie(data: Movie) {
   const now = Date.now();
   return db.movies.add({ ...data, createdAt: data.createdAt ?? now, updatedAt: now });
 }
@@ -108,10 +94,10 @@ export async function deleteMovie(id: number) {
   });
 }
 
-/* =========================
-   BOOKS – CRUD
-========================= */
-export async function addBook(data: Book): Promise<number> {
+/* ============================================================
+   BOOKS: CRUD
+   ============================================================ */
+export async function addBook(data: Book) {
   const now = Date.now();
   return db.books.add({ ...data, createdAt: data.createdAt ?? now, updatedAt: now });
 }
@@ -126,10 +112,10 @@ export async function deleteBook(id: number) {
   });
 }
 
-/* =========================
-   GAMES – CRUD
-========================= */
-export async function addGame(data: Game): Promise<number> {
+/* ============================================================
+   GAMES: CRUD
+   ============================================================ */
+export async function addGame(data: Game) {
   const now = Date.now();
   return db.games.add({ ...data, createdAt: data.createdAt ?? now, updatedAt: now });
 }
@@ -144,9 +130,9 @@ export async function deleteGame(id: number) {
   });
 }
 
-/* =========================
-   MOVIE LISTS
-========================= */
+/* ============================================================
+   MOVIE LISTS (kallas bara "lists" i UI)
+   ============================================================ */
 export async function getLists(): Promise<List[]> {
   return db.lists.orderBy("createdAt").reverse().toArray();
 }
@@ -193,9 +179,9 @@ export async function getMoviesInList(listId: number): Promise<Movie[]> {
   return items;
 }
 
-/* =========================
+/* ============================================================
    BOOK LISTS
-========================= */
+   ============================================================ */
 export async function getBookLists(): Promise<BookList[]> {
   return db.bookLists.orderBy("createdAt").reverse().toArray();
 }
@@ -241,10 +227,12 @@ export async function getBooksInList(listId: number): Promise<Book[]> {
   items.sort((a, b) => (order.get(a.id!)! - order.get(b.id!)!));
   return items;
 }
+// alias för filer som importerar det längre namnet
+export const getBooksInBookList = getBooksInList;
 
-/* =========================
+/* ============================================================
    GAME LISTS
-========================= */
+   ============================================================ */
 export async function getGameLists(): Promise<GameList[]> {
   return db.gameLists.orderBy("createdAt").reverse().toArray();
 }
@@ -290,11 +278,106 @@ export async function getGamesInList(listId: number): Promise<Game[]> {
   items.sort((a, b) => (order.get(a.id!)! - order.get(b.id!)!));
   return items;
 }
+// alias för filer som importerar det längre namnet
+export const getGamesInGameList = getGamesInList;
 
-/* =========================
-   Utility
-========================= */
-export async function clearAll(): Promise<void> {
+/* ============================================================
+   BACKUP / IMPORT / WIPE (för ProfilePage)
+   ============================================================ */
+type ExportShape = {
+  version: 1;
+  movies: Movie[];
+  books: Book[];
+  games: Game[];
+  lists: List[];
+  movieListLinks: MovieListLink[];
+  bookLists: BookList[];
+  bookListLinks: BookListLink[];
+  gameLists: GameList[];
+  gameListLinks: GameListLink[];
+};
+
+export async function exportJson(): Promise<string> {
+  const [movies, books, games, lists, mLinks, bLists, bLinks, gLists, gLinks] =
+    await Promise.all([
+      db.movies.toArray(),
+      db.books.toArray(),
+      db.games.toArray(),
+      db.lists.toArray(),
+      db.movieListLinks.toArray(),
+      db.bookLists.toArray(),
+      db.bookListLinks.toArray(),
+      db.gameLists.toArray(),
+      db.gameListLinks.toArray(),
+    ]);
+
+  const payload: ExportShape = {
+    version: 1,
+    movies, books, games,
+    lists, movieListLinks: mLinks,
+    bookLists: bLists, bookListLinks: bLinks,
+    gameLists: gLists, gameListLinks: gLinks,
+  };
+  return JSON.stringify(payload, null, 2);
+}
+
+export async function importJson(json: string) {
+  const data = JSON.parse(json) as Partial<ExportShape> | any;
+
+  let addedMovies = 0, addedLists = 0, addedLinks = 0;
+  let addedBooks = 0, addedBookLists = 0, addedBookLinks = 0;
+  let addedGames = 0, addedGameLists = 0, addedGameLinks = 0;
+
+  await db.transaction(
+    "rw",
+    db.movies, db.books, db.games,
+    db.lists, db.movieListLinks,
+    db.bookLists, db.bookListLinks,
+    db.gameLists, db.gameListLinks,
+    async () => {
+      // movies
+      for (const m of data.movies ?? []) {
+        await db.movies.add(m); addedMovies++;
+      }
+      for (const l of data.lists ?? []) {
+        await db.lists.add(l); addedLists++;
+      }
+      for (const x of data.movieListLinks ?? []) {
+        await db.movieListLinks.add(x); addedLinks++;
+      }
+
+      // books
+      for (const b of data.books ?? []) {
+        await db.books.add(b); addedBooks++;
+      }
+      for (const l of data.bookLists ?? []) {
+        await db.bookLists.add(l); addedBookLists++;
+      }
+      for (const x of data.bookListLinks ?? []) {
+        await db.bookListLinks.add(x); addedBookLinks++;
+      }
+
+      // games
+      for (const g of data.games ?? []) {
+        await db.games.add(g); addedGames++;
+      }
+      for (const l of data.gameLists ?? []) {
+        await db.gameLists.add(l); addedGameLists++;
+      }
+      for (const x of data.gameListLinks ?? []) {
+        await db.gameListLinks.add(x); addedGameLinks++;
+      }
+    }
+  );
+
+  return {
+    addedMovies, addedLists, addedLinks,
+    addedBooks, addedBookLists, addedBookLinks,
+    addedGames, addedGameLists, addedGameLinks,
+  };
+}
+
+export async function wipeAll() {
   await db.transaction(
     "rw",
     db.movies, db.books, db.games,
@@ -316,3 +399,6 @@ export async function clearAll(): Promise<void> {
     }
   );
 }
+
+// äldre namn i vissa filer
+export const clearAll = wipeAll;
