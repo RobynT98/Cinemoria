@@ -1,7 +1,8 @@
+// src/components/GameDetailsDialog.tsx
 import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import type { Game } from "@/db";
-import { X, Gamepad2, Check } from "lucide-react";
+import { X, Gamepad2, Check, Download, Heart } from "lucide-react";
 
 type Props = {
   open: boolean;
@@ -12,15 +13,19 @@ type Props = {
 export default function GameDetailsDialog({ open, game, onClose }: Props) {
   const overlayRef = useRef<HTMLDivElement | null>(null);
 
+  // ESC för att stänga
   useEffect(() => {
     if (!open) return;
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
 
   if (!open || !game) return null;
 
+  // klick utanför
   const onOverlayClick: React.MouseEventHandler<HTMLDivElement> = (e) => {
     if (e.target === overlayRef.current) onClose();
   };
@@ -35,6 +40,7 @@ export default function GameDetailsDialog({ open, game, onClose }: Props) {
       aria-label={`Detaljer för ${game.title}`}
     >
       <div className="card w-full max-w-2xl p-0 overflow-hidden">
+        {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-ink-700/20">
           <h2 className="font-semibold text-lg truncate">{game.title}</h2>
           <button className="btn btn-ghost btn-icon" onClick={onClose} aria-label="Stäng">
@@ -42,7 +48,9 @@ export default function GameDetailsDialog({ open, game, onClose }: Props) {
           </button>
         </div>
 
+        {/* Body */}
         <div className="p-4 grid grid-cols-1 sm:grid-cols-[120px_1fr] gap-4">
+          {/* Omslag */}
           <div>
             {game.coverUrl ? (
               <img
@@ -58,6 +66,7 @@ export default function GameDetailsDialog({ open, game, onClose }: Props) {
             )}
           </div>
 
+          {/* Metadata */}
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               {game.platform && <span className="chip">{game.platform}</span>}
@@ -67,11 +76,22 @@ export default function GameDetailsDialog({ open, game, onClose }: Props) {
                   <Check className="w-3 h-3" /> Ägd
                 </span>
               )}
+              {game.digital && (
+                <span className="chip">
+                  <Download className="w-3 h-3" /> Digital
+                </span>
+              )}
+              {game.wishlisted && (
+                <span className="chip">
+                  <Heart className="w-3 h-3" /> Önskelista
+                </span>
+              )}
               {game.format && <span className="chip">{game.format}</span>}
-              {game.region && <span className="chip">{game.region}</span>}
+              {game.edition && <span className="chip">{game.edition}</span>}
               {game.barcode && <span className="chip">EAN: {short(game.barcode)}</span>}
             </div>
 
+            {/* Länkar */}
             <div className="mt-3 flex gap-2 flex-wrap">
               {typeof game.id === "number" && (
                 <Link to={`/game/edit/${game.id}`} className="btn btn-primary">
@@ -81,6 +101,7 @@ export default function GameDetailsDialog({ open, game, onClose }: Props) {
             </div>
           </div>
 
+          {/* Anteckningar */}
           {game.notes && (
             <div className="sm:col-span-2">
               <div className="font-semibold mb-1">Anteckningar</div>
