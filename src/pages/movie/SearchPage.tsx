@@ -1,13 +1,19 @@
+// src/pages/movie/MovieSearch.tsx
 import { useEffect, useMemo, useState } from "react";
-import { db, Movie } from "@/db";
+import { db, type Movie } from "@/db";
 import MovieCard from "@/components/MovieCard";
+import MovieDetailsDialog from "@/components/MovieDetailsDialog";
 
 type Filter = "all" | "owned" | "digital" | "wish";
 
-export default function SearchPage() {
+export default function MovieSearch() {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
   const [movies, setMovies] = useState<Movie[]>([]);
+
+  // för detalj-dialog
+  const [open, setOpen] = useState(false);
+  const [selected, setSelected] = useState<Movie | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -45,6 +51,7 @@ export default function SearchPage() {
     <section className="p-4">
       <h1 className="text-2xl font-semibold mb-3">Sök</h1>
 
+      {/* Sökfält och filter */}
       <div className="flex gap-2 flex-wrap mb-3">
         <input
           className="flex-1 min-w-[220px]"
@@ -64,9 +71,17 @@ export default function SearchPage() {
         </select>
       </div>
 
+      {/* Resultatlista */}
       <div className="space-y-3">
         {shown.map((m) => (
-          <MovieCard key={m.id} movie={m} to={`/movie/edit/${m.id}`} />
+          <MovieCard
+            key={m.id}
+            movie={m}
+            onOpenDetails={() => {
+              setSelected(m);
+              setOpen(true);
+            }}
+          />
         ))}
         {shown.length === 0 && (
           <div className="text-sand-300 text-sm">
@@ -74,6 +89,9 @@ export default function SearchPage() {
           </div>
         )}
       </div>
+
+      {/* Detalj-dialog */}
+      <MovieDetailsDialog open={open} movie={selected} onClose={() => setOpen(false)} />
     </section>
   );
 }
