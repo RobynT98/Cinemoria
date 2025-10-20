@@ -1,6 +1,8 @@
 // src/components/MovieDetailsDialog.tsx
-import { type Movie } from "@/db";
-import { Film, X } from "lucide-react";
+import { useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
+import type { Movie } from "@/db";
+import { X, Film, Star, Check } from "lucide-react";
 import clsx from "classnames";
 
 type Props = {
@@ -10,84 +12,130 @@ type Props = {
 };
 
 export default function MovieDetailsDialog({ open, movie, onClose }: Props) {
+  const overlayRef = useRef<HTMLDivElement | null>(null);
+
+  // Stäng på ESC
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open, onClose]);
+
   if (!open || !movie) return null;
 
-  const Row = ({ label, value }: { label: string; value?: React.ReactNode }) =>
-    value ? (
-      <div className="mb-3">
-        <div className="text-sand-300 text-xs">{label}</div>
-        <div className="text-sm">{value}</div>
-      </div>
-    ) : null;
+  // klick utanför
+  const onOverlayClick: React.MouseEventHandler<HTMLDivElement> = (e) => {
+    if (e.target === overlayRef.current) onClose();
+  };
 
   return (
     <div
-      className="fixed inset-0 z-40"
+      ref={overlayRef}
+      onClick={onOverlayClick}
+      className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm grid place-items-center px-3"
       role="dialog"
       aria-modal="true"
-      onClick={onClose}
+      aria-label={`Detaljer för ${movie.title}`}
     >
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
-      <div
-        className={clsx(
-          "absolute inset-x-0 bottom-0",
-          "rounded-t-3xl bg-ink-900 text-sand-100",
-          "max-h-[85vh] overflow-auto"
-        )}
-        onClick={(e) => e.stopPropagation()}
-      >
+      <div className="card w-full max-w-2xl p-0 overflow-hidden">
         {/* Header */}
-        <div className="p-3 flex items-center gap-3">
-          {movie.posterUrl ? (
-            <img
-              src={movie.posterUrl}
-              alt={movie.title}
-              className="w-12 h-16 object-cover rounded-lg border border-ink-700/50"
-            />
-          ) : (
-            <div className="w-12 h-16 grid place-items-center rounded-lg bg-ink-800">
-              <Film className="opacity-70" />
-            </div>
-          )}
-          <div className="min-w-0 flex-1">
-            <div className="font-semibold truncate">{movie.title}</div>
-            {movie.year && <div className="text-sand-300 text-xs">{movie.year}</div>}
-          </div>
-          <button className="chip" onClick={onClose} aria-label="Stäng">
-            <X className="w-4 h-4" /> Stäng
+        <div className="flex items-center justify-between px-4 py-3 border-b border-ink-700/20">
+          <h2 className="font-semibold text-lg truncate">{movie.title}</h2>
+          <button className="btn btn-ghost btn-icon" onClick={onClose} aria-label="Stäng">
+            <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Chips */}
-        <div className="px-3 pb-2 flex flex-wrap gap-2">
-          {movie.owned && <span className="chip">Ägd</span>}
-          {movie.digital && <span className="chip">Digital</span>}
-          {movie.wishlisted && <span className="chip">Önskelista</span>}
-          {movie.format && <span className="chip">{labelFormat(movie.format)}</span>}
-          {movie.videoStandard && <span className="chip">{movie.videoStandard}</span>}
-          {movie.region && movie.region !== "NONE" && <span className="chip">{movie.region}</span>}
-        </div>
-
         {/* Body */}
-        <div className="px-4 pb-4">
-          <div className="text-sand-300 text-sm mb-2">Utgåva & teknik</div>
-          <Row label="Utgåva" value={movie.edition} />
-          <Row label="Utgåveår" value={movie.releaseYear} />
-          <Row label="Cut" value={movie.cut} />
-          <Row label="Ljudvariant" value={movie.audioVariant} />
-          <Row label="Videostandard" value={movie.videoStandard} />
-          <Row label="Region" value={movie.region} />
-          <Row label="Format" value={movie.format} />
+        <div className="p-4 grid grid-cols-1 sm:grid-cols-[120px_1fr] gap-4">
+          {/* Poster */}
+          <div>
+            {movie.posterUrl ? (
+              <img
+                src={movie.posterUrl}
+                alt={movie.title}
+                className="w-28 h-36 object-cover rounded-xl border border-ink-700/30"
+                loading="lazy"
+              />
+            ) : (
+              <div className="w-28 h-36 rounded-xl grid place-items-center bg-ink-700/40">
+                <Film className="opacity-70" />
+              </div>
+            )}
+          </div>
 
-          <div className="text-sand-300 text-sm mt-4 mb-2">Plats</div>
-          <Row label="Tjänst / Leverantör" value={movie.provider} />
-          <Row label="Plats / Hylla" value={movie.location} />
+          {/* Text/metadata */}
+          <div className="min-w-0">
+            {/* Topline */}
+            <div className="flex items-center gap-2 flex-wrap">
+              {movie.year && <span className="chip">{movie.year}</span>}
+              {movie.seen && (
+                <span className="chip">
+                  <Check className="w-3 h-3" /> Sett
+                </span>
+              )}
+              {typeof movie.rating === "number" && (
+                <span className="chip">
+                  <Star className="w-3 h-3" /> {movie.rating}
+                </span>
+              )}
+              {movie.genres?.length ? (
+                <span className="text-sand-300 text-xs truncate">
+                  {movie.genres.join(" • ")}
+                </span>
+              ) : null}
+            </div>
 
-          <div className="text-sand-300 text-sm mt-4 mb-2">Identifiering</div>
-          <Row label="Streckkod (EAN/UPC)" value={movie.barcode} />
+            {/* Chips – samlarinfo */}
+            <div className="mt-2 flex flex-wrap gap-2">
+              {movie.owned && <span className="chip">Ägd</span>}
+              {movie.digital && <span className="chip">Digital</span>}
+              {movie.wishlisted && <span className="chip">Önskelista</span>}
+              {movie.format && <span className="chip">{labelFormat(movie.format)}</span>}
+              {movie.region && movie.region !== "NONE" && <span className="chip">{movie.region}</span>}
+              {movie.videoStandard && <span className="chip">{movie.videoStandard}</span>}
+              {movie.edition && <span className="chip">{movie.edition}</span>}
+              {movie.audioVariant && <span className="chip">{movie.audioVariant}</span>}
+              {movie.releaseYear && <span className="chip">Utg.år: {movie.releaseYear}</span>}
+              {movie.location && <span className="chip">Plats: {movie.location}</span>}
+              {movie.provider && <span className="chip">Tjänst: {movie.provider}</span>}
+              {movie.barcode && <span className="chip">EAN: {short(movie.barcode)}</span>}
+            </div>
 
-          <div className="text-sand-300 text-sm mt-4 mb-2">Anteckningar</div>
-          <Row label="" value={movie.notes} />
+            {/* Länkar */}
+            <div className="mt-3 flex gap-2 flex-wrap">
+              {typeof movie.id === "number" && (
+                <Link to={`/movie/edit/${movie.id}`} className="btn btn-primary">
+                  Redigera
+                </Link>
+              )}
+              {movie.trailerUrl && (
+                <a className="btn" href={movie.trailerUrl} target="_blank" rel="noreferrer">
+                  Trailer
+                </a>
+              )}
+            </div>
+          </div>
+
+          {/* Anteckningar & övrigt – full bredd */}
+          {(movie.notes || movie.cut) && (
+            <div className="sm:col-span-2">
+              {movie.notes && (
+                <>
+                  <div className="font-semibold mb-1">Anteckningar</div>
+                  <div className="text-sm text-sand-300 whitespace-pre-wrap">{movie.notes}</div>
+                </>
+              )}
+              {movie.cut && (
+                <div className="mt-3 text-sm">
+                  <span className="font-semibold">Cut:</span> {movie.cut}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -109,4 +157,8 @@ function labelFormat(f?: Movie["format"]) {
     default:
       return "Övrigt";
   }
+}
+
+function short(s: string) {
+  return s.length > 13 ? s.slice(0, 6) + "…" + s.slice(-4) : s;
 }
