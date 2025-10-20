@@ -11,6 +11,7 @@ export type Format =
   | "other";
 
 export type VideoStandard = "PAL" | "NTSC" | "SECAM";
+
 export type RegionCode =
   | "BD-A" | "BD-B" | "BD-C"
   | "DVD-1" | "DVD-2" | "DVD-3" | "DVD-4" | "DVD-5" | "DVD-6" | "DVD-ALL"
@@ -26,6 +27,7 @@ export interface Movie {
   rating?: number;          // 1–10
   trailerUrl?: string;
   createdAt: number;
+  updatedAt?: number;
 
   // Samlarinfo
   owned?: boolean;
@@ -52,6 +54,7 @@ export interface List {
   id?: number;
   name: string;
   createdAt: number;
+  updatedAt?: number;
 }
 
 export interface MovieListLink {
@@ -86,6 +89,7 @@ export interface Book {
   publisher?: string;
   notes?: string;
   createdAt: number;
+  updatedAt?: number;
 }
 
 /* ---------- Typer: Boklistor ---------- */
@@ -94,6 +98,7 @@ export interface BookList {
   id?: number;
   name: string;
   createdAt: number;
+  updatedAt?: number;
 }
 
 export interface BookListLink {
@@ -114,7 +119,9 @@ export interface Game {
   digital?: boolean;
   wishlisted?: boolean;
   notes?: string;
+  barcode?: string;      // ✅ för skanning/offline-spar
   createdAt: number;
+  updatedAt?: number;
 }
 
 /* ---------- Typer: Spellistor ---------- */
@@ -123,6 +130,7 @@ export interface GameList {
   id?: number;
   name: string;
   createdAt: number;
+  updatedAt?: number;
 }
 
 export interface GameListLink {
