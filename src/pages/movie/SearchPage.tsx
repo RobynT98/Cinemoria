@@ -1,8 +1,10 @@
 // src/pages/movie/MovieSearch.tsx
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, lazy, Suspense } from "react";
 import { db, type Movie } from "@/db";
 import MovieCard from "@/components/MovieCard";
-import MovieDetailsDialog from "@/components/MovieDetailsDialog";
+
+// Lazyladda dialogen så sidan inte kraschar om filen saknas/är cached fel
+const MovieDetailsDialog = lazy(() => import("@/components/MovieDetailsDialog"));
 
 type Filter = "all" | "owned" | "digital" | "wish";
 
@@ -21,9 +23,7 @@ export default function MovieSearch() {
       const ms = await db.movies.orderBy("title").toArray();
       if (mounted) setMovies(ms);
     })();
-    return () => {
-      mounted = false;
-    };
+    return () => { mounted = false; };
   }, []);
 
   const shown = useMemo(() => {
@@ -40,9 +40,7 @@ export default function MovieSearch() {
         m.location || "",
         m.provider || "",
         String(m.year || ""),
-      ]
-        .join(" ")
-        .toLowerCase();
+      ].join(" ").toLowerCase();
       return hay.includes(q);
     });
   }, [movies, query, filter]);
@@ -51,7 +49,6 @@ export default function MovieSearch() {
     <section className="p-4">
       <h1 className="text-2xl font-semibold mb-3">Sök</h1>
 
-      {/* Sökfält och filter */}
       <div className="flex gap-2 flex-wrap mb-3">
         <input
           className="flex-1 min-w-[220px]"
@@ -60,10 +57,7 @@ export default function MovieSearch() {
           onChange={(e) => setQuery(e.target.value)}
           type="text"
         />
-        <select
-          value={filter}
-          onChange={(e) => setFilter(e.target.value as Filter)}
-        >
+        <select value={filter} onChange={(e) => setFilter(e.target.value as Filter)}>
           <option value="all">Alla</option>
           <option value="owned">Ägd</option>
           <option value="digital">Digital</option>
@@ -71,7 +65,6 @@ export default function MovieSearch() {
         </select>
       </div>
 
-      {/* Resultatlista */}
       <div className="space-y-3">
         {shown.map((m) => (
           <MovieCard
@@ -89,12 +82,16 @@ export default function MovieSearch() {
         )}
       </div>
 
-      {/* Detalj-dialog */}
-      <MovieDetailsDialog
-        open={open}
-        movie={selected}
-        onClose={() => setOpen(false)}
-      />
+      {/* Detalj-dialog – rendera bara när den faktiskt används */}
+      <Suspense fallback={null}>
+        {open && selected && (
+          <MovieDetailsDialog
+            open={open}
+            movie={selected}
+            onClose={() => setOpen(false)}
+          />
+        )}
+      </Suspense>
     </section>
   );
 }
