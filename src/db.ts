@@ -63,7 +63,12 @@ export interface MovieListLink {
 
 /* ---------- Typer: Böcker ---------- */
 
-export type BookFormat = "paperback" | "hardcover" | "ebook" | "audiobook" | "other";
+export type BookFormat =
+  | "paperback"
+  | "hardcover"
+  | "ebook"
+  | "audiobook"
+  | "other";
 
 export interface Book {
   id?: number;
@@ -74,10 +79,10 @@ export interface Book {
   coverUrl?: string;
   owned?: boolean;
   wishlisted?: boolean;
-  digital?: boolean;      // e-bok/ljudbok
-  format?: BookFormat;    // hardcover/paperback/ebook/audiobook/other
+  digital?: boolean;   // e-bok/ljudbok
+  format?: BookFormat; // hardcover/paperback/ebook/audiobook/other
   isbn?: string;
-  language?: string;      // "sv", "en", …
+  language?: string;   // "sv", "en", …
   pages?: number;
   publisher?: string;
   notes?: string;
@@ -189,26 +194,24 @@ class CinemoriaDB extends Dexie {
       });
 
     // v4 – böcker
-    this.version(4)
-      .stores({
-        movies:
-          "++id, title, year, createdAt, owned, wishlisted, digital, format, region, videoStandard, barcode, edition, releaseYear",
-        lists: "++id, name, createdAt",
-        movieList: "++id, movieId, listId",
-        books:
-          "++id, title, author, year, createdAt, owned, wishlisted, digital, format, isbn",
-      });
+    this.version(4).stores({
+      movies:
+        "++id, title, year, createdAt, owned, wishlisted, digital, format, region, videoStandard, barcode, edition, releaseYear",
+      lists: "++id, name, createdAt",
+      movieList: "++id, movieId, listId",
+      books:
+        "++id, title, author, year, createdAt, owned, wishlisted, digital, format, isbn",
+    });
 
     // v5 – böcker: extra fält + index
-    this.version(5)
-      .stores({
-        movies:
-          "++id, title, year, createdAt, owned, wishlisted, digital, format, region, videoStandard, barcode, edition, releaseYear",
-        lists: "++id, name, createdAt",
-        movieList: "++id, movieId, listId",
-        books:
-          "++id, title, author, year, createdAt, owned, wishlisted, digital, format, isbn, language, pages, publisher",
-      });
+    this.version(5).stores({
+      movies:
+        "++id, title, year, createdAt, owned, wishlisted, digital, format, region, videoStandard, barcode, edition, releaseYear",
+      lists: "++id, name, createdAt",
+      movieList: "++id, movieId, listId",
+      books:
+        "++id, title, author, year, createdAt, owned, wishlisted, digital, format, isbn, language, pages, publisher",
+    });
 
     // v6 – boklistor
     this.version(6).stores({
@@ -429,7 +432,9 @@ export async function searchBooks(opts: {
   if (digital !== undefined) col = col.filter((b) => !!b.digital === digital);
   if (format) col = col.filter((b) => b.format === format);
   if (language && language.trim())
-    col = col.filter((b) => (b.language || "").toLowerCase() === language.trim().toLowerCase());
+    col = col.filter(
+      (b) => (b.language || "").toLowerCase() === language.trim().toLowerCase()
+    );
 
   if (text && text.trim()) {
     const q = text.trim().toLowerCase();
@@ -540,7 +545,9 @@ export async function searchGames(opts: {
   if (digital !== undefined) col = col.filter((g) => !!g.digital === digital);
   if (wishlisted !== undefined) col = col.filter((g) => !!g.wishlisted === wishlisted);
   if (platform && platform.trim())
-    col = col.filter((g) => (g.platform || "").toLowerCase() === platform.trim().toLowerCase());
+    col = col.filter(
+      (g) => (g.platform || "").toLowerCase() === platform.trim().toLowerCase()
+    );
 
   if (text && text.trim()) {
     const q = text.trim().toLowerCase();
