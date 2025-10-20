@@ -4,18 +4,22 @@ import type {
   Movie, List, MovieListLink,
   Book, BookList, BookListLink,
   Game, GameList, GameListLink,
+  // följande är typ-alias som formler/format
+  Format, VideoStandard, RegionCode, BookFormat,
 } from "@/types";
 
-// Re-exportera alla typer så resten av appen kan importera från "@/db"
+// Re-exportera ALLT så komponenter kan göra `import type {...} from "@/db"`
 export type {
   Movie, List, MovieListLink,
   Book, BookList, BookListLink,
   Game, GameList, GameListLink,
+  Format, VideoStandard, RegionCode, BookFormat,
 } from "@/types";
 
 /* ────────────────────────────────────────────────────────────
    Dexie DB
-   - Viktigt: tabellnamn matchar backup.ts (movieList/bookList/gameList)
+   OBS: Tabellnamn = movieList / bookList / gameList
+   + kompatibilitetsalias: movieListLinks / bookListLinks / gameListLinks
 ──────────────────────────────────────────────────────────── */
 export class CinemoriaDB extends Dexie {
   // Film
@@ -32,6 +36,11 @@ export class CinemoriaDB extends Dexie {
   games!: Table<Game, number>;
   gameLists!: Table<GameList, number>;
   gameList!: Table<GameListLink, number>;   // länkar spel<->lista
+
+  // 🔁 Bakåtkomp: alias så backup.ts & äldre kod funkar
+  get movieListLinks(): Table<MovieListLink, number> { return this.movieList; }
+  get bookListLinks(): Table<BookListLink, number>   { return this.bookList; }
+  get gameListLinks(): Table<GameListLink, number>   { return this.gameList; }
 
   constructor() {
     super("CinemoriaDB");
@@ -58,7 +67,7 @@ export class CinemoriaDB extends Dexie {
 export const db = new CinemoriaDB();
 
 /* ────────────────────────────────────────────────────────────
-   Film: CRUD
+   FILM: CRUD
 ──────────────────────────────────────────────────────────── */
 export async function addMovie(m: Movie) {
   const now = Date.now();
@@ -73,7 +82,7 @@ export async function deleteMovie(id: number) {
 }
 
 /* ────────────────────────────────────────────────────────────
-   Film: Listor
+   FILM: Listor
 ──────────────────────────────────────────────────────────── */
 export const createList = (name: string) =>
   db.lists.add({ name, createdAt: Date.now(), updatedAt: Date.now() });
@@ -109,11 +118,11 @@ export async function getListCounts() {
   }
   return out;
 }
-// alias om någon sida förväntar sig detta namn
+// alias om någon sida använder detta namn
 export const getMovieListCounts = getListCounts;
 
 /* ────────────────────────────────────────────────────────────
-   Böcker: CRUD
+   BÖCKER: CRUD
 ──────────────────────────────────────────────────────────── */
 export async function addBook(b: Book) {
   const now = Date.now();
@@ -128,7 +137,7 @@ export async function deleteBook(id: number) {
 }
 
 /* ────────────────────────────────────────────────────────────
-   Böcker: Listor
+   BÖCKER: Listor
 ──────────────────────────────────────────────────────────── */
 export const createBookList = (name: string) =>
   db.bookLists.add({ name, createdAt: Date.now(), updatedAt: Date.now() });
@@ -168,7 +177,7 @@ export async function getBookListCounts() {
 }
 
 /* ────────────────────────────────────────────────────────────
-   Spel: CRUD
+   SPEL: CRUD
 ──────────────────────────────────────────────────────────── */
 export async function addGame(g: Game) {
   const now = Date.now();
@@ -183,7 +192,7 @@ export async function deleteGame(id: number) {
 }
 
 /* ────────────────────────────────────────────────────────────
-   Spel: Listor
+   SPEL: Listor
 ──────────────────────────────────────────────────────────── */
 export const createGameList = (name: string) =>
   db.gameLists.add({ name, createdAt: Date.now(), updatedAt: Date.now() });
