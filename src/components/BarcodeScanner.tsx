@@ -16,7 +16,7 @@ export default function BarcodeScanner({
 }: Props) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const controlsRef = useRef<IScannerControls | null>(null);
-  const handledRef = useRef(false);              // 👈 stoppa dubbla resultat
+  const handledRef = useRef(false);
   const [starting, setStarting] = useState(true);
 
   useEffect(() => {
@@ -45,10 +45,8 @@ export default function BarcodeScanner({
               onResult(res.getText().trim());
               return;
             }
-            // Ignorera “ingen kod i den här framen”-fel
             if (err && !(err as any)?.message?.includes("No MultiFormat Readers")) {
-              // Riktiga fel får bubbla ut
-              // console.debug(err);
+              // Ignorera ofarliga fel
             }
           }
         );
