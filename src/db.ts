@@ -1,138 +1,23 @@
 // src/db.ts
 import Dexie, { Table } from "dexie";
+import type {
+  Movie, List, MovieListLink,
+  Book, BookList, BookListLink,
+  Game, GameList, GameListLink,
+  BookFormat, Format
+} from "./types";
 
-/* ---------- Typer: Film ---------- */
+/** Re-exportera typer så komponenter kan göra `import type { Movie } from "@/db"` */
+export type {
+  Movie, List, MovieListLink,
+  Book, BookList, BookListLink,
+  Game, GameList, GameListLink,
+  BookFormat, Format
+} from "./types";
 
-export type Format =
-  | "uhd"      // 4K UHD
-  | "bluray"
-  | "dvd"
-  | "digital"
-  | "vhs"
-  | "other";
-
-export type VideoStandard = "PAL" | "NTSC" | "SECAM";
-export type RegionCode =
-  | "BD-A" | "BD-B" | "BD-C"
-  | "DVD-1" | "DVD-2" | "DVD-3" | "DVD-4" | "DVD-5" | "DVD-6" | "DVD-ALL"
-  | "NONE";
-
-export interface Movie {
-  id?: number;
-  title: string;
-  year?: number;
-  genres?: string[];
-  posterUrl?: string;
-  seen?: boolean;
-  rating?: number;          // 1–10
-  trailerUrl?: string;
-  createdAt: number;
-
-  // Samlarinfo
-  owned?: boolean;
-  wishlisted?: boolean;
-  digital?: boolean;
-  format?: Format;
-  location?: string;        // hylla/låda/konto
-  provider?: string;        // iTunes/Google/Plex …
-
-  // Utgåva/teknik
-  edition?: string;         // "First Press UK", "Steelbook" …
-  releaseYear?: number;     // utgåvans år
-  cut?: string;             // "Theatrical", "Extended" …
-  audioVariant?: string;    // "Original UK", "US dub"
-  videoStandard?: VideoStandard;
-  region?: RegionCode;
-  barcode?: string;         // EAN/UPC
-  notes?: string;
-}
-
-/* ---------- Typer: Listor (film) ---------- */
-
-export interface List {
-  id?: number;
-  name: string;
-  createdAt: number;
-}
-
-export interface MovieListLink {
-  id?: number;
-  movieId: number;
-  listId: number;
-}
-
-/* ---------- Typer: Böcker ---------- */
-
-export type BookFormat =
-  | "paperback"
-  | "hardcover"
-  | "ebook"
-  | "audiobook"
-  | "other";
-
-export interface Book {
-  id?: number;
-  title: string;
-  author?: string;
-  year?: number;
-  genres?: string[];
-  coverUrl?: string;
-  owned?: boolean;
-  wishlisted?: boolean;
-  digital?: boolean;   // e-bok/ljudbok
-  format?: BookFormat; // hardcover/paperback/ebook/audiobook/other
-  isbn?: string;
-  language?: string;   // "sv", "en", …
-  pages?: number;
-  publisher?: string;
-  notes?: string;
-  createdAt: number;
-}
-
-/* ---------- Typer: Boklistor ---------- */
-
-export interface BookList {
-  id?: number;
-  name: string;
-  createdAt: number;
-}
-
-export interface BookListLink {
-  id?: number;
-  bookId: number;
-  listId: number;
-}
-
-/* ---------- Typer: Spel ---------- */
-
-export interface Game {
-  id?: number;
-  title: string;
-  year?: number;
-  platform?: string;     // "PS5", "Switch", "PC"...
-  coverUrl?: string;
-  owned?: boolean;
-  digital?: boolean;
-  wishlisted?: boolean;
-  notes?: string;
-  createdAt: number;
-}
-
-/* ---------- Typer: Spellistor ---------- */
-
-export interface GameList {
-  id?: number;
-  name: string;
-  createdAt: number;
-}
-
-export interface GameListLink {
-  id?: number;
-  gameId: number;
-  listId: number;
-}
-
-/* ---------- Dexie DB ---------- */
+/* ============================================================
+   Dexie DB – behåller namn & tabeller för att inte tappa data
+   ============================================================ */
 
 class CinemoriaDB extends Dexie {
   movies!: Table<Movie, number>;
@@ -148,101 +33,10 @@ class CinemoriaDB extends Dexie {
   gameList!: Table<GameListLink, number>;
 
   constructor() {
+    // Viktigt: Samma namn som tidigare för att återanvända befintlig data
     super("cinemoria");
 
-    // v1 – grund
-    this.version(1).stores({
-      movies: "++id, title, year, createdAt",
-      lists: "++id, name, createdAt",
-      movieList: "++id, movieId, listId",
-    });
-
-    // v2 – samlarfält (film)
-    this.version(2)
-      .stores({
-        movies:
-          "++id, title, year, createdAt, owned, wishlisted, digital, format",
-        lists: "++id, name, createdAt",
-        movieList: "++id, movieId, listId",
-      })
-      .upgrade(async (tx) => {
-        const all = await tx.table<Movie>("movies").toArray();
-        for (const m of all) {
-          if (m.owned === undefined) m.owned = false;
-          if (m.wishlisted === undefined) m.wishlisted = false;
-          if (m.digital === undefined) m.digital = false;
-          if (!m.format) m.format = m.digital ? "digital" : "other";
-          await tx.table<Movie>("movies").put(m);
-        }
-      });
-
-    // v3 – utgåva/teknik/streckkod + index (film)
-    this.version(3)
-      .stores({
-        movies:
-          "++id, title, year, createdAt, owned, wishlisted, digital, format, region, videoStandard, barcode, edition, releaseYear",
-        lists: "++id, name, createdAt",
-        movieList: "++id, movieId, listId",
-      })
-      .upgrade(async (tx) => {
-        const table = tx.table<Movie>("movies");
-        const all = await table.toArray();
-        for (const m of all) {
-          if (!m.region) m.region = m.format === "digital" ? "NONE" : undefined;
-          await table.put(m);
-        }
-      });
-
-    // v4 – böcker
-    this.version(4).stores({
-      movies:
-        "++id, title, year, createdAt, owned, wishlisted, digital, format, region, videoStandard, barcode, edition, releaseYear",
-      lists: "++id, name, createdAt",
-      movieList: "++id, movieId, listId",
-      books:
-        "++id, title, author, year, createdAt, owned, wishlisted, digital, format, isbn",
-    });
-
-    // v5 – böcker: extra fält + index
-    this.version(5).stores({
-      movies:
-        "++id, title, year, createdAt, owned, wishlisted, digital, format, region, videoStandard, barcode, edition, releaseYear",
-      lists: "++id, name, createdAt",
-      movieList: "++id, movieId, listId",
-      books:
-        "++id, title, author, year, createdAt, owned, wishlisted, digital, format, isbn, language, pages, publisher",
-    });
-
-    // v6 – boklistor
-    this.version(6).stores({
-      movies:
-        "++id, title, year, createdAt, owned, wishlisted, digital, format, region, videoStandard, barcode, edition, releaseYear",
-      lists: "++id, name, createdAt",
-      movieList: "++id, movieId, listId",
-
-      books:
-        "++id, title, author, year, createdAt, owned, wishlisted, digital, format, isbn, language, pages, publisher",
-      bookLists: "++id, name, createdAt",
-      bookList: "++id, bookId, listId",
-    });
-
-    // v7 – spel
-    this.version(7).stores({
-      movies:
-        "++id, title, year, createdAt, owned, wishlisted, digital, format, region, videoStandard, barcode, edition, releaseYear",
-      lists: "++id, name, createdAt",
-      movieList: "++id, movieId, listId",
-
-      books:
-        "++id, title, author, year, createdAt, owned, wishlisted, digital, format, isbn, language, pages, publisher",
-      bookLists: "++id, name, createdAt",
-      bookList: "++id, bookId, listId",
-
-      games:
-        "++id, title, platform, year, createdAt, owned, digital, wishlisted",
-    });
-
-    // v8 – spellistor
+    // Behåll exakt samma index-strängar som version 8 i din tidigare DB
     this.version(8).stores({
       movies:
         "++id, title, year, createdAt, owned, wishlisted, digital, format, region, videoStandard, barcode, edition, releaseYear",
@@ -264,16 +58,17 @@ class CinemoriaDB extends Dexie {
 
 export const db = new CinemoriaDB();
 
-/* ---------- Filmer: CRUD & helpers ---------- */
+/* ============================================================
+   Filmer – CRUD & helpers
+   ============================================================ */
 
 export async function addMovie(movie: Omit<Movie, "id" | "createdAt">) {
   const now = Date.now();
-  const id = await db.movies.add({ ...movie, createdAt: now });
-  return id;
+  return db.movies.add({ ...movie, createdAt: now });
 }
 
 export async function updateMovie(id: number, patch: Partial<Movie>) {
-  await db.movies.update(id, patch);
+  await db.movies.update(id, { ...patch, updatedAt: Date.now() });
 }
 
 export async function deleteMovie(id: number) {
@@ -297,11 +92,11 @@ export async function getRecentMovies(limit = 20) {
 }
 
 export async function setSeen(id: number, seen: boolean) {
-  await db.movies.update(id, { seen });
+  await db.movies.update(id, { seen, updatedAt: Date.now() });
 }
 
 export async function setRating(id: number, rating?: number) {
-  await db.movies.update(id, { rating });
+  await db.movies.update(id, { rating, updatedAt: Date.now() });
 }
 
 export async function searchMovies(opts: {
@@ -326,6 +121,8 @@ export async function searchMovies(opts: {
       if (m.genres?.some((g) => g.toLowerCase().includes(q))) return true;
       if (m.barcode?.toLowerCase().includes(q)) return true;
       if (m.edition?.toLowerCase().includes(q)) return true;
+      if (m.location?.toLowerCase().includes(q)) return true;
+      if (m.provider?.toLowerCase().includes(q)) return true;
       return false;
     });
   }
@@ -333,11 +130,10 @@ export async function searchMovies(opts: {
   return col.toArray();
 }
 
-/* ---------- Listor (film) ---------- */
+/* ---------- Film-listor ---------- */
 
 export async function createList(name: string) {
-  const id = await db.lists.add({ name: name.trim(), createdAt: Date.now() });
-  return id;
+  return db.lists.add({ name: name.trim(), createdAt: Date.now() });
 }
 
 export async function getLists() {
@@ -380,7 +176,7 @@ export async function getMoviesInList(listId: number) {
 
 export async function linkMovieToList(listId: number, movieId: number) {
   const exists = await db.movieList.where({ listId, movieId }).first();
-  if (!exists) await db.movieList.add({ listId, movieId } as any);
+  if (!exists) await db.movieList.add({ listId, movieId, createdAt: Date.now() } as any);
 }
 
 export async function unlinkMovieFromList(listId: number, movieId: number) {
@@ -388,16 +184,17 @@ export async function unlinkMovieFromList(listId: number, movieId: number) {
   if (row?.id) await db.movieList.delete(row.id);
 }
 
-/* ---------- Böcker: CRUD & sök ---------- */
+/* ============================================================
+   Böcker – CRUD & sök
+   ============================================================ */
 
 export async function addBook(book: Omit<Book, "id" | "createdAt">) {
   const now = Date.now();
-  const id = await db.books.add({ ...book, createdAt: now });
-  return id;
+  return db.books.add({ ...book, createdAt: now });
 }
 
 export async function updateBook(id: number, patch: Partial<Book>) {
-  await db.books.update(id, patch);
+  await db.books.update(id, { ...patch, updatedAt: Date.now() });
 }
 
 export async function deleteBook(id: number) {
@@ -443,6 +240,7 @@ export async function searchBooks(opts: {
       if (b.author?.toLowerCase().includes(q)) return true;
       if (b.genres?.some((g) => g.toLowerCase().includes(q))) return true;
       if (b.isbn?.toLowerCase().includes(q)) return true;
+      if (b.publisher?.toLowerCase().includes(q)) return true;
       return false;
     });
   }
@@ -496,7 +294,7 @@ export async function getBooksInBookList(listId: number) {
 
 export async function linkBookToList(listId: number, bookId: number) {
   const exists = await db.bookList.where({ listId, bookId }).first();
-  if (!exists) await db.bookList.add({ listId, bookId } as any);
+  if (!exists) await db.bookList.add({ listId, bookId, createdAt: Date.now() } as any);
 }
 
 export async function unlinkBookFromList(listId: number, bookId: number) {
@@ -504,15 +302,16 @@ export async function unlinkBookFromList(listId: number, bookId: number) {
   if (row?.id) await db.bookList.delete(row.id);
 }
 
-/* ---------- Spel: CRUD & sök ---------- */
+/* ============================================================
+   Spel – CRUD & sök
+   ============================================================ */
 
 export async function addGame(game: Omit<Game, "id" | "createdAt">) {
-  const id = await db.games.add({ ...game, createdAt: Date.now() });
-  return id;
+  return db.games.add({ ...game, createdAt: Date.now() });
 }
 
 export async function updateGame(id: number, patch: Partial<Game>) {
-  await db.games.update(id, patch);
+  await db.games.update(id, { ...patch, updatedAt: Date.now() });
 }
 
 export async function deleteGame(id: number) {
@@ -554,6 +353,7 @@ export async function searchGames(opts: {
     col = col.filter((g) => {
       if (g.title?.toLowerCase().includes(q)) return true;
       if (g.platform?.toLowerCase().includes(q)) return true;
+      if (g.notes?.toLowerCase().includes(q)) return true;
       return false;
     });
   }
@@ -607,7 +407,7 @@ export async function getGamesInGameList(listId: number) {
 
 export async function linkGameToList(listId: number, gameId: number) {
   const exists = await db.gameList.where({ listId, gameId }).first();
-  if (!exists) await db.gameList.add({ listId, gameId } as any);
+  if (!exists) await db.gameList.add({ listId, gameId, createdAt: Date.now() } as any);
 }
 
 export async function unlinkGameFromList(listId: number, gameId: number) {
@@ -615,8 +415,11 @@ export async function unlinkGameFromList(listId: number, gameId: number) {
   if (row?.id) await db.gameList.delete(row.id);
 }
 
-/* ---------- Export / Import / Wipe ---------- */
+/* ============================================================
+   Export / Import / Wipe
+   ============================================================ */
 
+// Full export för backup
 export async function exportJson(): Promise<string> {
   const [
     movies, lists, links,
@@ -633,20 +436,29 @@ export async function exportJson(): Promise<string> {
     db.gameLists.toArray(),
     db.gameList.toArray(),
   ]);
+
   return JSON.stringify(
     { movies, lists, links, books, bookLists, bookLinks, games, gameLists, gameLinks },
-    null, 2
+    null,
+    2
   );
 }
 
-/** Import från en tidigare export. Returnerar hur många poster som lades till per kategori. */
+// Import med enkla räknare (används i ProfilePage)
 export async function importJson(json: string) {
-  const data = JSON.parse(json || "{}") || {};
-  const {
-    movies = [], lists = [], links = [],
-    books = [], bookLists = [], bookLinks = [],
-    games = [], gameLists = [], gameLinks = [],
-  } = data;
+  const data = JSON.parse(json || "{}");
+
+  const movies: Movie[] = data.movies ?? [];
+  const lists: List[] = data.lists ?? [];
+  const links: MovieListLink[] = data.links ?? [];
+
+  const books: Book[] = data.books ?? [];
+  const bookLists: BookList[] = data.bookLists ?? [];
+  const bookLinks: BookListLink[] = data.bookLinks ?? [];
+
+  const games: Game[] = data.games ?? [];
+  const gameLists: GameList[] = data.gameLists ?? [];
+  const gameLinks: GameListLink[] = data.gameLinks ?? [];
 
   let addedMovies = 0, addedLists = 0, addedLinks = 0;
   let addedBooks = 0, addedBookLists = 0, addedBookLinks = 0;
@@ -655,19 +467,47 @@ export async function importJson(json: string) {
   await db.transaction("rw", [
     db.movies, db.lists, db.movieList,
     db.books, db.bookLists, db.bookList,
-    db.games, db.gameLists, db.gameList,
+    db.games, db.gameLists, db.gameList
   ], async () => {
-    for (const m of movies as Movie[]) { await db.movies.add(m); addedMovies++; }
-    for (const l of lists as List[]) { await db.lists.add(l); addedLists++; }
-    for (const x of links as MovieListLink[]) { await db.movieList.add(x); addedLinks++; }
+    // put = upsert (bevarar id om möjligt)
+    if (movies.length) {
+      await db.movies.bulkPut(movies);
+      addedMovies = movies.length;
+    }
+    if (lists.length) {
+      await db.lists.bulkPut(lists);
+      addedLists = lists.length;
+    }
+    if (links.length) {
+      await db.movieList.bulkPut(links);
+      addedLinks = links.length;
+    }
 
-    for (const b of books as Book[]) { await db.books.add(b); addedBooks++; }
-    for (const bl of bookLists as BookList[]) { await db.bookLists.add(bl); addedBookLists++; }
-    for (const bx of bookLinks as BookListLink[]) { await db.bookList.add(bx); addedBookLinks++; }
+    if (books.length) {
+      await db.books.bulkPut(books);
+      addedBooks = books.length;
+    }
+    if (bookLists.length) {
+      await db.bookLists.bulkPut(bookLists);
+      addedBookLists = bookLists.length;
+    }
+    if (bookLinks.length) {
+      await db.bookList.bulkPut(bookLinks);
+      addedBookLinks = bookLinks.length;
+    }
 
-    for (const g of games as Game[]) { await db.games.add(g); addedGames++; }
-    for (const gl of gameLists as GameList[]) { await db.gameLists.add(gl); addedGameLists++; }
-    for (const gx of gameLinks as GameListLink[]) { await db.gameList.add(gx); addedGameLinks++; }
+    if (games.length) {
+      await db.games.bulkPut(games);
+      addedGames = games.length;
+    }
+    if (gameLists.length) {
+      await db.gameLists.bulkPut(gameLists);
+      addedGameLists = gameLists.length;
+    }
+    if (gameLinks.length) {
+      await db.gameList.bulkPut(gameLinks);
+      addedGameLinks = gameLinks.length;
+    }
   });
 
   return {
@@ -677,7 +517,7 @@ export async function importJson(json: string) {
   };
 }
 
-/** Rensa all lokal data. */
+// Rensa allt (används i ProfilePage)
 export async function wipeAll() {
   await db.transaction("rw", [
     db.movies, db.lists, db.movieList,
@@ -688,9 +528,11 @@ export async function wipeAll() {
       db.movies.clear(),
       db.lists.clear(),
       db.movieList.clear(),
+
       db.books.clear(),
       db.bookLists.clear(),
       db.bookList.clear(),
+
       db.games.clear(),
       db.gameLists.clear(),
       db.gameList.clear(),
