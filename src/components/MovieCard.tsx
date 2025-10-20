@@ -22,8 +22,13 @@ export default function MovieCard({
   compact = false,
   className,
 }: MovieCardProps) {
-  // Håll samma ratio som Game/Book (3:4)
-  const posterSize = compact ? "w-16 h-24" : "w-24 h-32";
+  // Samma ratio som Game/Book (3:4) – styr bredd, lås höjd via aspect
+  const posterWidth = compact ? "w-16" : "w-24";
+  const posterFrame = clsx(
+    posterWidth,
+    "aspect-[3/4] rounded-xl border border-ink-700/30 object-cover"
+  );
+
   const containerPad = compact ? "p-2.5" : "p-3";
   const titleCls = clsx("font-semibold truncate", compact && "text-sm");
   const metaCls = clsx("text-sand-300", compact ? "text-xs" : "text-[13px]");
@@ -37,11 +42,11 @@ export default function MovieCard({
         <img
           src={movie.posterUrl}
           alt={movie.title}
-          className={clsx(posterSize, "object-cover rounded-xl border border-ink-700/30")}
+          className={posterFrame}
           loading="lazy"
         />
       ) : (
-        <div className={clsx(posterSize, "rounded-xl grid place-items-center bg-ink-700/40")}>
+        <div className={clsx(posterWidth, "aspect-[3/4] rounded-xl grid place-items-center bg-ink-700/40")}>
           <Film className="opacity-70" />
         </div>
       )}
@@ -63,7 +68,7 @@ export default function MovieCard({
           )}
         </div>
 
-        {/* Genrer – visa inte i compact (håller listan ren), annars alla */}
+        {/* Genrer – visa inte i compact (håller listan ren) */}
         {!compact && movie.genres?.length ? (
           <div className="mt-1 flex flex-wrap gap-2">
             {movie.genres.map((g) => (
