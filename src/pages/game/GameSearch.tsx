@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { db, type Game } from "@/db";
 import GameCard from "@/components/game/GameCard";
+import GameDetailsDialog from "@/components/GameDetailsDialog";
 
 type Filter = "all" | "owned" | "digital" | "wish";
 
@@ -8,16 +9,26 @@ export default function GameSearch() {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
   const [games, setGames] = useState<Game[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [errMsg, setErrMsg] = useState<string | null>(null);
+
+  const [open, setOpen] = useState(false);
+  const [selected, setSelected] = useState<Game | null>(null);
 
   useEffect(() => {
-    let mounted = true;
+    let alive = true;
     (async () => {
-      const gs = await db.games.orderBy("title").toArray();
-      if (mounted) setGames(gs);
+      try {
+        const gs = await db.games.orderBy("title").toArray();
+        if (alive) setGames(gs);
+      } catch (e: any) {
+        console.error("GameSearch load error:", e);
+        if (alive) setErrMsg(e?.message || "Kunde inte läsa databasen.");
+      } finally {
+        if (alive) setLoading(false);
+      }
     })();
-    return () => {
-      mounted = false;
-    };
+    return () => { alive = false; };
   }, []);
 
   const shown = useMemo(() => {
@@ -28,22 +39,13 @@ export default function GameSearch() {
       if (filter === "wish" && !g.wishlisted) return false;
 
       if (!q) return true;
-
-      const hay = [
-        g.title,
-        g.platform || "",
-        String(g.year || ""),
-        g.notes || "",
-      ]
-        .join(" ")
-        .toLowerCase();
-
+      const hay = [g.title, g.platform || "", String(g.year || ""), g.notes || ""].join(" ").toLowerCase();
       return hay.includes(q);
     });
   }, [games, query, filter]);
 
   return (
-    <section className="p-4">
+    <section className="p-4 pb-[calc(env(safe-area-inset-bottom)+1rem)]">
       <h1 className="text-2xl font-semibold mb-3">Sök</h1>
 
       <div className="flex gap-2 flex-wrap mb-3">
@@ -53,6 +55,7 @@ export default function GameSearch() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           type="text"
+          inputMode="search"
         />
         <select value={filter} onChange={(e) => setFilter(e.target.value as Filter)}>
           <option value="all">Alla</option>
@@ -62,24 +65,45 @@ export default function GameSearch() {
         </select>
       </div>
 
-      <div className="space-y-3">
+      {errMsg && (
+        <div className="card p-3 mb-3 text-sm">
+          <div className="font-semibold mb-1">Något gick fel</div>
+          <div className="text-sand-300">{errMsg}</div>
+        </div>
+      )}
+
+      <div className="space-y-2">
         {shown.map((g) => (
-          <GameCard
-            key={g.id}
-            id={g.id}
-            title={g.title}
-            platform={g.platform}
-            year={g.year}
-            coverUrl={g.coverUrl}
-            owned={g.owned}
-            digital={g.digital}
-            wishlisted={g.wishlisted}
-          />
+          <div
+            key={g.id ?? g.title}
+            role="button"
+            tabIndex={0}
+            onClick={() => { setSelected(g); setOpen(true); }}
+            onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setSelected(g); setOpen(true);} }}
+            className="block focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ink-600 rounded-2xl"
+          >
+            <GameCard
+              id={g.id}
+              title={g.title}
+              platform={g.platform}
+              year={g.year}
+              coverUrl={g.coverUrl}
+              owned={g.owned}
+              digital={g.digital}
+              wishlisted={g.wishlisted}
+              // GameCard är redan kompakt i sin design – inget extra prop behövs
+            />
+          </div>
         ))}
-        {shown.length === 0 && (
-          <div className="text-sand-300 text-sm">Inga spel ännu.</div>
+
+        {!loading && shown.length === 0 && (
+          <div className="text-sand-300 text-sm">Inga träffar.</div>
         )}
       </div>
+
+      {open && selected && (
+        <GameDetailsDialog open={open} game={selected} onClose={() => setOpen(false)} />
+      )}
     </section>
   );
 }
