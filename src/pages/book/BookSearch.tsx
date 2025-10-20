@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { db, type Book } from "@/db";
 import BookCard from "@/components/BookCard";
+import BookDetailsDialog from "@/components/BookDetailsDialog";
 
 type Filter = "all" | "owned" | "digital" | "wish";
 
@@ -8,16 +9,26 @@ export default function BookSearch() {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
   const [books, setBooks] = useState<Book[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [errMsg, setErrMsg] = useState<string | null>(null);
+
+  const [open, setOpen] = useState(false);
+  const [selected, setSelected] = useState<Book | null>(null);
 
   useEffect(() => {
-    let mounted = true;
+    let alive = true;
     (async () => {
-      const bs = await db.books.orderBy("title").toArray();
-      if (mounted) setBooks(bs);
+      try {
+        const bs = await db.books.orderBy("title").toArray();
+        if (alive) setBooks(bs);
+      } catch (e: any) {
+        console.error("BookSearch load error:", e);
+        if (alive) setErrMsg(e?.message || "Kunde inte läsa databasen.");
+      } finally {
+        if (alive) setLoading(false);
+      }
     })();
-    return () => {
-      mounted = false;
-    };
+    return () => { alive = false; };
   }, []);
 
   const shown = useMemo(() => {
@@ -38,16 +49,14 @@ export default function BookSearch() {
         b.isbn || "",
         b.publisher || "",
         String(b.year || ""),
-      ]
-        .join(" ")
-        .toLowerCase();
+      ].join(" ").toLowerCase();
 
       return hay.includes(q);
     });
   }, [books, query, filter]);
 
   return (
-    <section className="p-4">
+    <section className="p-4 pb-[calc(env(safe-area-inset-bottom)+1rem)]">
       <h1 className="text-2xl font-semibold mb-3">Sök</h1>
 
       <div className="flex gap-2 flex-wrap mb-3">
@@ -57,6 +66,7 @@ export default function BookSearch() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           type="text"
+          inputMode="search"
         />
         <select value={filter} onChange={(e) => setFilter(e.target.value as Filter)}>
           <option value="all">Alla</option>
@@ -66,14 +76,35 @@ export default function BookSearch() {
         </select>
       </div>
 
-      <div className="space-y-3">
+      {errMsg && (
+        <div className="card p-3 mb-3 text-sm">
+          <div className="font-semibold mb-1">Något gick fel</div>
+          <div className="text-sand-300">{errMsg}</div>
+        </div>
+      )}
+
+      <div className="space-y-2">
         {shown.map((b) => (
-          <BookCard key={b.id} book={b} />
+          <div
+            key={b.id ?? b.title}
+            role="button"
+            tabIndex={0}
+            onClick={() => { setSelected(b); setOpen(true); }}
+            onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setSelected(b); setOpen(true);} }}
+            className="block focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ink-600 rounded-2xl"
+          >
+            <BookCard book={b} />
+          </div>
         ))}
-        {shown.length === 0 && (
+
+        {!loading && shown.length === 0 && (
           <div className="text-sand-300 text-sm">Inga träffar.</div>
         )}
       </div>
+
+      {open && selected && (
+        <BookDetailsDialog open={open} book={selected} onClose={() => setOpen(false)} />
+      )}
     </section>
   );
 }
