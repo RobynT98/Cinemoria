@@ -60,7 +60,10 @@ export default function MovieSearch() {
           onChange={(e) => setQuery(e.target.value)}
           type="text"
         />
-        <select value={filter} onChange={(e) => setFilter(e.target.value as Filter)}>
+        <select
+          value={filter}
+          onChange={(e) => setFilter(e.target.value as Filter)}
+        >
           <option value="all">Alla</option>
           <option value="owned">Ägd</option>
           <option value="digital">Digital</option>
@@ -69,7 +72,7 @@ export default function MovieSearch() {
       </div>
 
       {/* Resultatlista */}
-      <div className="space-y-2">
+      <div className="space-y-3">
         {shown.map((m) => (
           <MovieCard
             key={m.id}
@@ -87,7 +90,11 @@ export default function MovieSearch() {
       </div>
 
       {/* Detalj-dialog */}
-      <MovieDetailsDialog open={open} movie={selected} onClose={() => setOpen(false)} />
+      <MovieDetailsDialog
+        open={open}
+        movie={selected}
+        onClose={() => setOpen(false)}
+      />
     </section>
   );
 }
