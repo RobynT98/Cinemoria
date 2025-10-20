@@ -1,4 +1,3 @@
-// src/pages/profile/ProfilePage.tsx
 import { exportJson, importJson, wipeAll } from "@/db";
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useThemeStore } from "@/store/themeStore";
@@ -20,6 +19,26 @@ export default function ProfilePage() {
   const [isInstallable, setInstallable] = useState(false);
   const [installed, setInstalled] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
+
+  // ---- OMDb & Streckkod (localStorage-backed) ----
+  const [omdbEnabled, setOmdbEnabled] = useState(
+    typeof window !== "undefined" ? localStorage.getItem("cm_omdb_enabled") === "1" : false
+  );
+  const [omdbKey, setOmdbKey] = useState(
+    typeof window !== "undefined" ? localStorage.getItem("cm_omdb_key") ?? "" : ""
+  );
+  const [omdbCheck, setOmdbCheck] = useState<null | "ok" | "fail" | "busy">(null);
+
+  const [cameraStatus, setCameraStatus] = useState<null | "ok" | "denied" | "error" | "busy">(null);
+
+  useEffect(() => {
+    localStorage.setItem("cm_omdb_enabled", omdbEnabled ? "1" : "0");
+  }, [omdbEnabled]);
+
+  useEffect(() => {
+    // Spara tom sträng om nyckeln rensas
+    localStorage.setItem("cm_omdb_key", omdbKey || "");
+  }, [omdbKey]);
 
   // Är vi redan i standalone?
   const checkStandalone = useCallback(() => {
@@ -76,6 +95,64 @@ export default function ProfilePage() {
       // användaren avbröt – inget att göra
     }
   }, []);
+
+  // ---- OMDb: snabb test ----
+  async function testOmdb() {
+    if (!omdbKey.trim()) {
+      setOmdbCheck("fail");
+      setMsg("Ange en OMDb-nyckel först.");
+      return;
+    }
+    try {
+      setOmdbCheck("busy");
+      // Minimal testfråga: "t=Inception&y=2010"
+      const url = `https://www.omdbapi.com/?apikey=${encodeURIComponent(
+        omdbKey.trim()
+      )}&t=Inception&y=2010`;
+      const res = await fetch(url);
+      const json = await res.json();
+      if (json?.Response === "True") {
+        setOmdbCheck("ok");
+        setMsg("OMDb OK – anslutning och nyckel verkar fungera.");
+      } else {
+        setOmdbCheck("fail");
+        setMsg(`OMDb: ${json?.Error || "okänt fel"}`);
+      }
+    } catch (e: any) {
+      setOmdbCheck("fail");
+      setMsg(e?.message || "Kunde inte nå OMDb.");
+    }
+  }
+
+  // ---- Kamera: snabb test ----
+  async function testCamera() {
+    try {
+      setCameraStatus("busy");
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: "environment" } },
+        audio: false,
+      });
+      // Stäng direkt – vi vill bara trigga permission
+      stream.getTracks().forEach((t) => t.stop());
+      setCameraStatus("ok");
+      localStorage.setItem("cm_barcode_tested", "1");
+      setMsg("Kamera OK – streckkodsskannern kan användas.");
+    } catch (e: any) {
+      // Försök läsa permissions API (kan saknas)
+      try {
+        const perm = await (navigator as any).permissions?.query({ name: "camera" });
+        if (perm?.state === "denied") {
+          setCameraStatus("denied");
+          setMsg("Kamera nekad. Tillåt kamera i webbläsarens inställningar.");
+          return;
+        }
+      } catch {
+        // ignore
+      }
+      setCameraStatus("error");
+      setMsg(e?.message || "Kunde inte öppna kameran.");
+    }
+  }
 
   // ---- Backup / Import / Wipe ----
   async function handleExport() {
@@ -182,6 +259,97 @@ export default function ProfilePage() {
           >
             Sepia
           </button>
+        </div>
+      </div>
+
+      {/* Datakällor & Autofyll */}
+      <div className="card p-4 space-y-3">
+        <h2 className="font-semibold">Datakällor & Autofyll</h2>
+
+        {/* OMDb */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between gap-2">
+            <label className="inline-flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={omdbEnabled}
+                onChange={(e) => setOmdbEnabled(e.target.checked)}
+              />
+              Använd OMDb för film-autofyll
+            </label>
+            <span
+              className={
+                omdbCheck === "ok"
+                  ? "text-green-500 text-sm"
+                  : omdbCheck === "fail"
+                  ? "text-red-500 text-sm"
+                  : omdbCheck === "busy"
+                  ? "text-sand-300 text-sm"
+                  : "text-sand-300 text-sm"
+              }
+            >
+              {omdbCheck === "ok"
+                ? "OK"
+                : omdbCheck === "fail"
+                ? "Fel"
+                : omdbCheck === "busy"
+                ? "Testar…"
+                : "—"}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-2">
+            <input
+              type="password"
+              value={omdbKey}
+              onChange={(e) => setOmdbKey(e.target.value)}
+              placeholder="OMDb API-nyckel"
+              aria-label="OMDb API-nyckel"
+            />
+            <button className="btn" onClick={testOmdb} disabled={!omdbEnabled || !omdbKey.trim()}>
+              Testa OMDb
+            </button>
+          </div>
+
+          <p className="text-sand-300 text-xs">
+            Nyckeln sparas lokalt i din webbläsare. Formulären kan läsa den och fylla i fält åt dig.
+          </p>
+        </div>
+
+        <hr className="border-ink-700/30" />
+
+        {/* Streckkod */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between gap-2">
+            <div>
+              <div className="font-medium">Streckkodsskanning</div>
+              <div className="text-sand-300 text-xs">
+                Testa kameratillstånd så skannern kan starta direkt i formulären.
+              </div>
+            </div>
+            <span
+              className={
+                cameraStatus === "ok"
+                  ? "text-green-500 text-sm"
+                  : cameraStatus === "denied" || cameraStatus === "error"
+                  ? "text-red-500 text-sm"
+                  : cameraStatus === "busy"
+                  ? "text-sand-300 text-sm"
+                  : "text-sand-300 text-sm"
+              }
+            >
+              {cameraStatus === "ok"
+                ? "Kamera OK"
+                : cameraStatus === "denied"
+                ? "Nekad"
+                : cameraStatus === "error"
+                ? "Fel"
+                : cameraStatus === "busy"
+                ? "Testar…"
+                : "—"}
+            </span>
+          </div>
+          <button className="btn" onClick={testCamera}>Testa kamera</button>
         </div>
       </div>
 
