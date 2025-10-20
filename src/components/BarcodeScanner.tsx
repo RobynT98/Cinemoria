@@ -38,14 +38,18 @@ export default function BarcodeScanner({
         videoRef.current.srcObject = stream;
         await videoRef.current.play();
 
-        const ctrl = reader.decodeFromVideoDevice(
+        // Viktigt: vänta in promisens resultat innan vi sätter state
+        const ctrl = await reader.decodeFromVideoDevice(
           undefined,
           videoRef.current,
           (res, err) => {
             if (res?.getText()) {
               stop();
               onResult(res.getText().trim());
-            } else if (err && !(err as any)?.message?.includes("No MultiFormat Readers")) {
+            } else if (
+              err &&
+              !(err as any)?.message?.includes("No MultiFormat Readers")
+            ) {
               // ignorerar “inget hittat i den här framen”
             }
           }
@@ -59,8 +63,6 @@ export default function BarcodeScanner({
       }
     }
 
-    start();
-
     function stop() {
       controls?.stop();
       if (videoRef.current?.srcObject) {
@@ -71,12 +73,14 @@ export default function BarcodeScanner({
       }
     }
 
+    start();
+
     return () => {
       cancelled = true;
       stop();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [onResult, onError, showClose, onClose]);
 
   return (
     <div className="relative rounded-xl overflow-hidden">
