@@ -1,10 +1,9 @@
-// src/pages/game/GameListDetailPage.tsx
 import { useEffect, useMemo, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import {
   db,
   type Game,
-  type GameList,
+  type GameList as DbList,
   getGameListById,
   getGamesInGameList,
   linkGameToList,
@@ -19,20 +18,28 @@ export default function GameListDetailPage() {
   const listId = Number(params.id);
   const nav = useNavigate();
 
-  const [list, setList] = useState<GameList | undefined>();
+  const [list, setList] = useState<DbList | undefined>();
   const [allGames, setAllGames] = useState<Game[]>([]);
   const [inList, setInList] = useState<Game[]>([]);
   const [busy, setBusy] = useState(false);
   const [q, setQ] = useState("");
+  const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {
-    if (!Number.isFinite(listId)) return;
+    if (!Number.isFinite(listId)) {
+      setNotFound(true);
+      return;
+    }
     (async () => {
       const [l, games, gIn] = await Promise.all([
         getGameListById(listId),
         db.games.toArray(),
         getGamesInGameList(listId),
       ]);
+      if (!l) {
+        setNotFound(true);
+        return;
+      }
       setList(l);
       setAllGames(games);
       setInList(gIn);
@@ -56,16 +63,22 @@ export default function GameListDetailPage() {
 
   async function handleAdd(g: Game) {
     setBusy(true);
-    await linkGameToList(listId, g.id!);
-    setInList(await getGamesInGameList(listId));
-    setBusy(false);
+    try {
+      await linkGameToList(listId, g.id!);
+      setInList(await getGamesInGameList(listId));
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function handleRemove(g: Game) {
     setBusy(true);
-    await unlinkGameFromList(listId, g.id!);
-    setInList(await getGamesInGameList(listId));
-    setBusy(false);
+    try {
+      await unlinkGameFromList(listId, g.id!);
+      setInList(await getGamesInGameList(listId));
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function handleRename() {
@@ -73,17 +86,38 @@ export default function GameListDetailPage() {
     const name = prompt("Byt namn på listan:", list.name);
     if (!name || !name.trim() || name === list.name) return;
     setBusy(true);
-    await renameGameList(list.id!, name.trim());
-    setList(await getGameListById(listId));
-    setBusy(false);
+    try {
+      await renameGameList(list.id!, name.trim());
+      setList(await getGameListById(listId));
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function handleDelete() {
     if (!list) return;
-    if (!confirm(`Ta bort listan "${list.name}"? (Spelen ligger kvar, bara listan försvinner)`)) return;
+    if (!confirm(`Ta bort listan "${list.name}"? (Spelen ligger kvar)`)) return;
     setBusy(true);
-    await deleteGameList(list.id!);
-    nav("/game/collections");
+    try {
+      await deleteGameList(list.id!);
+      nav("/game/collections");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  if (notFound) {
+    return (
+      <section className="p-4">
+        <div className="flex items-center gap-2 mb-2">
+          <Link to="/game/collections" className="chip">
+            <ArrowLeft size={16} /> Tillbaka
+          </Link>
+          <h1 className="text-2xl font-semibold">Listan hittades inte</h1>
+        </div>
+        <p className="text-sand-300">Antingen finns den inte, eller så var länken ogiltig.</p>
+      </section>
+    );
   }
 
   return (
@@ -91,7 +125,8 @@ export default function GameListDetailPage() {
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <Link to="/game/collections" className="chip">
-            <ArrowLeft size={16} /> Tillbaka
+            <ArrowLeft size={16} />
+            Tillbaka
           </Link>
           <h1 className="text-2xl font-semibold truncate">
             {list?.name ?? "Lista"}
@@ -99,10 +134,12 @@ export default function GameListDetailPage() {
         </div>
         <div className="flex items-center gap-2">
           <button className="chip" onClick={handleRename} disabled={busy}>
-            <Edit3 size={14} /> Byt namn
+            <Edit3 size={14} />
+            Byt namn
           </button>
           <button className="chip" onClick={handleDelete} disabled={busy}>
-            <Trash2 size={14} /> Ta bort
+            <Trash2 size={14} />
+            Ta bort
           </button>
         </div>
       </div>
@@ -129,8 +166,8 @@ export default function GameListDetailPage() {
                   <div className="min-w-0">
                     <div className="font-medium truncate">{g.title}</div>
                     <div className="text-sand-300 text-xs">
-                      {g.platform ? labelPlatform(g.platform) : "Okänd plattform"}{" "}
-                      {g.year ? `• ${g.year}` : ""}
+                      {(g.platform || "Okänd plattform") +
+                        (g.year ? ` • ${g.year}` : "")}
                     </div>
                   </div>
                   <button
@@ -139,7 +176,8 @@ export default function GameListDetailPage() {
                     disabled={busy}
                     title="Ta bort från listan"
                   >
-                    <X size={14} /> Ta bort
+                    <X size={14} />
+                    Ta bort
                   </button>
                 </div>
               ))}
@@ -191,18 +229,4 @@ export default function GameListDetailPage() {
       </div>
     </section>
   );
-}
-
-function labelPlatform(p?: string) {
-  if (!p) return "Övrigt";
-  const s = p.toLowerCase().trim();
-  if (["pc"].includes(s)) return "PC";
-  if (["ps5", "ps4", "playstation", "playstation 5", "playstation 4"].includes(s))
-    return s.toUpperCase().startsWith("PS") ? s.toUpperCase() : "PlayStation";
-  if (["xbox", "xone", "xbox one", "series", "xbox series", "xsx", "xss"].includes(s))
-    return "Xbox";
-  if (["switch", "nintendo switch", "nsw"].includes(s)) return "Switch";
-  if (["mobile", "ios", "android"].includes(s)) return "Mobil";
-  // fallback – visa originaltext
-  return p;
 }
