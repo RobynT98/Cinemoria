@@ -1,10 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { db, type Game } from "@/db";
-import { getGameLists, getGameListCounts } from "@/db";
 import GameCard from "@/components/game/GameCard";
-
-type ListPreview = { id: number; name: string; count: number; createdAt: number };
+import GameDetailsDialog from "@/components/GameDetailsDialog";
 
 export default function GameHome() {
   const navigate = useNavigate();
@@ -18,48 +16,31 @@ export default function GameHome() {
     wish: 0,
     lists: 0,
   });
-  const [listsPreview, setListsPreview] = useState<ListPreview[]>([]);
+
+  // dialog
+  const [open, setOpen] = useState(false);
+  const [selected, setSelected] = useState<Game | null>(null);
 
   useEffect(() => {
     let alive = true;
     (async () => {
       try {
-        const [
-          total,
-          owned,
-          digital,
-          wish,
-          listsCount,
-          recentGames,
-          lists,
-          listCounts,
-        ] = await Promise.all([
+        // List-count: om tabellen saknas -> 0
+        const anyDb = db as any;
+        const listsCount = anyDb.gameLists?.count ? await anyDb.gameLists.count() : 0;
+
+        const [total, owned, digital, wish, recentGames] = await Promise.all([
           db.games.count(),
           db.games.filter((g) => !!g.owned).count(),
           db.games.filter((g) => !!g.digital).count(),
           db.games.filter((g) => !!g.wishlisted).count(),
-          db.gameLists.count(),
           db.games.orderBy("createdAt").reverse().limit(12).toArray(),
-          getGameLists(),
-          getGameListCounts(),
         ]);
 
         if (!alive) return;
 
         setStats({ total, owned, digital, wish, lists: listsCount });
         setRecent(recentGames);
-
-        const withCounts: ListPreview[] = lists
-          .map((l) => ({
-            id: l.id as number,
-            name: l.name,
-            createdAt: l.createdAt,
-            count: (listCounts as any)[String(l.id)] ?? 0,
-          }))
-          .sort((a, b) => b.createdAt - a.createdAt)
-          .slice(0, 3);
-
-        setListsPreview(withCounts);
       } finally {
         if (alive) setLoading(false);
       }
@@ -73,34 +54,25 @@ export default function GameHome() {
 
   return (
     <section className="p-4 space-y-4">
-      {/* Hero */}
       <header>
         <h1 className="text-2xl font-semibold">🎮 Spel</h1>
-        <p className="text-sand-300">
-          Håll koll på bibliotek, plattformar och önskelista — offline och snabbt.
-        </p>
+        <p className="text-sand-300">Håll koll på bibliotek, plattformar och önskelista — offline.</p>
       </header>
 
-      {/* Snabbstart */}
       <div className="card p-4">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
             <h2 className="font-semibold">Kom igång</h2>
-            <p className="text-sand-300 text-sm">
-              Lägg till ett spel, sök i biblioteket eller bygg en spellista.
-            </p>
+            <p className="text-sand-300 text-sm">Lägg till ett spel, sök eller bygg en spellista.</p>
           </div>
           <div className="flex gap-2 flex-wrap">
-            <button className="btn btn-primary" onClick={() => navigate("/game/add")}>
-              Lägg till spel
-            </button>
+            <button className="btn btn-primary" onClick={() => navigate("/game/add")}>Lägg till spel</button>
             <Link to="/game/search" className="btn">Sök</Link>
             <Link to="/game/collections" className="btn">Skapa lista</Link>
           </div>
         </div>
       </div>
 
-      {/* Nyckeltal */}
       <section className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
         <StatCard label="Spel" value={stats.total} />
         <StatCard label="Ägda" value={stats.owned} />
@@ -109,74 +81,49 @@ export default function GameHome() {
         <StatCard label="Listor" value={stats.lists} />
       </section>
 
-      {/* Tomt läge */}
       {showEmptyWelcome && (
         <div className="card p-4">
-          <h3 className="font-semibold mb-1">Ditt bibliotek väntar ✨</h3>
-          <p className="text-sand-300 text-sm mb-3">
-            Lägg till ditt första spel eller importera från JSON-backup under Profil.
-          </p>
+          <h3 className="font-semibold mb-1">Din spelhylla väntar ✨</h3>
+          <p className="text-sand-300 text-sm mb-3">Lägg till ditt första spel eller importera backup via Profil.</p>
           <div className="flex gap-2 flex-wrap">
-            <button className="btn btn-primary" onClick={() => navigate("/game/add")}>
-              Lägg till spel
-            </button>
+            <button className="btn btn-primary" onClick={() => navigate("/game/add")}>Lägg till spel</button>
             <Link to="/profile" className="btn">Importera backup</Link>
           </div>
         </div>
       )}
 
-      {/* Mina listor */}
-      {listsPreview.length > 0 && (
-        <section className="card p-4">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="font-semibold">Mina listor</h2>
-            <Link to="/game/collections" className="text-sm hover:underline">Visa alla</Link>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            {listsPreview.map((l) => (
-              <Link
-                key={l.id}
-                to={`/game/collections/${l.id}`}
-                className="chip no-underline hover:opacity-90 flex items-center justify-between"
-              >
-                <span className="truncate">{l.name}</span>
-                <span className="text-xs opacity-80">
-                  {l.count} spel
-                </span>
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Senast tillagda */}
       <section>
         <div className="flex items-center justify-between">
           <h2 className="font-semibold mb-2">Senast tillagda</h2>
-          {recent.length > 0 && (
-            <Link to="/game/search" className="text-sm hover:underline">Visa fler</Link>
-          )}
+          {recent.length > 0 && <Link to="/game/search" className="text-sm hover:underline">Visa fler</Link>}
         </div>
         <div className="space-y-3">
           {recent.map((g) => (
-            <GameCard
+            <div
               key={g.id}
-              id={g.id}
-              title={g.title}
-              platform={g.platform}
-              year={g.year}
-              coverUrl={g.coverUrl}
-              owned={g.owned}
-              digital={g.digital}
-              wishlisted={g.wishlisted}
-              to={`/game/edit/${g.id}`}
-            />
+              role="button"
+              tabIndex={0}
+              onClick={() => { setSelected(g); setOpen(true); }}
+              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setSelected(g); setOpen(true);} }}
+              className="block focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ink-600 rounded-2xl"
+            >
+              <GameCard
+                id={g.id}
+                title={g.title}
+                platform={g.platform}
+                year={g.year}
+                coverUrl={g.coverUrl}
+                owned={g.owned}
+                digital={g.digital}
+                wishlisted={g.wishlisted}
+              />
+            </div>
           ))}
-          {!loading && recent.length === 0 && (
-            <div className="text-sand-300 text-sm">Inga spel ännu.</div>
-          )}
+          {!loading && recent.length === 0 && (<div className="text-sand-300 text-sm">Inga spel ännu.</div>)}
         </div>
       </section>
+
+      <GameDetailsDialog open={open} game={selected} onClose={() => setOpen(false)} />
     </section>
   );
 }
