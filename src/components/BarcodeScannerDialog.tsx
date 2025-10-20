@@ -1,17 +1,13 @@
 import { useEffect } from "react";
-
-// OBS: vi antar att du redan har denna komponent:
-// import BarcodeScanner from "@/components/BarcodeScanner";
 import BarcodeScanner from "./BarcodeScanner";
 
 type Props = {
-  /** Körs när en streckkod hittas */
+  /** Körs när en streckkod hittas (ex. "5051892191831") */
   onDetected: (code: string) => void;
-  /** Stänger dialogen */
+  /** Stäng dialogen */
   onClose: () => void;
-  /** Valfritt: rubrik i dialogen */
+  /** Valfritt: rubrik och text */
   title?: string;
-  /** Valfritt: beskrivningstext */
   subtitle?: string;
 };
 
@@ -21,7 +17,7 @@ export default function BarcodeScannerDialog({
   title = "Skanna streckkod",
   subtitle = "Rikta kameran mot EAN/UPC. Blixt kan hjälpa i mörker.",
 }: Props) {
-  // stäng med Escape
+  // Stäng med Escape
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
     window.addEventListener("keydown", onKey);
@@ -34,14 +30,14 @@ export default function BarcodeScannerDialog({
       aria-modal="true"
       className="fixed inset-0 z-[1000] flex items-center justify-center"
     >
-      {/* backdrop */}
+      {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/70"
         onClick={onClose}
         aria-hidden
       />
 
-      {/* panel */}
+      {/* Panel */}
       <div className="relative mx-3 w-full max-w-md rounded-2xl bg-ink-900 border border-ink-700 shadow-xl overflow-hidden">
         <div className="p-4 border-b border-ink-700 flex items-center justify-between">
           <div>
@@ -56,11 +52,16 @@ export default function BarcodeScannerDialog({
         {/* Videoyta */}
         <div className="p-3">
           <div className="rounded-xl overflow-hidden bg-black aspect-[3/4]">
-            {/* Din befintliga scanner renderar ett <video> inuti */}
             <BarcodeScanner
-              onDetected={(code: string) => {
-                // Liten debounce: stäng inte innan vi hinner skicka koden uppåt
+              showClose={false}
+              onResult={(code) => {
                 onDetected(code);
+                onClose(); // stäng när vi fått kod
+              }}
+              onError={(err) => {
+                console.error("Scanner error:", err);
+                // valfritt: visa toast/alert här
+                onClose();
               }}
             />
           </div>
