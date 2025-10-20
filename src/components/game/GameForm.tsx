@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { db, type Game } from "@/db";
 import { useNavigate } from "react-router-dom";
+import BarcodeScannerDialog from "@/components/BarcodeScannerDialog";
 
 interface GameFormProps {
   initial?: Game;
@@ -10,6 +11,7 @@ interface GameFormProps {
 
 export default function GameForm({ initial, submitLabel, onSubmit }: GameFormProps) {
   const nav = useNavigate();
+  const [scanOpen, setScanOpen] = useState(false);
 
   const [g, setG] = useState<Game>(
     initial ?? {
@@ -17,6 +19,8 @@ export default function GameForm({ initial, submitLabel, onSubmit }: GameFormPro
       year: undefined,
       platform: "",
       coverUrl: "",
+      // nyckeln här: lokalt sparad streckkod (ingen nät-hämtning)
+      barcode: "",
       owned: false,
       digital: false,
       wishlisted: false,
@@ -91,20 +95,60 @@ export default function GameForm({ initial, submitLabel, onSubmit }: GameFormPro
         />
       </div>
 
+      {/* Streckkod (lokal, offline) */}
+      <div>
+        <label className="block text-sm mb-1">Streckkod (EAN/UPC)</label>
+        <div className="flex items-center gap-2">
+          <input
+            type="text"
+            value={g.barcode ?? ""}
+            onChange={(e) => set("barcode", e.target.value)}
+            placeholder="t.ex. 8717418395693"
+            className="flex-1"
+          />
+          <button className="btn" onClick={() => setScanOpen(true)}>
+            Skanna
+          </button>
+        </div>
+        {scanOpen && (
+          <BarcodeScannerDialog
+            title="Skanna spelstreckkod"
+            subtitle="Kameran startar – rikta mot EAN/UPC"
+            onDetected={(code) => {
+              set("barcode", code);
+              setScanOpen(false);
+            }}
+            onClose={() => setScanOpen(false)}
+          />
+        )}
+      </div>
+
       {/* Ägande */}
       <div className="card p-3">
         <h3 className="font-semibold mb-2">Ägande</h3>
         <div className="flex items-center gap-4 flex-wrap">
           <label className="inline-flex items-center gap-2">
-            <input type="checkbox" checked={!!g.owned} onChange={(e) => set("owned", e.target.checked)} />
+            <input
+              type="checkbox"
+              checked={!!g.owned}
+              onChange={(e) => set("owned", e.target.checked)}
+            />
             Ägd
           </label>
           <label className="inline-flex items-center gap-2">
-            <input type="checkbox" checked={!!g.digital} onChange={(e) => set("digital", e.target.checked)} />
+            <input
+              type="checkbox"
+              checked={!!g.digital}
+              onChange={(e) => set("digital", e.target.checked)}
+            />
             Digital
           </label>
           <label className="inline-flex items-center gap-2">
-            <input type="checkbox" checked={!!g.wishlisted} onChange={(e) => set("wishlisted", e.target.checked)} />
+            <input
+              type="checkbox"
+              checked={!!g.wishlisted}
+              onChange={(e) => set("wishlisted", e.target.checked)}
+            />
             Önskelista
           </label>
         </div>
