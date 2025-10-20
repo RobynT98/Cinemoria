@@ -1,135 +1,45 @@
 <!doctype html>
-<html lang="sv" class="h-full">
+<html lang="sv">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta charset="utf-8" />
+    <!-- Viktigt för mobil: förhindra autozoom + använd hela skärmen -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+    />
+
+    <!-- PWA / iOS webapp-beteende -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="mobile-web-app-capable" content="yes" />
+
+    <!-- Theme-färg (ljus/mörk) för statusbar -->
+    <meta name="theme-color" content="#0b0f14" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+
+    <meta name="description" content="Cinemoria – din offline-katalog för film, böcker och spel." />
     <title>Cinemoria</title>
 
-    <meta name="theme-color" content="#c18a47" />
-    <link rel="manifest" href="manifest.webmanifest" />
-    <link rel="icon" href="favicon.ico" />
-    <link rel="preload" as="image" href="icons/icon-192.png" />
+    <!-- Manifest & ev. ikoner (om du har dem i public/) -->
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
-    <!-- Tema tidigt -->
-    <script>
-      (function () {
-        try {
-          const root = document.documentElement;
-          const t = localStorage.getItem("cm_theme");
-          root.classList.remove("dark", "sepia");
-          if (t === "dark") root.classList.add("dark");
-          else if (t === "sepia") root.classList.add("sepia");
-          else if (window.matchMedia("(prefers-color-scheme: dark)").matches)
-            root.classList.add("dark");
-        } catch {}
-      })();
-    </script>
-
-    <!-- Minimal direkt-stil så splashen syns och kan fadas innan bundlarna laddas -->
-    <style>
-      html,
-      body,
-      #splash {
-        margin: 0;
-        padding: 0;
-        height: 100%;
-      }
-      #splash {
-        position: fixed;
-        inset: 0;
-        display: grid;
-        place-items: center;
-        background: #ffffff;
-        z-index: 9999;
-        opacity: 1;
-        transition: opacity 0.35s ease;
-      }
-      .dark #splash {
-        background: #1f2429;
-      }
-      .sepia #splash {
-        background: #f5e6c5;
-      }
-      #splash .logo {
-        width: 120px;
-        height: 120px;
-        border-radius: 24px;
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
-        opacity: 0;
-        transform: translateY(6px) scale(0.98);
-        animation: splash-in 0.4s ease forwards;
-      }
-      #splash.hide {
-        opacity: 0;
-        pointer-events: none;
-      }
-      @keyframes splash-in {
-        to {
-          opacity: 1;
-          transform: translateY(0) scale(1);
-        }
-      }
-      @media (prefers-reduced-motion: reduce) {
-        #splash .logo {
-          animation: none !important;
-          opacity: 1 !important;
-          transform: none !important;
-        }
-      }
-    </style>
-  </head>
-
-  <body class="h-full">
-    <!-- Enkel splash-overlay -->
-    <div id="splash" aria-hidden="true">
-      <img
-        class="logo"
-        src="icons/icon-192.png"
-        alt="Cinemoria"
-        width="120"
-        height="120"
-        decoding="async"
-        fetchpriority="high"
-      />
-    </div>
-
-    <div id="root" class="h-full"></div>
-
-    <!-- Ladda appen (Vite reskriver path med base vid build) -->
+    <!-- Vite mountar här -->
     <script type="module" src="/src/main.tsx"></script>
 
-    <!-- Splash fade ut -->
-    <script>
-      (function () {
-        const splash = document.getElementById("splash");
-        const root = document.getElementById("root");
-        if (!splash) return;
-
-        function hideSplash() {
-          if (!splash || splash.classList.contains("hide")) return;
-          splash.classList.add("hide");
-          splash.addEventListener("transitionend", () => splash.remove(), {
-            once: true,
-          });
-        }
-
-        // När React mountar något
-        if ("MutationObserver" in window && root) {
-          const obs = new MutationObserver(() => {
-            if (root.childElementCount > 0) {
-              requestAnimationFrame(() => setTimeout(hideSplash, 220));
-              obs.disconnect();
-            }
-          });
-          obs.observe(root, { childList: true });
-        }
-
-        // Reserv
-        window.addEventListener("load", () => setTimeout(hideSplash, 300));
-
-        // Nödfall
-        setTimeout(hideSplash, 2500);
-      })();
-    </script>
+    <!-- Liten guard mot “vit skärm” vid långsam mount på vissa mobiler -->
+    <style>
+      html, body, #root { height: 100%; }
+      body { margin: 0; background: #0b0f14; } /* matchar dark bakgrund så tomt != vit-blänk */
+      @media (prefers-color-scheme: light) {
+        body { background: #ffffff; }
+      }
+      /* undvik dubbelscroll */
+      html, body { overflow-x: hidden; }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
   </body>
 </html>
