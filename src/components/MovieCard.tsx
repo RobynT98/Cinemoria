@@ -1,16 +1,19 @@
-import { Movie } from "@/db";
+// src/components/MovieCard.tsx
+import { type Movie } from "@/db";
 import { Link } from "react-router-dom";
 import { Film, Star, Check } from "lucide-react";
 import clsx from "classnames";
 
 type MovieCardProps = {
   movie: Movie;
-  /** Gör hela kortet klickbart om satt (t.ex. till detalj- eller edit-sida) */
+  /** Länka kortet till en ruta (t.ex. /movie/edit/1). */
   to?: string;
+  /** Om satt: gör kortet klickbart och kör denna när man klickar (öppna detaljdialog). */
+  onOpenDetails?: () => void;
   className?: string;
 };
 
-export default function MovieCard({ movie, to, className }: MovieCardProps) {
+export default function MovieCard({ movie, to, onOpenDetails, className }: MovieCardProps) {
   const body = (
     <article className={clsx("card p-3 flex gap-3 items-start", className)}>
       {/* Poster */}
@@ -78,11 +81,36 @@ export default function MovieCard({ movie, to, className }: MovieCardProps) {
     </article>
   );
 
-  return to ? (
-    <Link to={to} className="block no-underline hover:opacity-95" aria-label={movie.title}>
-      {body}
-    </Link>
-  ) : body;
+  if (to) {
+    return (
+      <Link to={to} className="block no-underline hover:opacity-95" aria-label={movie.title}>
+        {body}
+      </Link>
+    );
+  }
+
+  if (onOpenDetails) {
+    const onKeyDown: React.KeyboardEventHandler<HTMLDivElement> = (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        onOpenDetails();
+      }
+    };
+    return (
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={onOpenDetails}
+        onKeyDown={onKeyDown}
+        className="block hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ink-600 rounded-2xl"
+        aria-label={`Öppna detaljer för ${movie.title}`}
+      >
+        {body}
+      </div>
+    );
+  }
+
+  return body;
 }
 
 function labelFormat(f?: Movie["format"]) {
