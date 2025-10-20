@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { db, type Book, type BookFormat } from "@/db";
 import { useNavigate } from "react-router-dom";
 import BarcodeScanner from "@/components/BarcodeScanner";
@@ -17,11 +17,14 @@ const formatOptions: { value: BookFormat; label: string }[] = [
   { value: "audiobook", label: "Ljudbok" },
 ];
 
-export default function BookForm({
-  initial,
-  submitLabel,
-  onSubmit,
-}: BookFormProps) {
+function parseGenres(text: string): string[] {
+  return text
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
+export default function BookForm({ initial, submitLabel, onSubmit }: BookFormProps) {
   const nav = useNavigate();
   const [scanning, setScanning] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -46,9 +49,16 @@ export default function BookForm({
     }
   );
 
+  // Fristående text-state för genrer så du kan skriva “Skräck, Fantasy …” i lugn och ro
+  const [genresText, setGenresText] = useState<string>((b.genres ?? []).join(", "));
+
   function set<K extends keyof Book>(key: K, val: Book[K]) {
     setB((x) => ({ ...x, [key]: val }));
   }
+
+  const syncGenresFromText = useCallback(() => {
+    set("genres", parseGenres(genresText));
+  }, [genresText]);
 
   async function fetchBookByIsbn(isbn: string) {
     try {
@@ -79,8 +89,6 @@ export default function BookForm({
         pages: data.number_of_pages ?? x.pages,
         publisher: publisher ?? x.publisher,
       }));
-
-      console.log("Bokinfo hämtad för ISBN", clean);
     } catch (e) {
       console.error(e);
     } finally {
@@ -89,6 +97,9 @@ export default function BookForm({
   }
 
   async function save() {
+    // se till att genresText är synkat om du glömt lämna fältet
+    syncGenresFromText();
+
     if (!b.title.trim()) return alert("Titel krävs");
     const data: Book = { ...b, createdAt: b.createdAt || Date.now() };
 
@@ -137,10 +148,12 @@ export default function BookForm({
         <div className="text-xs text-green-400/80">Bokinfo hämtad</div>
       ) : null}
 
+      {/* Titel & Författare */}
       <div>
         <label className="block text-sm mb-1">Titel</label>
         <input
           type="text"
+          inputMode="text"
           value={b.title}
           onChange={(e) => set("title", e.target.value)}
           placeholder="Den hemliga historien"
@@ -150,17 +163,20 @@ export default function BookForm({
         <label className="block text-sm mb-1">Författare</label>
         <input
           type="text"
+          inputMode="text"
           value={b.author ?? ""}
           onChange={(e) => set("author", e.target.value)}
           placeholder="Donna Tartt"
         />
       </div>
 
+      {/* År & Sidor */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <label className="block text-sm mb-1">År</label>
           <input
             type="number"
+            inputMode="numeric"
             value={b.year ?? ""}
             onChange={(e) => set("year", Number(e.target.value) || undefined)}
             placeholder="1992"
@@ -170,6 +186,7 @@ export default function BookForm({
           <label className="block text-sm mb-1">Sidor</label>
           <input
             type="number"
+            inputMode="numeric"
             value={b.pages ?? ""}
             onChange={(e) => set("pages", Number(e.target.value) || undefined)}
             placeholder="560"
@@ -177,11 +194,13 @@ export default function BookForm({
         </div>
       </div>
 
+      {/* Språk & Format */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <label className="block text-sm mb-1">Språk</label>
           <input
             type="text"
+            inputMode="text"
             value={b.language ?? ""}
             onChange={(e) => set("language", e.target.value)}
             placeholder="sv"
@@ -202,11 +221,13 @@ export default function BookForm({
         </div>
       </div>
 
+      {/* ISBN & Förlag */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <label className="block text-sm mb-1">ISBN</label>
           <input
             type="text"
+            inputMode="numeric"
             value={b.isbn ?? ""}
             onChange={(e) => set("isbn", e.target.value)}
             placeholder="9781234567897"
@@ -216,6 +237,7 @@ export default function BookForm({
           <label className="block text-sm mb-1">Förlag</label>
           <input
             type="text"
+            inputMode="text"
             value={b.publisher ?? ""}
             onChange={(e) => set("publisher", e.target.value)}
             placeholder="Albert Bonniers"
@@ -223,21 +245,26 @@ export default function BookForm({
         </div>
       </div>
 
+      {/* Genrer */}
       <div>
         <label className="block text-sm mb-1">Genrer (kommaseparerade)</label>
         <input
           type="text"
-          value={(b.genres ?? []).join(", ")}
-          onChange={(e) =>
-            set(
-              "genres",
-              e.target.value.split(",").map((s) => s.trim()).filter(Boolean)
-            )
-          }
+          inputMode="text"
+          value={genresText}
+          onChange={(e) => setGenresText(e.target.value)}
+          onBlur={syncGenresFromText}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              syncGenresFromText();
+            }
+          }}
           placeholder="Skräck, Fantasy …"
         />
       </div>
 
+      {/* Omslag & Anteckningar */}
       <div>
         <label className="block text-sm mb-1">Omslagsbild (URL)</label>
         <input
@@ -253,9 +280,11 @@ export default function BookForm({
           rows={4}
           value={b.notes ?? ""}
           onChange={(e) => set("notes", e.target.value)}
+          placeholder="Valfri notering…"
         />
       </div>
 
+      {/* Status */}
       <div className="card p-3">
         <h3 className="font-semibold mb-2">Status</h3>
         <div className="flex items-center gap-4 flex-wrap">
@@ -286,6 +315,7 @@ export default function BookForm({
         </div>
       </div>
 
+      {/* Actions */}
       <div className="pt-2">
         <button className="btn btn-primary" onClick={save}>
           {submitLabel}
