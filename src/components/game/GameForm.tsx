@@ -1,5 +1,7 @@
+// src/components/game/GameForm.tsx
 import { useState } from "react";
-import { db, type Game } from "@/db";
+import { db } from "@/db";
+import type { Game } from "@/types";
 import { useNavigate } from "react-router-dom";
 import BarcodeScannerDialog from "@/components/BarcodeScannerDialog";
 
@@ -19,14 +21,16 @@ export default function GameForm({ initial, submitLabel, onSubmit }: GameFormPro
       year: undefined,
       platform: "",
       coverUrl: "",
-      // nyckeln här: lokalt sparad streckkod (ingen nät-hämtning)
+      // lokal streckkod (offline)
       barcode: "",
       owned: false,
       digital: false,
       wishlisted: false,
       notes: "",
       createdAt: Date.now(),
-    }
+      // updatedAt finns i types, men db sätter/ignorerar – inget måste här
+      updatedAt: Date.now(),
+    } as Game
   );
 
   function set<K extends keyof Game>(key: K, val: Game[K]) {
@@ -35,7 +39,11 @@ export default function GameForm({ initial, submitLabel, onSubmit }: GameFormPro
 
   async function save() {
     if (!g.title.trim()) return alert("Titel krävs");
-    const data: Game = { ...g, createdAt: g.createdAt || Date.now() };
+    const data: Game = {
+      ...g,
+      createdAt: g.createdAt || Date.now(),
+      updatedAt: Date.now(),
+    };
 
     if (onSubmit) {
       await onSubmit(data);
