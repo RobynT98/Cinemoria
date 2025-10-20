@@ -121,9 +121,7 @@ export default function BookForm({ initial, submitLabel, onSubmit }: BookFormPro
             onChange={(e) => set("format", e.target.value as BookFormat)}
           >
             {formatOptions.map((o) => (
-              <option key={o.value} value={o.value}>
-                {o.label}
-              </option>
+              <option key={o.value} value={o.value}>{o.label}</option>
             ))}
           </select>
         </div>
@@ -132,19 +130,11 @@ export default function BookForm({ initial, submitLabel, onSubmit }: BookFormPro
       {/* ISBN & Förlag */}
       <div>
         <label className="block text-sm mb-1">ISBN</label>
-        <input
-          type="text"
-          value={b.isbn ?? ""}
-          onChange={(e) => set("isbn", e.target.value)}
-        />
+        <input type="text" value={b.isbn ?? ""} onChange={(e) => set("isbn", e.target.value)} />
       </div>
       <div>
         <label className="block text-sm mb-1">Förlag</label>
-        <input
-          type="text"
-          value={b.publisher ?? ""}
-          onChange={(e) => set("publisher", e.target.value)}
-        />
+        <input type="text" value={b.publisher ?? ""} onChange={(e) => set("publisher", e.target.value)} />
       </div>
 
       {/* Genrer */}
@@ -156,10 +146,7 @@ export default function BookForm({ initial, submitLabel, onSubmit }: BookFormPro
           onChange={(e) =>
             set(
               "genres",
-              e.target.value
-                .split(",")
-                .map((s) => s.trim())
-                .filter(Boolean)
+              e.target.value.split(",").map((s) => s.trim()).filter(Boolean)
             )
           }
           placeholder="Skräck, Fantasy …"
@@ -178,11 +165,7 @@ export default function BookForm({ initial, submitLabel, onSubmit }: BookFormPro
       </div>
       <div>
         <label className="block text-sm mb-1">Anteckningar</label>
-        <textarea
-          rows={4}
-          value={b.notes ?? ""}
-          onChange={(e) => set("notes", e.target.value)}
-        />
+        <textarea rows={4} value={b.notes ?? ""} onChange={(e) => set("notes", e.target.value)} />
       </div>
 
       {/* Status */}
@@ -190,32 +173,21 @@ export default function BookForm({ initial, submitLabel, onSubmit }: BookFormPro
         <h3 className="font-semibold mb-2">Status</h3>
         <div className="flex items-center gap-4 flex-wrap">
           <label className="inline-flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={!!b.owned}
-              onChange={(e) => set("owned", e.target.checked)}
-            />
+            <input type="checkbox" checked={!!b.owned} onChange={(e) => set("owned", e.target.checked)} />
             Ägd
           </label>
           <label className="inline-flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={!!b.digital}
-              onChange={(e) => set("digital", e.target.checked)}
-            />
+            <input type="checkbox" checked={!!b.digital} onChange={(e) => set("digital", e.target.checked)} />
             Digital
           </label>
           <label className="inline-flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={!!b.wishlisted}
-              onChange={(e) => set("wishlisted", e.target.checked)}
-            />
+            <input type="checkbox" checked={!!b.wishlisted} onChange={(e) => set("wishlisted", e.target.checked)} />
             Önskelista
           </label>
         </div>
       </div>
 
+      {/* Actions */}
       <div className="pt-2">
         <button className="btn btn-primary" onClick={save}>
           {submitLabel}
