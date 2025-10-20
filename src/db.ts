@@ -4,7 +4,7 @@ import Dexie, { Table } from "dexie";
 /* ---------- Typer: Film ---------- */
 
 export type Format =
-  | "uhd"      // 4K UHD
+  | "uhd" // 4K UHD
   | "bluray"
   | "dvd"
   | "digital"
@@ -13,8 +13,16 @@ export type Format =
 
 export type VideoStandard = "PAL" | "NTSC" | "SECAM";
 export type RegionCode =
-  | "BD-A" | "BD-B" | "BD-C"
-  | "DVD-1" | "DVD-2" | "DVD-3" | "DVD-4" | "DVD-5" | "DVD-6" | "DVD-ALL"
+  | "BD-A"
+  | "BD-B"
+  | "BD-C"
+  | "DVD-1"
+  | "DVD-2"
+  | "DVD-3"
+  | "DVD-4"
+  | "DVD-5"
+  | "DVD-6"
+  | "DVD-ALL"
   | "NONE";
 
 export interface Movie {
@@ -24,7 +32,7 @@ export interface Movie {
   genres?: string[];
   posterUrl?: string;
   seen?: boolean;
-  rating?: number;          // 1–10
+  rating?: number; // 1–10
   trailerUrl?: string;
   createdAt: number;
 
@@ -33,17 +41,17 @@ export interface Movie {
   wishlisted?: boolean;
   digital?: boolean;
   format?: Format;
-  location?: string;        // hylla/låda/konto
-  provider?: string;        // iTunes/Google/Plex …
+  location?: string; // hylla/låda/konto
+  provider?: string; // iTunes/Google/Plex …
 
   // Utgåva/teknik
-  edition?: string;         // "First Press UK", "Steelbook" …
-  releaseYear?: number;     // utgåvans år
-  cut?: string;             // "Theatrical", "Extended" …
-  audioVariant?: string;    // "Original UK", "US dub"
+  edition?: string; // "First Press UK", "Steelbook" …
+  releaseYear?: number; // utgåvans år
+  cut?: string; // "Theatrical", "Extended" …
+  audioVariant?: string; // "Original UK", "US dub"
   videoStandard?: VideoStandard;
   region?: RegionCode;
-  barcode?: string;         // EAN/UPC
+  barcode?: string; // EAN/UPC
   notes?: string;
 }
 
@@ -79,10 +87,10 @@ export interface Book {
   coverUrl?: string;
   owned?: boolean;
   wishlisted?: boolean;
-  digital?: boolean;   // e-bok/ljudbok
+  digital?: boolean; // e-bok/ljudbok
   format?: BookFormat; // hardcover/paperback/ebook/audiobook/other
   isbn?: string;
-  language?: string;   // "sv", "en", …
+  language?: string; // "sv", "en", …
   pages?: number;
   publisher?: string;
   notes?: string;
@@ -109,7 +117,7 @@ export interface Game {
   id?: number;
   title: string;
   year?: number;
-  platform?: string;     // "PS5", "Switch", "PC"...
+  platform?: string; // "PS5", "Switch", "PC"...
   coverUrl?: string;
   owned?: boolean;
   digital?: boolean;
@@ -619,9 +627,15 @@ export async function unlinkGameFromList(listId: number, gameId: number) {
 
 export async function exportJson(): Promise<string> {
   const [
-    movies, lists, links,
-    books, bookLists, bookLinks,
-    games, gameLists, gameLinks
+    movies,
+    lists,
+    links,
+    books,
+    bookLists,
+    bookLinks,
+    games,
+    gameLists,
+    gameLinks,
   ] = await Promise.all([
     db.movies.toArray(),
     db.lists.toArray(),
@@ -634,8 +648,19 @@ export async function exportJson(): Promise<string> {
     db.gameList.toArray(),
   ]);
   return JSON.stringify(
-    { movies, lists, links, books, bookLists, bookLinks, games, gameLists, gameLinks },
-    null, 2
+    {
+      movies,
+      lists,
+      links,
+      books,
+      bookLists,
+      bookLinks,
+      games,
+      gameLists,
+      gameLinks,
+    },
+    null,
+    2
   );
 }
 
@@ -725,9 +750,15 @@ export async function importJson(text: string) {
   const gameLinks = Array.isArray(data.gameLinks) ? data.gameLinks : [];
 
   // Counters
-  let addedMovies = 0, addedLists = 0, addedLinks = 0;
-  let addedBooks = 0, addedBookLists = 0, addedBookLinks = 0;
-  let addedGames = 0, addedGameLists = 0, addedGameLinks = 0;
+  let addedMovies = 0,
+    addedLists = 0,
+    addedLinks = 0;
+  let addedBooks = 0,
+    addedBookLists = 0,
+    addedBookLinks = 0;
+  let addedGames = 0,
+    addedGameLists = 0,
+    addedGameLinks = 0;
 
   // Id-mappar
   const movieIdMap = new Map<number, number>();
@@ -740,42 +771,63 @@ export async function importJson(text: string) {
   await db.transaction(
     "rw",
     [
-      db.movies, db.lists, db.movieList,
-      db.books, db.bookLists, db.bookList,
-      db.games, db.gameLists, db.gameList,
+      db.movies,
+      db.lists,
+      db.movieList,
+      db.books,
+      db.bookLists,
+      db.bookList,
+      db.games,
+      db.gameLists,
+      db.gameList,
     ],
     async () => {
       // ---- FILMER ----
       for (const m of movies) {
         const { id: _old, ...rest } = m;
-        const id = await db.movies.add({ ...rest, createdAt: rest.createdAt || Date.now() });
+        const id = await db.movies.add({
+          ...rest,
+          createdAt: rest.createdAt || Date.now(),
+        });
         addedMovies++;
         if (typeof m.id === "number") movieIdMap.set(m.id, id);
       }
       for (const l of lists) {
         const { id: _old, ...rest } = l;
-        const id = await db.lists.add({ ...rest, createdAt: rest.createdAt || Date.now() });
+        const id = await db.lists.add({
+          ...rest,
+          createdAt: rest.createdAt || Date.now(),
+        });
         addedLists++;
         if (typeof l.id === "number") listIdMap.set(l.id, id);
       }
       for (const ln of links) {
         const movieId = movieIdMap.get(ln.movieId) ?? ln.movieId;
-        const listId  = listIdMap.get(ln.listId) ?? ln.listId;
+        const listId = listIdMap.get(ln.listId) ?? ln.listId;
         if (typeof movieId !== "number" || typeof listId !== "number") continue;
         const exists = await db.movieList.where({ movieId, listId }).first();
-        if (!exists) { await db.movieList.add({ movieId, listId } as any); addedLinks++; }
+        if (!exists) {
+          await db.movieList.add({ movieId, listId } as any);
+          addedLinks++;
+        }
       }
 
       // ---- BÖCKER ----
       for (const b of books) {
         const { id: _old, ...rest } = b;
-        const id = await db.books.add({ ...rest, createdAt: rest.createdAt || Date.now() });
+        const id = await db.books.add({
+          ...rest,
+          createdAt: rest.createdAt || Date.now(),
+        });
         addedBooks++;
         if (typeof b.id === "number") bookIdMap.set(b.id, id);
       }
       for (const bl of bookLists) {
         const { id: _old, ...rest } = bl;
-        const id = await db.bookLists.add({ ...rest, createdAt: rest.createdAt || Date.now() });
+        const id = await db.bookLists.add({
+          ...rest,
+          createdAt: rest.createdAt || Date.now(),
+        });
         addedBookLists++;
         if (typeof bl.id === "number") bookListIdMap.set(bl.id, id);
       }
@@ -784,19 +836,28 @@ export async function importJson(text: string) {
         const listId = bookListIdMap.get(ln.listId) ?? ln.listId;
         if (typeof bookId !== "number" || typeof listId !== "number") continue;
         const exists = await db.bookList.where({ bookId, listId }).first();
-        if (!exists) { await db.bookList.add({ bookId, listId } as any); addedBookLinks++; }
+        if (!exists) {
+          await db.bookList.add({ bookId, listId } as any);
+          addedBookLinks++;
+        }
       }
 
       // ---- SPEL ----
       for (const g of games) {
         const { id: _old, ...rest } = g;
-        const id = await db.games.add({ ...rest, createdAt: rest.createdAt || Date.now() });
+        const id = await db.games.add({
+          ...rest,
+          createdAt: rest.createdAt || Date.now(),
+        });
         addedGames++;
         if (typeof g.id === "number") gameIdMap.set(g.id, id);
       }
       for (const gl of gameLists) {
         const { id: _old, ...rest } = gl;
-        const id = await db.gameLists.add({ ...rest, createdAt: rest.createdAt || Date.now() });
+        const id = await db.gameLists.add({
+          ...rest,
+          createdAt: rest.createdAt || Date.now(),
+        });
         addedGameLists++;
         if (typeof gl.id === "number") gameListIdMap.set(gl.id, id);
       }
@@ -805,15 +866,24 @@ export async function importJson(text: string) {
         const listId = gameListIdMap.get(ln.listId) ?? ln.listId;
         if (typeof gameId !== "number" || typeof listId !== "number") continue;
         const exists = await db.gameList.where({ gameId, listId }).first();
-        if (!exists) { await db.gameList.add({ gameId, listId } as any); addedGameLinks++; }
+        if (!exists) {
+          await db.gameList.add({ gameId, listId } as any);
+          addedGameLinks++;
+        }
       }
     }
   );
 
   return {
-    addedMovies, addedLists, addedLinks,
-    addedBooks, addedBookLists, addedBookLinks,
-    addedGames, addedGameLists, addedGameLinks,
+    addedMovies,
+    addedLists,
+    addedLinks,
+    addedBooks,
+    addedBookLists,
+    addedBookLinks,
+    addedGames,
+    addedGameLists,
+    addedGameLinks,
   };
 }
 
@@ -825,9 +895,15 @@ export async function wipeAll() {
   await db.transaction(
     "rw",
     [
-      db.movies, db.lists, db.movieList,
-      db.books, db.bookLists, db.bookList,
-      db.games, db.gameLists, db.gameList,
+      db.movies,
+      db.lists,
+      db.movieList,
+      db.books,
+      db.bookLists,
+      db.bookList,
+      db.games,
+      db.gameLists,
+      db.gameList,
     ],
     async () => {
       await db.movieList.clear();
