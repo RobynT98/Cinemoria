@@ -1,4 +1,3 @@
-// src/components/MovieForm.tsx
 import { useState } from "react";
 import { db, Movie, Format, VideoStandard, RegionCode } from "@/db";
 import { useNavigate } from "react-router-dom";
@@ -20,7 +19,7 @@ const formats: { value: Format; label: string }[] = [
 
 const videoStandards: VideoStandard[] = ["PAL", "NTSC", "SECAM"];
 const bluRegions: RegionCode[] = ["BD-A", "BD-B", "BD-C"];
-const dvdRegions: RegionCode[] = ["DVD-1", "DVD-2", "DVD-3", "DVD-4", "DVD-5", "DVD-6", "DVD-ALL"];
+the dvdRegions: RegionCode[] = ["DVD-1", "DVD-2", "DVD-3", "DVD-4", "DVD-5", "DVD-6", "DVD-ALL"];
 const noneRegion: RegionCode[] = ["NONE"];
 
 export default function MovieForm({ initial, submitLabel, onSubmit }: MovieFormProps) {
@@ -66,31 +65,32 @@ export default function MovieForm({ initial, submitLabel, onSubmit }: MovieFormP
     if (onSubmit) {
       await onSubmit(data);
     } else {
-      // Fallback: spara direkt i DB
       if (initial?.id != null) {
-        // put() accepterar fulla objekt (med id)
         await db.movies.put({ ...data, id: initial.id });
       } else {
         await db.movies.add(data);
       }
-      nav("/");
+      nav("/movie");
     }
   }
 
   return (
     <div className="card p-4 space-y-3">
+      {/* Titel */}
       <div>
         <label className="block text-sm mb-1">Titel</label>
         <input value={m.title} onChange={(e) => set("title", e.target.value)} type="text" />
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
+      {/* År & Betyg */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <label className="block text-sm mb-1">År</label>
           <input
             value={m.year ?? ""}
             onChange={(e) => set("year", Number(e.target.value) || undefined)}
             type="number"
+            placeholder="1999"
           />
         </div>
         <div>
@@ -99,10 +99,12 @@ export default function MovieForm({ initial, submitLabel, onSubmit }: MovieFormP
             value={m.rating ?? ""}
             onChange={(e) => set("rating", Number(e.target.value) || undefined)}
             type="number"
+            placeholder="8"
           />
         </div>
       </div>
 
+      {/* Genrer */}
       <div>
         <label className="block text-sm mb-1">Genrer (kommaseparerade)</label>
         <input
@@ -114,10 +116,12 @@ export default function MovieForm({ initial, submitLabel, onSubmit }: MovieFormP
             )
           }
           type="text"
+          placeholder="Action, Sci-Fi …"
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
+      {/* Media-länkar */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <label className="block text-sm mb-1">Poster URL</label>
           <input value={m.posterUrl ?? ""} onChange={(e) => set("posterUrl", e.target.value)} type="url" />
@@ -158,7 +162,7 @@ export default function MovieForm({ initial, submitLabel, onSubmit }: MovieFormP
             </select>
           </div>
 
-          <div className="mt-3 grid grid-cols-2 gap-3">
+          <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-sm mb-1">Plats / Hylla</label>
               <input value={m.location ?? ""} onChange={(e) => set("location", e.target.value)} type="text" />
@@ -174,7 +178,7 @@ export default function MovieForm({ initial, submitLabel, onSubmit }: MovieFormP
         <div>
           <h3 className="font-semibold mb-2">Utgåva & Teknik</h3>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-sm mb-1">Utgåva</label>
               <input placeholder="Steelbook / First Press UK…" value={m.edition ?? ""} onChange={(e) => set("edition", e.target.value)} type="text" />
@@ -185,7 +189,7 @@ export default function MovieForm({ initial, submitLabel, onSubmit }: MovieFormP
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 mt-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
             <div>
               <label className="block text-sm mb-1">Cut</label>
               <input placeholder="Theatrical / Extended…" value={m.cut ?? ""} onChange={(e) => set("cut", e.target.value)} type="text" />
@@ -196,15 +200,13 @@ export default function MovieForm({ initial, submitLabel, onSubmit }: MovieFormP
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 mt-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
             <div>
               <label className="block text-sm mb-1">Videostandard</label>
               <select value={m.videoStandard ?? ""} onChange={(e) => set("videoStandard", (e.target.value || undefined) as any)}>
                 <option value="">–</option>
                 {videoStandards.map((v) => (
-                  <option key={v} value={v}>
-                    {v}
-                  </option>
+                  <option key={v} value={v}>{v}</option>
                 ))}
               </select>
             </div>
@@ -212,15 +214,13 @@ export default function MovieForm({ initial, submitLabel, onSubmit }: MovieFormP
               <label className="block text-sm mb-1">Region</label>
               <select value={m.region ?? "NONE"} onChange={(e) => set("region", e.target.value as RegionCode)}>
                 {regionOptions.map((r) => (
-                  <option key={r} value={r}>
-                    {r}
-                  </option>
+                  <option key={r} value={r}>{r}</option>
                 ))}
               </select>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 mt-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
             <div>
               <label className="block text-sm mb-1">Streckkod (EAN/UPC)</label>
               <input placeholder="t.ex. 5051892191831" value={m.barcode ?? ""} onChange={(e) => set("barcode", e.target.value)} type="text" />
@@ -233,6 +233,7 @@ export default function MovieForm({ initial, submitLabel, onSubmit }: MovieFormP
         </div>
       </div>
 
+      {/* Status */}
       <div className="card p-3">
         <h3 className="font-semibold mb-2">Status</h3>
         <label className="inline-flex items-center gap-2">
@@ -241,6 +242,7 @@ export default function MovieForm({ initial, submitLabel, onSubmit }: MovieFormP
         </label>
       </div>
 
+      {/* Actions */}
       <div className="pt-2 flex gap-2">
         <button className="btn btn-primary" onClick={save}>
           {submitLabel}
