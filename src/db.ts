@@ -186,6 +186,20 @@ export const unlinkMovieFromList = async (listId: number, movieId: number) => {
   const link = await db.movieList.where({ listId, movieId }).first();
   if ((link as any)?.id) await db.movieList.delete((link as any).id);
 };
+export async function getLists() {
+  // Alla filmsamlingar
+  return db.lists.toArray();
+}
+export async function getListCounts() {
+  // Antal filmer per lista (från länktabellen movieList)
+  const links = await db.movieList.toArray();
+  const counts: Record<number, number> = {};
+  for (const ln of links) {
+    const id = Number(ln.listId);
+    counts[id] = (counts[id] ?? 0) + 1;
+  }
+  return counts;
+};
 
 // Böcker
 export const getBooksInBookList = async (listId: number) => {
