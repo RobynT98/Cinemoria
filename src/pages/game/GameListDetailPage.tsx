@@ -26,10 +26,7 @@ export default function GameListDetailPage() {
 
   async function reload() {
     try {
-      const [l, games] = await Promise.all([
-        db.gameLists.get(listId),
-        db.games.toArray(),
-      ]);
+      const [l, games] = await Promise.all([db.gameLists.get(listId), db.games.toArray()]);
       if (!l) {
         setNotFound(true);
         return;
@@ -37,8 +34,8 @@ export default function GameListDetailPage() {
       setList(l);
       setAllGames(games);
 
-      // Läs länkar och bygg inList
-      const links = await db.gameLinks.where("listId").equals(listId).toArray();
+      // Bygg inList via länktabellen "gameList"
+      const links = await db.gameList.where("listId").equals(listId).toArray();
       const ids = new Set<number>(links.map((ln: any) => Number(ln.gameId)));
       const inside = games.filter((g) => typeof g.id === "number" && ids.has(Number(g.id)));
       setInList(inside);
@@ -67,9 +64,9 @@ export default function GameListDetailPage() {
     if (!g.id) return;
     setBusy(true);
     try {
-      const exists = await db.gameLinks.where({ listId, gameId: g.id }).first();
+      const exists = await db.gameList.where({ listId, gameId: g.id }).first();
       if (!exists) {
-        await db.gameLinks.add({ listId, gameId: g.id, createdAt: Date.now() } as any);
+        await db.gameList.add({ listId, gameId: g.id, createdAt: Date.now() } as any);
       }
       await reload();
     } catch (err) {
@@ -84,8 +81,8 @@ export default function GameListDetailPage() {
     if (!g.id) return;
     setBusy(true);
     try {
-      const link = await db.gameLinks.where({ listId, gameId: g.id }).first();
-      if (link?.id) await db.gameLinks.delete(link.id);
+      const link = await db.gameList.where({ listId, gameId: g.id }).first();
+      if ((link as any)?.id) await db.gameList.delete((link as any).id);
       await reload();
     } catch (err) {
       console.error("Remove game from list failed:", err);
@@ -116,9 +113,9 @@ export default function GameListDetailPage() {
     if (!confirm(`Ta bort listan "${list.name}"? (Spelen ligger kvar)`)) return;
     setBusy(true);
     try {
-      const links = await db.gameLinks.where("listId").equals(listId).toArray();
-      await db.transaction("rw", [db.gameLinks, db.gameLists], async () => {
-        for (const ln of links) if (ln.id) await db.gameLinks.delete(ln.id);
+      const links = await db.gameList.where("listId").equals(listId).toArray();
+      await db.transaction("rw", [db.gameList, db.gameLists], async () => {
+        for (const ln of links) if ((ln as any).id) await db.gameList.delete((ln as any).id);
         await db.gameLists.delete(list.id!);
       });
       nav("/game/collections");
