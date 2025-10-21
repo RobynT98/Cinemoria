@@ -1,3 +1,4 @@
+// src/pages/game/GameListDetailPage.tsx
 import { useEffect, useMemo, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import {
@@ -62,9 +63,10 @@ export default function GameListDetailPage() {
   }, [allGames, inList, q]);
 
   async function handleAdd(g: Game) {
+    if (!g.id) return;
     setBusy(true);
     try {
-      await linkGameToList(listId, g.id!);
+      await linkGameToList(listId, g.id);
       setInList(await getGamesInGameList(listId));
     } finally {
       setBusy(false);
@@ -72,9 +74,10 @@ export default function GameListDetailPage() {
   }
 
   async function handleRemove(g: Game) {
+    if (!g.id) return;
     setBusy(true);
     try {
-      await unlinkGameFromList(listId, g.id!);
+      await unlinkGameFromList(listId, g.id);
       setInList(await getGamesInGameList(listId));
     } finally {
       setBusy(false);
