@@ -12,19 +12,21 @@ export default function GameCollectionsPage() {
   const [q, setQ] = useState("");
   const [sort, setSort] = useState<SortMode>("alpha");
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+  }, []);
 
   async function load() {
-    // Läs alla spellistor
+    // Hämta listor
     const ls = await db.gameLists.toArray();
     setLists(ls);
 
-    // Räkna länkar per lista
-    const links = await db.gameLinks.toArray();
+    // Räkna länkar per lista via länktabellen "gameList"
+    const links = await db.gameList.toArray();
     const c: Record<number, number> = {};
     for (const ln of links) {
-      const id = Number(ln.listId);
-      c[id] = (c[id] ?? 0) + 1;
+      const lid = Number((ln as any).listId);
+      c[lid] = (c[lid] ?? 0) + 1;
     }
     setCounts(c);
   }
@@ -58,10 +60,9 @@ export default function GameCollectionsPage() {
     if (!confirm(`Ta bort listan "${list.name}"? (Spelen ligger kvar, bara listan försvinner)`)) return;
     setBusy(true);
     try {
-      // Ta bort länkar först, sedan listan
-      const links = await db.gameLinks.where("listId").equals(list.id!).toArray();
-      await db.transaction("rw", [db.gameLinks, db.gameLists], async () => {
-        for (const ln of links) if (ln.id) await db.gameLinks.delete(ln.id);
+      const links = await db.gameList.where("listId").equals(list.id!).toArray();
+      await db.transaction("rw", [db.gameList, db.gameLists], async () => {
+        for (const ln of links) if ((ln as any).id) await db.gameList.delete((ln as any).id);
         await db.gameLists.delete(list.id!);
       });
       await load();
@@ -72,9 +73,11 @@ export default function GameCollectionsPage() {
 
   const filtered = useMemo(() => {
     const needle = q.trim().toLowerCase();
-    const base = needle ? lists.filter(l => l.name.toLowerCase().includes(needle)) : lists.slice();
+    const base = needle ? lists.filter((l) => l.name.toLowerCase().includes(needle)) : lists.slice();
     base.sort((a, b) =>
-      sort === "alpha" ? a.name.localeCompare(b.name, "sv") : (b.createdAt || 0) - (a.createdAt || 0)
+      sort === "alpha"
+        ? a.name.localeCompare(b.name, "sv")
+        : (b.createdAt || 0) - (a.createdAt || 0) // nyast först
     );
     return base;
   }, [lists, q, sort]);
@@ -124,9 +127,7 @@ export default function GameCollectionsPage() {
 
       {filtered.length === 0 && (
         <div className="card p-6">
-          {lists.length === 0
-            ? <p>Du har inga spellistor ännu. Skapa din första.</p>
-            : <p>Inga träffar på ”{q}”.</p>}
+          {lists.length === 0 ? <p>Du har inga spellistor ännu. Skapa din första.</p> : <p>Inga träffar på ”{q}”.</p>}
         </div>
       )}
 
