@@ -32,43 +32,47 @@ export async function exportJson(): Promise<string> {
     // Movies
     db.movies.toArray(),
     db.lists.toArray(),
-    db.movieListLinks.toArray(),
+    db.movieList.toArray(),
     // Books
     db.books.toArray(),
     db.bookLists.toArray(),
-    db.bookListLinks.toArray(),
+    db.bookList.toArray(),
     // Games
     db.games.toArray(),
     db.gameLists.toArray(),
-    db.gameListLinks.toArray(),
+    db.gameList.toArray(),
     // Albums
     db.albums.toArray(),
     db.albumLists.toArray(),
-    db.albumListLinks.toArray(),
+    db.albumList.toArray(),
     // Comics
     db.comics.toArray(),
     db.comicLists.toArray(),
-    db.comicListLinks.toArray(),
+    db.comicList.toArray(),
   ]);
 
   return JSON.stringify(
     {
-      // Movies
+      // Movies (behåll namn för bakåtkomp)
       movies,
       lists,
       links: movieLinks,
+
       // Books
       books,
       bookLists,
       bookLinks,
+
       // Games
       games,
       gameLists,
       gameLinks,
+
       // Albums
       albums,
       albumLists,
       albumLinks,
+
       // Comics
       comics,
       comicLists,
@@ -104,7 +108,7 @@ export async function exportSubset(opts: {
 
   // Endast länkar som rör dessa filmer
   const movieIds = new Set(movies.map((m) => m.id!));
-  const allLinks = await db.movieListLinks.toArray();
+  const allLinks = await db.movieList.toArray();
   const links = allLinks.filter((l) => movieIds.has(l.movieId));
 
   // Endast listor som förekommer i länkarna
@@ -144,22 +148,18 @@ export async function importJson(text: string) {
     movies?: Movie[];
     lists?: List[];
     links?: MovieListLink[];
-
     // Books
     books?: Book[];
     bookLists?: BookList[];
     bookLinks?: BookListLink[];
-
     // Games
     games?: Game[];
     gameLists?: GameList[];
     gameLinks?: GameListLink[];
-
     // Albums
     albums?: Album[];
     albumLists?: AlbumList[];
     albumLinks?: AlbumListLink[];
-
     // Comics
     comics?: Comic[];
     comicLists?: ComicList[];
@@ -221,15 +221,15 @@ export async function importJson(text: string) {
     "rw",
     [
       // Movies
-      db.movies, db.lists, db.movieListLinks,
+      db.movies, db.lists, db.movieList,
       // Books
-      db.books, db.bookLists, db.bookListLinks,
+      db.books, db.bookLists, db.bookList,
       // Games
-      db.games, db.gameLists, db.gameListLinks,
+      db.games, db.gameLists, db.gameList,
       // Albums
-      db.albums, db.albumLists, db.albumListLinks,
+      db.albums, db.albumLists, db.albumList,
       // Comics
-      db.comics, db.comicLists, db.comicListLinks,
+      db.comics, db.comicLists, db.comicList,
     ],
     async () => {
       /* ---- FILMER ---- */
@@ -261,9 +261,9 @@ export async function importJson(text: string) {
         const movieId = movieIdMap.get(ln.movieId) ?? ln.movieId;
         const listId  = listIdMap.get(ln.listId) ?? ln.listId;
         if (typeof movieId !== "number" || typeof listId !== "number") continue;
-        const exists = await db.movieListLinks.where({ movieId, listId }).first();
+        const exists = await db.movieList.where({ movieId, listId }).first();
         if (!exists) {
-          await db.movieListLinks.add({ movieId, listId, createdAt: Date.now() } as MovieListLink);
+          await db.movieList.add({ movieId, listId, createdAt: Date.now() } as MovieListLink);
           addedLinks++;
         }
       }
@@ -297,9 +297,9 @@ export async function importJson(text: string) {
         const bookId = bookIdMap.get(ln.bookId) ?? ln.bookId;
         const listId = bookListIdMap.get(ln.listId) ?? ln.listId;
         if (typeof bookId !== "number" || typeof listId !== "number") continue;
-        const exists = await db.bookListLinks.where({ bookId, listId }).first();
+        const exists = await db.bookList.where({ bookId, listId }).first();
         if (!exists) {
-          await db.bookListLinks.add({ bookId, listId, createdAt: Date.now() } as BookListLink);
+          await db.bookList.add({ bookId, listId, createdAt: Date.now() } as BookListLink);
           addedBookLinks++;
         }
       }
@@ -333,9 +333,9 @@ export async function importJson(text: string) {
         const gameId = gameIdMap.get(ln.gameId) ?? ln.gameId;
         const listId = gameListIdMap.get(ln.listId) ?? ln.listId;
         if (typeof gameId !== "number" || typeof listId !== "number") continue;
-        const exists = await db.gameListLinks.where({ gameId, listId }).first();
+        const exists = await db.gameList.where({ gameId, listId }).first();
         if (!exists) {
-          await db.gameListLinks.add({ gameId, listId, createdAt: Date.now() } as GameListLink);
+          await db.gameList.add({ gameId, listId, createdAt: Date.now() } as GameListLink);
           addedGameLinks++;
         }
       }
@@ -369,9 +369,9 @@ export async function importJson(text: string) {
         const albumId = albumIdMap.get(ln.albumId) ?? ln.albumId;
         const listId  = albumListIdMap.get(ln.listId) ?? ln.listId;
         if (typeof albumId !== "number" || typeof listId !== "number") continue;
-        const exists = await db.albumListLinks.where({ albumId, listId }).first();
+        const exists = await db.albumList.where({ albumId, listId }).first();
         if (!exists) {
-          await db.albumListLinks.add({ albumId, listId, createdAt: Date.now() } as AlbumListLink);
+          await db.albumList.add({ albumId, listId, createdAt: Date.now() } as AlbumListLink);
           addedAlbumLinks++;
         }
       }
@@ -405,9 +405,9 @@ export async function importJson(text: string) {
         const comicId = comicIdMap.get(ln.comicId) ?? ln.comicId;
         const listId  = comicListIdMap.get(ln.listId) ?? ln.listId;
         if (typeof comicId !== "number" || typeof listId !== "number") continue;
-        const exists = await db.comicListLinks.where({ comicId, listId }).first();
+        const exists = await db.comicList.where({ comicId, listId }).first();
         if (!exists) {
-          await db.comicListLinks.add({ comicId, listId, createdAt: Date.now() } as ComicListLink);
+          await db.comicList.add({ comicId, listId, createdAt: Date.now() } as ComicListLink);
           addedComicLinks++;
         }
       }
@@ -436,39 +436,39 @@ export async function wipeAll() {
     "rw",
     [
       // Movies
-      db.movies, db.lists, db.movieListLinks,
+      db.movies, db.lists, db.movieList,
       // Books
-      db.books, db.bookLists, db.bookListLinks,
+      db.books, db.bookLists, db.bookList,
       // Games
-      db.games, db.gameLists, db.gameListLinks,
+      db.games, db.gameLists, db.gameList,
       // Albums
-      db.albums, db.albumLists, db.albumListLinks,
+      db.albums, db.albumLists, db.albumList,
       // Comics
-      db.comics, db.comicLists, db.comicListLinks,
+      db.comics, db.comicLists, db.comicList,
     ],
     async () => {
       // Movies
-      await db.movieListLinks.clear();
+      await db.movieList.clear();
       await db.lists.clear();
       await db.movies.clear();
 
       // Books
-      await db.bookListLinks.clear();
+      await db.bookList.clear();
       await db.bookLists.clear();
       await db.books.clear();
 
       // Games
-      await db.gameListLinks.clear();
+      await db.gameList.clear();
       await db.gameLists.clear();
       await db.games.clear();
 
       // Albums
-      await db.albumListLinks.clear();
+      await db.albumList.clear();
       await db.albumLists.clear();
       await db.albums.clear();
 
       // Comics
-      await db.comicListLinks.clear();
+      await db.comicList.clear();
       await db.comicLists.clear();
       await db.comics.clear();
     }
