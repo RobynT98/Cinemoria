@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
+import { db, type BookList } from "@/db";
 import { Plus, Edit3, Trash2, Search, SortAsc, SortDesc, ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
-import { db, type BookList } from "@/db";
 
 type SortMode = "alpha" | "newest";
 
@@ -15,15 +15,15 @@ export default function BookCollectionsPage() {
   useEffect(() => { load(); }, []);
 
   async function load() {
-    // Läs alla listor
+    // Hämta alla listor
     const ls = await db.bookLists.toArray();
     setLists(ls);
 
     // Räkna antal länkar per lista
-    const links = await db.bookLinks.toArray();
+    const links = await db.bookList.toArray(); // <- länktabellen heter bookList
     const c: Record<number, number> = {};
     for (const ln of links) {
-      const id = Number(ln.listId);
+      const id = Number((ln as any).listId);
       c[id] = (c[id] ?? 0) + 1;
     }
     setCounts(c);
@@ -58,10 +58,9 @@ export default function BookCollectionsPage() {
     if (!confirm(`Ta bort listan "${list.name}"? (Böckerna ligger kvar, bara listan försvinner)`)) return;
     setBusy(true);
     try {
-      // Ta bort länkposter först, sedan listan
-      const links = await db.bookLinks.where("listId").equals(list.id!).toArray();
-      await db.transaction("rw", [db.bookLinks, db.bookLists], async () => {
-        for (const ln of links) if (ln.id) await db.bookLinks.delete(ln.id);
+      const links = await db.bookList.where("listId").equals(list.id!).toArray();
+      await db.transaction("rw", [db.bookList, db.bookLists], async () => {
+        for (const ln of links) if ((ln as any).id) await db.bookList.delete((ln as any).id);
         await db.bookLists.delete(list.id!);
       });
       await load();
@@ -74,9 +73,7 @@ export default function BookCollectionsPage() {
     const needle = q.trim().toLowerCase();
     const base = needle ? lists.filter(l => l.name.toLowerCase().includes(needle)) : lists.slice();
     base.sort((a, b) =>
-      sort === "alpha"
-        ? a.name.localeCompare(b.name, "sv")
-        : (b.createdAt || 0) - (a.createdAt || 0) // nyast först
+      sort === "alpha" ? a.name.localeCompare(b.name, "sv") : (b.createdAt || 0) - (a.createdAt || 0)
     );
     return base;
   }, [lists, q, sort]);
