@@ -1,144 +1,102 @@
-// src/components/album/AlbumForm.tsx
 import { useState } from "react";
-import { db } from "@/db";
 import type { Album } from "@/types";
-import { useNavigate } from "react-router-dom";
 import BarcodeScannerDialog from "@/components/BarcodeScannerDialog";
 
-interface AlbumFormProps {
-  initial?: Album;
-  submitLabel: string;
-  onSubmit?: (data: Album) => Promise<void>;
-}
+type Props = {
+  initial?: Partial<Album>;
+  onSubmit: (data: Omit<Album, "id" | "createdAt" | "updatedAt">) => Promise<void> | void;
+  busy?: boolean;
+  submitLabel?: string;
+};
 
-export default function AlbumForm({ initial, submitLabel, onSubmit }: AlbumFormProps) {
-  const nav = useNavigate();
+export default function AlbumForm({ initial, onSubmit, busy, submitLabel = "Spara" }: Props) {
   const [scanOpen, setScanOpen] = useState(false);
 
-  const [a, setA] = useState<Album>(
-    initial ?? ({
-      title: "",
-      artist: "",
-      year: undefined,
-      genres: [],
-      coverUrl: "",
-      barcode: "",
-      owned: false,
-      digital: false,
-      wishlisted: false,
-      format: undefined,
-      notes: "",
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-    } as Album)
+  const [title, setTitle] = useState(initial?.title ?? "");
+  const [artist, setArtist] = useState(initial?.artist ?? "");
+  const [year, setYear] = useState<number | "">(initial?.year ?? "");
+  const [genres, setGenres] = useState(
+    Array.isArray(initial?.genres) ? initial!.genres!.join(", ") : (initial?.genres as any) ?? ""
   );
+  const [owned, setOwned] = useState(!!initial?.owned);
+  const [digital, setDigital] = useState(!!initial?.digital);
+  const [wishlisted, setWishlisted] = useState(!!initial?.wishlisted);
+  const [format, setFormat] = useState<Album["format"] | undefined>(initial?.format);
+  const [coverUrl, setCoverUrl] = useState(initial?.coverUrl ?? "");
+  const [barcode, setBarcode] = useState(initial?.barcode ?? "");
+  const [notes, setNotes] = useState(initial?.notes ?? "");
 
-  function set<K extends keyof Album>(key: K, val: Album[K]) {
-    setA((x) => ({ ...x, [key]: val }));
-  }
-
-  async function save() {
-    if (!a.title.trim()) return alert("Titel krävs");
-    const data: Album = {
-      ...a,
-      title: a.title.trim(),
-      artist: a.artist?.trim() || undefined,
-      genres: Array.isArray(a.genres)
-        ? a.genres
-        : (a.genres as any)
-            ?.toString()
-            .split(",")
-            .map((s: string) => s.trim())
-            .filter(Boolean),
-      createdAt: a.createdAt || Date.now(),
-      updatedAt: Date.now(),
-    };
-
-    if (onSubmit) {
-      await onSubmit(data);
-    } else {
-      if (initial?.id != null) {
-        await db.albums.put({ ...data, id: initial.id });
-      } else {
-        await db.albums.add(data);
-      }
-      nav("/music");
-    }
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    await onSubmit({
+      title: title.trim(),
+      artist: artist.trim() || undefined,
+      year: typeof year === "number" ? year : undefined,
+      genres: genres
+        .toString()
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean),
+      owned,
+      digital,
+      wishlisted,
+      format,
+      coverUrl: coverUrl || undefined,
+      barcode: barcode || undefined,
+      notes: notes || undefined,
+      // resten (createdAt/updatedAt) sätts högre upp i flödet
+    } as any);
   }
 
   return (
-    <div className="card p-4 space-y-3">
-      {/* Titel + Artist */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div>
-          <label className="block text-sm mb-1">Titel</label>
-          <input value={a.title} onChange={(e) => set("title", e.target.value)} placeholder="Kind of Blue" />
-        </div>
-        <div>
-          <label className="block text-sm mb-1">Artist</label>
-          <input value={a.artist ?? ""} onChange={(e) => set("artist", e.target.value)} placeholder="Miles Davis" />
-        </div>
-      </div>
-
-      {/* År + Genrer */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div>
-          <label className="block text-sm mb-1">År</label>
+    <form className="space-y-3" onSubmit={handleSubmit}>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <label className="grid gap-1">
+          <span className="text-sm">Titel *</span>
+          <input required value={title} onChange={(e) => setTitle(e.target.value)} />
+        </label>
+        <label className="grid gap-1">
+          <span className="text-sm">Artist</span>
+          <input value={artist} onChange={(e) => setArtist(e.target.value)} />
+        </label>
+        <label className="grid gap-1">
+          <span className="text-sm">År</span>
           <input
-            type="number"
-            value={a.year ?? ""}
-            onChange={(e) => set("year", Number(e.target.value) || undefined)}
-            placeholder="1959"
+            inputMode="numeric"
+            value={year}
+            onChange={(e) => setYear(e.target.value ? Number(e.target.value) : "")}
           />
-        </div>
-        <div>
-          <label className="block text-sm mb-1">Genrer (kommaseparerat)</label>
-          <input
-            value={Array.isArray(a.genres) ? a.genres.join(", ") : (a.genres as any) ?? ""}
-            onChange={(e) =>
-              set(
-                "genres",
-                e.target.value
-                  .split(",")
-                  .map((s) => s.trim())
-                  .filter(Boolean)
-              )
-            }
-            placeholder="Jazz, Modal …"
-          />
-        </div>
+        </label>
+        <label className="grid gap-1">
+          <span className="text-sm">Genrer (kommaseparerat)</span>
+          <input value={genres} onChange={(e) => setGenres(e.target.value)} />
+        </label>
       </div>
 
-      {/* Omslag */}
-      <div>
-        <label className="block text-sm mb-1">Omslagsbild (URL)</label>
-        <input
-          type="url"
-          value={a.coverUrl ?? ""}
-          onChange={(e) => set("coverUrl", e.target.value)}
-          placeholder="https://…/cover.jpg"
-        />
-      </div>
+      <label className="grid gap-1">
+        <span className="text-sm">Omslagsbild (URL)</span>
+        <input type="url" value={coverUrl} onChange={(e) => setCoverUrl(e.target.value)} />
+      </label>
 
-      {/* Streckkod */}
       <div>
-        <label className="block text-sm mb-1">Streckkod (EAN/UPC)</label>
+        <span className="text-sm block mb-1">Streckkod (EAN/UPC)</span>
         <div className="flex items-center gap-2">
           <input
-            type="text"
-            value={a.barcode ?? ""}
-            onChange={(e) => set("barcode", e.target.value)}
-            placeholder="t.ex. 0886971234567"
             className="flex-1"
+            value={barcode}
+            onChange={(e) => setBarcode(e.target.value)}
+            placeholder="t.ex. 0886971234567"
           />
-          <button className="btn" onClick={() => setScanOpen(true)}>Skanna</button>
+          <button type="button" className="btn" onClick={() => setScanOpen(true)}>
+            Skanna
+          </button>
         </div>
         {scanOpen && (
           <BarcodeScannerDialog
             title="Skanna albumstreckkod"
             subtitle="Rikta mot EAN/UPC"
             onDetected={(code) => {
-              set("barcode", code);
+              setBarcode(code);
               setScanOpen(false);
             }}
             onClose={() => setScanOpen(false)}
@@ -146,32 +104,29 @@ export default function AlbumForm({ initial, submitLabel, onSubmit }: AlbumFormP
         )}
       </div>
 
-      {/* Ägande */}
-      <div className="card p-3">
-        <h3 className="font-semibold mb-2">Ägande</h3>
-        <div className="flex items-center gap-4 flex-wrap">
-          <label className="inline-flex items-center gap-2">
-            <input type="checkbox" checked={!!a.owned} onChange={(e) => set("owned", e.target.checked)} />
-            Ägd
-          </label>
-          <label className="inline-flex items-center gap-2">
-            <input type="checkbox" checked={!!a.digital} onChange={(e) => set("digital", e.target.checked)} />
-            Digital
-          </label>
-          <label className="inline-flex items-center gap-2">
-            <input type="checkbox" checked={!!a.wishlisted} onChange={(e) => set("wishlisted", e.target.checked)} />
-            Önskelista
-          </label>
-        </div>
+      <div className="flex flex-wrap gap-2">
+        <label className="chip cursor-pointer">
+          <input className="mr-2" type="checkbox" checked={owned} onChange={(e) => setOwned(e.target.checked)} />
+          Ägd
+        </label>
+        <label className="chip cursor-pointer">
+          <input className="mr-2" type="checkbox" checked={digital} onChange={(e) => setDigital(e.target.checked)} />
+          Digital
+        </label>
+        <label className="chip cursor-pointer">
+          <input
+            className="mr-2"
+            type="checkbox"
+            checked={wishlisted}
+            onChange={(e) => setWishlisted(e.target.checked)}
+          />
+          Önskelista
+        </label>
       </div>
 
-      {/* Format */}
-      <div>
-        <label className="block text-sm mb-1">Format</label>
-        <select
-          value={a.format ?? ""}
-          onChange={(e) => set("format", (e.target.value || undefined) as Album["format"])}
-        >
+      <label className="grid gap-1">
+        <span className="text-sm">Format</span>
+        <select value={format ?? ""} onChange={(e) => setFormat((e.target.value || undefined) as any)}>
           <option value="">(välj)</option>
           <option value="cd">CD</option>
           <option value="vinyl">Vinyl</option>
@@ -181,22 +136,18 @@ export default function AlbumForm({ initial, submitLabel, onSubmit }: AlbumFormP
           <option value="bluray-audio">Blu-ray Audio</option>
           <option value="other">Övrigt</option>
         </select>
-      </div>
+      </label>
 
-      {/* Anteckningar */}
-      <div>
-        <label className="block text-sm mb-1">Anteckningar</label>
-        <textarea
-          rows={4}
-          value={a.notes ?? ""}
-          onChange={(e) => set("notes", e.target.value)}
-          placeholder="Press, utgåva, skick …"
-        />
-      </div>
+      <label className="grid gap-1">
+        <span className="text-sm">Anteckningar</span>
+        <textarea rows={4} value={notes} onChange={(e) => setNotes(e.target.value)} />
+      </label>
 
       <div className="pt-2">
-        <button className="btn btn-primary" onClick={save}>{submitLabel}</button>
+        <button className="btn btn-primary" disabled={busy} type="submit">
+          {submitLabel}
+        </button>
       </div>
-    </div>
+    </form>
   );
 }
