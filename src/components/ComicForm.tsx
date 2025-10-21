@@ -1,3 +1,4 @@
+// src/components/ComicForm.tsx
 import { useState } from "react";
 import type { Comic } from "@/types";
 import BarcodeScannerDialog from "@/components/BarcodeScannerDialog";
@@ -12,25 +13,25 @@ type Props = {
 export default function ComicForm({ initial, onSubmit, busy, submitLabel = "Spara" }: Props) {
   const init = initial ?? {};
 
-  // Bakåtkomp: stöd både seriesTitle/issueNumber och äldre series/issue
+  // Bakåtkomp: stöd både nya (seriesTitle/issueNumber) och äldre (series/issue) fält
   const initialSeriesTitle = (init as any).seriesTitle ?? (init as any).series ?? "";
   const initialIssueNumber = (init as any).issueNumber ?? (init as any).issue ?? "";
 
-  const [title, setTitle] = useState(init.title ?? "");
-  const [seriesTitle, setSeriesTitle] = useState(initialSeriesTitle as string);
+  const [title, setTitle] = useState<string>(init.title ?? "");
+  const [seriesTitle, setSeriesTitle] = useState<string>(initialSeriesTitle as string);
   const [volume, setVolume] = useState<number | "">(init.volume ?? "");
   const [issueNumber, setIssueNumber] = useState<number | "">(initialIssueNumber || "");
   const [year, setYear] = useState<number | "">(init.year ?? "");
-  const [owned, setOwned] = useState(!!init.owned);
-  const [digital, setDigital] = useState(!!init.digital);
-  const [wishlisted, setWishlisted] = useState(!!init.wishlisted);
+  const [owned, setOwned] = useState<boolean>(!!init.owned);
+  const [digital, setDigital] = useState<boolean>(!!init.digital);
+  const [wishlisted, setWishlisted] = useState<boolean>(!!init.wishlisted);
   const [format, setFormat] = useState<Comic["format"] | undefined>(init.format);
-  const [coverUrl, setCoverUrl] = useState(init.coverUrl ?? "");
-  const [barcode, setBarcode] = useState(init.barcode ?? "");
-  const [notes, setNotes] = useState(init.notes ?? "");
-  const [scanOpen, setScanOpen] = useState(false);
+  const [coverUrl, setCoverUrl] = useState<string>(init.coverUrl ?? "");
+  const [barcode, setBarcode] = useState<string>(init.barcode ?? "");
+  const [notes, setNotes] = useState<string>(init.notes ?? "");
+  const [scanOpen, setScanOpen] = useState<boolean>(false);
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     await onSubmit({
       title: title.trim(),
@@ -45,7 +46,7 @@ export default function ComicForm({ initial, onSubmit, busy, submitLabel = "Spar
       coverUrl: coverUrl || undefined,
       barcode: barcode || undefined,
       notes: notes || undefined,
-    } as any);
+    } as Omit<Comic, "id" | "createdAt" | "updatedAt">);
   }
 
   return (
@@ -80,7 +81,11 @@ export default function ComicForm({ initial, onSubmit, busy, submitLabel = "Spar
         </label>
         <label className="grid gap-1">
           <span className="text-sm">År</span>
-          <input inputMode="numeric" value={year} onChange={(e) => setYear(e.target.value ? Number(e.target.value) : "")}/>
+          <input
+            inputMode="numeric"
+            value={year}
+            onChange={(e) => setYear(e.target.value ? Number(e.target.value) : "")}
+          />
         </label>
       </div>
 
@@ -132,7 +137,7 @@ export default function ComicForm({ initial, onSubmit, busy, submitLabel = "Spar
 
       <label className="grid gap-1">
         <span className="text-sm">Format</span>
-        <select value={format ?? ""} onChange={(e) => setFormat((e.target.value || undefined) as any)}>
+        <select value={format ?? ""} onChange={(e) => setFormat((e.target.value || undefined) as Comic["format"])}>
           <option value="">(välj)</option>
           <option value="single-issue">Lösnummer</option>
           <option value="trade-paperback">TPB</option>
