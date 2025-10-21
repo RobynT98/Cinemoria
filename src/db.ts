@@ -200,6 +200,14 @@ export async function getListCounts() {
   }
   return counts;
 };
+export async function createList(name: string) {
+  const now = Date.now();
+  return db.lists.add({
+    name: name.trim(),
+    createdAt: now,
+    updatedAt: now,
+  } as List);
+}
 
 // Böcker
 export const getBooksInBookList = async (listId: number) => {
