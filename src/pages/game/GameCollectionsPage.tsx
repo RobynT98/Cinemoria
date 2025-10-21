@@ -1,12 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import {
-  createGameList,
-  deleteGameList,
-  getGameListCounts,
-  getGameLists,
-  renameGameList,
-  type GameList,
-} from "@/db";
+import { db, type GameList } from "@/db";
 import { Plus, Edit3, Trash2, Search, SortAsc, SortDesc, ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -22,36 +15,59 @@ export default function GameCollectionsPage() {
   useEffect(() => { load(); }, []);
 
   async function load() {
-    const [ls, cs] = await Promise.all([getGameLists(), getGameListCounts()]);
+    // Läs alla spellistor
+    const ls = await db.gameLists.toArray();
     setLists(ls);
-    // nycklar kommer som strängar från db-hjälparen → mappa till number för enklare access
-    setCounts(Object.fromEntries(Object.entries(cs).map(([k, v]) => [Number(k), v])));
+
+    // Räkna länkar per lista
+    const links = await db.gameLinks.toArray();
+    const c: Record<number, number> = {};
+    for (const ln of links) {
+      const id = Number(ln.listId);
+      c[id] = (c[id] ?? 0) + 1;
+    }
+    setCounts(c);
   }
 
   async function handleCreate() {
     const name = prompt('Namn på ny spellista (t.ex. "Backlogg", "Co-op", "PS5")?');
     if (!name || !name.trim()) return;
     setBusy(true);
-    await createGameList(name.trim());
-    await load();
-    setBusy(false);
+    try {
+      const now = Date.now();
+      await db.gameLists.add({ name: name.trim(), createdAt: now, updatedAt: now } as GameList);
+      await load();
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function handleRename(list: GameList) {
     const name = prompt("Byt namn på lista:", list.name);
     if (!name || !name.trim() || name.trim() === list.name) return;
     setBusy(true);
-    await renameGameList(list.id!, name.trim());
-    await load();
-    setBusy(false);
+    try {
+      await db.gameLists.update(list.id!, { name: name.trim(), updatedAt: Date.now() });
+      await load();
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function handleDelete(list: GameList) {
     if (!confirm(`Ta bort listan "${list.name}"? (Spelen ligger kvar, bara listan försvinner)`)) return;
     setBusy(true);
-    await deleteGameList(list.id!);
-    await load();
-    setBusy(false);
+    try {
+      // Ta bort länkar först, sedan listan
+      const links = await db.gameLinks.where("listId").equals(list.id!).toArray();
+      await db.transaction("rw", [db.gameLinks, db.gameLists], async () => {
+        for (const ln of links) if (ln.id) await db.gameLinks.delete(ln.id);
+        await db.gameLists.delete(list.id!);
+      });
+      await load();
+    } finally {
+      setBusy(false);
+    }
   }
 
   const filtered = useMemo(() => {
@@ -87,16 +103,18 @@ export default function GameCollectionsPage() {
           </div>
           <div className="flex items-center gap-2">
             <button
-              className={`chip ${sort === "alpha" ? "bg-accent-500 text-white" : ""}`}
+              className={`chip ${sort === "alpha" ? "tab-active" : ""}`}
               onClick={() => setSort("alpha")}
               title="Sortera A–Ö"
+              type="button"
             >
               <SortAsc size={14} /> A–Ö
             </button>
             <button
-              className={`chip ${sort === "newest" ? "bg-accent-500 text-white" : ""}`}
+              className={`chip ${sort === "newest" ? "tab-active" : ""}`}
               onClick={() => setSort("newest")}
               title="Senast skapad"
+              type="button"
             >
               <SortDesc size={14} /> Nyast
             </button>
