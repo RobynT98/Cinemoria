@@ -208,6 +208,18 @@ export async function createList(name: string) {
     updatedAt: now,
   } as List);
 }
+// Hämta en film
+export function getMovie(id: number) {
+  return db.movies.get(id);
+}
+
+// Uppdatera en film (sätter alltid updatedAt)
+export function updateMovie(id: number, patch: Partial<Movie>) {
+  return db.movies.update(id, {
+    ...patch,
+    updatedAt: Date.now(),
+  });
+}
 
 // Böcker
 export const getBooksInBookList = async (listId: number) => {
@@ -224,6 +236,9 @@ export const unlinkBookFromList = async (listId: number, bookId: number) => {
   const link = await db.bookList.where({ listId, bookId }).first();
   if ((link as any)?.id) await db.bookList.delete((link as any).id);
 };
+export const getBook = (id: number) => db.books.get(id);
+export const updateBook = (id: number, patch: Partial<Book>) =>
+  db.books.update(id, { ...patch, updatedAt: Date.now() });
 
 // Spel
 export const getGamesInGameList = async (listId: number) => {
@@ -240,6 +255,9 @@ export const unlinkGameFromList = async (listId: number, gameId: number) => {
   const link = await db.gameList.where({ listId, gameId }).first();
   if ((link as any)?.id) await db.gameList.delete((link as any).id);
 };
+export const getGame = (id: number) => db.games.get(id);
+export const updateGame = (id: number, patch: Partial<Game>) =>
+  db.games.update(id, { ...patch, updatedAt: Date.now() });
 
 // Album (musik)
 export const getAlbumsInAlbumList = async (listId: number) => {
@@ -256,7 +274,9 @@ export const unlinkAlbumFromList = async (listId: number, albumId: number) => {
   const link = await db.albumList.where({ listId, albumId }).first();
   if ((link as any)?.id) await db.albumList.delete((link as any).id);
 };
-
+export const getAlbum = (id: number) => db.albums.get(id);
+export const updateAlbum = (id: number, patch: Partial<Album>) =>
+  db.albums.update(id, { ...patch, updatedAt: Date.now() });
 // Serier (comics)
 export const getComicsInComicList = async (listId: number) => {
   const links = await db.comicList.where("listId").equals(listId).toArray();
@@ -272,6 +292,9 @@ export const unlinkComicFromList = async (listId: number, comicId: number) => {
   const link = await db.comicList.where({ listId, comicId }).first();
   if ((link as any)?.id) await db.comicList.delete((link as any).id);
 };
+export const getComic = (id: number) => db.comics.get(id);
+export const updateComic = (id: number, patch: Partial<Comic>) =>
+  db.comics.update(id, { ...patch, updatedAt: Date.now() });
 
 /* ──────────────────────────────────────────────────────────
    Små helpers för att byta namn/ta bort listor (återanvänds)
