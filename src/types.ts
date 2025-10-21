@@ -197,3 +197,100 @@ export interface GameListLink {
   listId: number;
   createdAt: number;
 }
+// --- MUSIC ---
+export type MusicFormat = "cd" | "vinyl" | "cassette" | "digital" | "minidisc" | "other";
+
+export interface Album {
+  id?: number;
+  title: string;
+  artist: string;
+  year?: number;
+  genres: string[];          // kommaseparerad i UI -> array i modellen
+  coverUrl?: string;
+  owned: boolean;
+  digital: boolean;
+  wishlisted: boolean;
+  format: MusicFormat;
+  // metadata
+  barcode?: string;          // EAN/UPC
+  label?: string;            // skivbolag
+  catalogNo?: string;        // t.ex. "WARP123"
+  country?: string;          // "SE", "UK", "US" …
+  language?: string;         // "sv", "en" …
+  discs?: number;            // antal skivor
+  tracks?: number;           // total antal spår
+  durationMin?: number;      // total speltid i minuter (valfritt)
+  edition?: string;          // "Deluxe", "Remastered 2011" …
+  releaseYear?: number;      // utgåveår om skilt från originalår
+  location?: string;         // hylla/låda
+  notes?: string;
+
+  createdAt: number;
+  updatedAt?: number;
+}
+
+export interface AlbumList {
+  id?: number;
+  name: string;
+  createdAt: number;
+  updatedAt?: number;
+}
+
+export interface AlbumLink {
+  id?: number;
+  listId: number;
+  albumId: number;
+  createdAt: number;
+}
+
+// --- COMICS (serietidningar) ---
+export type ComicFormat = "single" | "tpb" | "hardcover" | "manga" | "magazine" | "digital" | "other";
+
+export interface Comic {
+  id?: number;
+  title: string;             // titel på numret/volymen
+  series?: string;           // serie-namn (t.ex. "Batman")
+  issueNumber?: string;      // t.ex. "#12", "12A"
+  volume?: string;           // volym/årgång om relevant
+  year?: number;
+  month?: number;            // 1–12 (om du vill)
+  genres: string[];
+  coverUrl?: string;
+
+  owned: boolean;
+  digital: boolean;
+  wishlisted: boolean;
+  format: ComicFormat;
+
+  // metadata
+  publisher?: string;        // DC, Marvel, Bonniers…
+  writers?: string[];        // kommaseparerat i UI
+  artists?: string[];        // kommaseparerat i UI
+  language?: string;         // "sv", "en" …
+  isbn?: string;             // för album/TPB
+  issn?: string;             // för magasin
+  barcode?: string;          // EAN (vanligt på svenska tidningar/album)
+  printing?: string;         // "1st print", "2nd print"
+  pages?: number;
+  condition?: string;        // valfri fri text (VG, FN, NM…)
+  location?: string;
+  edition?: string;          // "Deluxe", "Omnibus", "Special"
+  notes?: string;
+
+  createdAt: number;
+  updatedAt?: number;
+}
+
+export interface ComicList {
+  id?: number;
+  name: string;
+  createdAt: number;
+  updatedAt?: number;
+}
+
+export interface ComicLink {
+  id?: number;
+  listId: number;
+  comicId: number;
+  createdAt: number;
+}
