@@ -1,17 +1,25 @@
 // src/App.tsx
 import { NavLink, Route, Routes } from "react-router-dom";
-import { Home, Library, User, BookOpen, Gamepad2 } from "lucide-react";
+import {
+  Home,
+  Library,
+  User,
+  BookOpen,
+  Gamepad2,
+  Disc3,
+  PanelsTopLeft,
+} from "lucide-react";
 import { Suspense, lazy } from "react";
 import clsx from "classnames";
 
 /* Home */
 const HomeLayout = lazy(() => import("./pages/home/HomeLayout"));
 const HomePage = lazy(() => import("./pages/home/HomePage"));
+const InstructionsPage = lazy(() => import("./pages/home/InstructionsPage"));
 
-/* Profile + Instructions */
+/* Profile */
 const ProfileLayout = lazy(() => import("./pages/profile/ProfileLayout"));
 const ProfilePage = lazy(() => import("./pages/profile/ProfilePage"));
-const InstructionsPage = lazy(() => import("./pages/home/InstructionsPage"));
 
 /* Movie */
 const MovieLayout = lazy(() => import("./pages/movie/MovieLayout"));
@@ -40,6 +48,24 @@ const GameCollections = lazy(() => import("./pages/game/GameCollectionsPage"));
 const GameListDetail = lazy(() => import("./pages/game/GameListDetailPage"));
 const GameEdit = lazy(() => import("./pages/game/GameEdit"));
 
+/* Music (Albums) */
+const AlbumLayout = lazy(() => import("./pages/album/AlbumLayout"));
+const AlbumHome = lazy(() => import("./pages/album/AlbumHome"));
+const AlbumSearch = lazy(() => import("./pages/album/AlbumSearch"));
+const AlbumAdd = lazy(() => import("./pages/album/AlbumAdd"));
+const AlbumCollections = lazy(() => import("./pages/album/AlbumCollectionsPage"));
+const AlbumListDetail = lazy(() => import("./pages/album/AlbumListDetailPage"));
+const AlbumEdit = lazy(() => import("./pages/album/AlbumEdit"));
+
+/* Comics (Serietidningar) */
+const ComicLayout = lazy(() => import("./pages/comic/ComicLayout"));
+const ComicHome = lazy(() => import("./pages/comic/ComicHome"));
+const ComicSearch = lazy(() => import("./pages/comic/ComicSearch"));
+const ComicAdd = lazy(() => import("./pages/comic/ComicAdd"));
+const ComicCollections = lazy(() => import("./pages/comic/ComicCollectionsPage"));
+const ComicListDetail = lazy(() => import("./pages/comic/ComicListDetailPage"));
+const ComicEdit = lazy(() => import("./pages/comic/ComicEdit"));
+
 export default function App() {
   return (
     <div
@@ -53,7 +79,7 @@ export default function App() {
       <main className="pb-20 max-w-3xl mx-auto px-3">
         <Suspense fallback={<div className="p-4">Laddar…</div>}>
           <Routes>
-            {/* HEM – layout + index */}
+            {/* HEM */}
             <Route path="/" element={<HomeLayout />}>
               <Route index element={<HomePage />} />
               <Route path="instructions" element={<InstructionsPage />} />
@@ -89,7 +115,27 @@ export default function App() {
               <Route path="edit/:id" element={<GameEdit />} />
             </Route>
 
-            {/* PROFIL – egen layout (grå accent) */}
+            {/* MUSIK */}
+            <Route path="/album" element={<AlbumLayout />}>
+              <Route index element={<AlbumHome />} />
+              <Route path="search" element={<AlbumSearch />} />
+              <Route path="add" element={<AlbumAdd />} />
+              <Route path="collections" element={<AlbumCollections />} />
+              <Route path="collections/:id" element={<AlbumListDetail />} />
+              <Route path="edit/:id" element={<AlbumEdit />} />
+            </Route>
+
+            {/* SERIER */}
+            <Route path="/comic" element={<ComicLayout />}>
+              <Route index element={<ComicHome />} />
+              <Route path="search" element={<ComicSearch />} />
+              <Route path="add" element={<ComicAdd />} />
+              <Route path="collections" element={<ComicCollections />} />
+              <Route path="collections/:id" element={<ComicListDetail />} />
+              <Route path="edit/:id" element={<ComicEdit />} />
+            </Route>
+
+            {/* PROFIL */}
             <Route path="/profile" element={<ProfileLayout />}>
               <Route index element={<ProfilePage />} />
             </Route>
@@ -97,7 +143,7 @@ export default function App() {
         </Suspense>
       </main>
 
-      {/* Bottennavigation */}
+      {/* Bottennavigation – 7 ikoner */}
       <nav
         className={clsx(
           "fixed bottom-0 inset-x-0 border-t backdrop-blur",
@@ -106,11 +152,13 @@ export default function App() {
           "sepia:bg-[#f3e8c7]/90 sepia:border-[#e7d3a8]"
         )}
       >
-        <div className="max-w-3xl mx-auto grid grid-cols-5">
+        <div className="max-w-3xl mx-auto grid grid-cols-7">
           <NavItem to="/" label="Hem" icon={<Home size={22} />} />
           <NavItem to="/movie" label="Film" icon={<Library size={22} />} />
           <NavItem to="/game" label="Spel" icon={<Gamepad2 size={22} />} />
           <NavItem to="/book" label="Böcker" icon={<BookOpen size={22} />} />
+          <NavItem to="/album" label="Musik" icon={<Disc3 size={22} />} />
+          <NavItem to="/comic" label="Serier" icon={<PanelsTopLeft size={22} />} />
           <NavItem to="/profile" label="Profil" icon={<User size={22} />} />
         </div>
       </nav>
@@ -119,15 +167,21 @@ export default function App() {
 }
 
 function NavItem({
-  to, label, icon,
-}: { to: string; label: string; icon: React.ReactNode }) {
+  to,
+  label,
+  icon,
+}: {
+  to: string;
+  label: string;
+  icon: React.ReactNode;
+}) {
   return (
     <NavLink
       to={to}
       aria-label={label}
       className={({ isActive }) =>
         clsx(
-          "flex flex-col items-center justify-center py-2 text-xs gap-1 transition-colors",
+          "flex flex-col items-center justify-center py-2 text-[10px] gap-1 transition-colors",
           isActive
             ? "text-ink-900 dark:text-sand-200 sepia:text-[#3c2f1b]"
             : "text-ink-600 hover:text-ink-900 dark:text-sand-400 dark:hover:text-sand-200 sepia:text-[#6b5637] sepia:hover:text-[#3c2f1b]"
