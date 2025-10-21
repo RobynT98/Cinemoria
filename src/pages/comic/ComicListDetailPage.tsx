@@ -5,7 +5,6 @@ import { Plus, Trash2, Edit3, ArrowLeft, X, Search } from "lucide-react";
 
 export default function ComicListDetailPage() {
   const params = useParams<{ id: string }>();
-  the
   const listId = Number(params.id);
   const nav = useNavigate();
 
