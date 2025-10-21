@@ -49,8 +49,11 @@ export default function BookListDetailPage() {
 
   const notInList = useMemo(() => {
     const needle = q.trim().toLowerCase();
-    const inSet = new Set(inList.map((b) => b.id));
-    let base = allBooks.filter((b) => !inSet.has(b.id!));
+
+    // Normalisera id:n till number på båda sidor
+    const inSet = new Set(inList.map((b) => Number(b.id)));
+    let base = allBooks.filter((b) => !inSet.has(Number(b.id)));
+
     if (needle) {
       base = base.filter(
         (b) =>
@@ -63,10 +66,11 @@ export default function BookListDetailPage() {
   }, [allBooks, inList, q]);
 
   async function handleAdd(b: Book) {
-    if (!b.id) return;
+    const id = Number(b.id);
+    if (!Number.isFinite(id)) return;
     setBusy(true);
     try {
-      await linkBookToList(listId, b.id);
+      await linkBookToList(listId, id);
       setInList(await getBooksInBookList(listId));
     } finally {
       setBusy(false);
@@ -74,10 +78,11 @@ export default function BookListDetailPage() {
   }
 
   async function handleRemove(b: Book) {
-    if (!b.id) return;
+    const id = Number(b.id);
+    if (!Number.isFinite(id)) return;
     setBusy(true);
     try {
-      await unlinkBookFromList(listId, b.id);
+      await unlinkBookFromList(listId, id);
       setInList(await getBooksInBookList(listId));
     } finally {
       setBusy(false);
