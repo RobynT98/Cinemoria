@@ -63,6 +63,30 @@ export default function InstructionsPage() {
         </div>
       </article>
 
+      {/* Streckkodsläsare */}
+      <article className="card p-4 space-y-3">
+        <h2 className="font-semibold">Streckkodsläsare (kamera)</h2>
+        <ul className="list-disc pl-6 space-y-1 text-sand-300">
+          <li>
+            <strong>Film & spel:</strong> skannar och sparar <em>EAN/UPC</em> lokalt
+            (för identifikation/anteckning). Ingen extern uppslagning just nu.
+          </li>
+          <li>
+            <strong>Böcker:</strong> skannar <em>ISBN</em>. Om ISBN hittas i Open
+            Library hämtas titel, omslag, sidor m.m. automatiskt.
+          </li>
+          <li>
+            Kameran kräver tillstånd från webbläsaren. Om den inte startar:
+            stäng fliken, öppna igen och tillåt kamera. Testa även utan PWA/
+            helskärm första gången.
+          </li>
+          <li>
+            Tips: Skanning funkar bäst i bra ljus och när koden fyller en stor del
+            av rutan.
+          </li>
+        </ul>
+      </article>
+
       {/* Filmer */}
       <article className="card p-4 space-y-3">
         <h2 className="font-semibold">Filmer: lägga till & redigera</h2>
@@ -97,6 +121,47 @@ export default function InstructionsPage() {
         </div>
       </article>
 
+      {/* Film-metadata via OMDb */}
+      <article className="card p-4 space-y-3">
+        <h2 className="font-semibold">Film-metadata (OMDb) – egen API-nyckel</h2>
+        <p className="text-sand-300">
+          I filmformuläret finns knappen <em>Hämta från OMDb</em> som kan fylla i
+          titel, år, poster och genrer. För att aktivera detta behöver du en gratis
+          API-nyckel från OMDb.
+        </p>
+        <ol className="list-decimal pl-6 space-y-1 text-sand-300">
+          <li>
+            Gå till{" "}
+            <a
+              href="https://www.omdbapi.com/apikey.aspx"
+              target="_blank"
+              rel="noreferrer"
+              className="underline"
+            >
+              omdbapi.com/apikey.aspx
+            </a>{" "}
+            och skapa en nyckel (Free plan räcker).
+          </li>
+          <li>
+            Skapa en fil <code>.env</code> i projektroten (bredvid <code>vite.config.ts</code>) med:
+            <pre className="mt-2 bg-ink-800/50 p-2 rounded text-xs overflow-auto">
+{`VITE_OMDB_KEY=din-omdb-nyckel-här`}
+            </pre>
+          </li>
+          <li>
+            Starta om dev-servern/builden så att Vite plockar upp variabeln.
+          </li>
+          <li>
+            Gå till filmformuläret, skriv in titel (och ev. år), klicka
+            <em> Hämta från OMDb</em>.
+          </li>
+        </ol>
+        <p className="text-sand-300 text-sm">
+          Obs: OMDb Free har begränsningar per dygn. Misslyckas hämtning visas
+          ett felmeddelande – du kan alltid fylla i manuellt.
+        </p>
+      </article>
+
       {/* Böcker */}
       <article className="card p-4 space-y-3">
         <h2 className="font-semibold">Böcker: lägga till & redigera</h2>
@@ -127,6 +192,30 @@ export default function InstructionsPage() {
         </div>
       </article>
 
+      {/* Bok-metadata via Open Library */}
+      <article className="card p-4 space-y-3">
+        <h2 className="font-semibold">Bok-metadata (Open Library)</h2>
+        <ul className="list-disc pl-6 space-y-1 text-sand-300">
+          <li>
+            När du skannar eller skriver ett <strong>ISBN</strong> försöker appen
+            hämta titel, år, omslag, språk, sidor och förlag från{" "}
+            <a
+              href="https://openlibrary.org/"
+              target="_blank"
+              rel="noreferrer"
+              className="underline"
+            >
+              Open Library
+            </a>
+            .
+          </li>
+          <li>
+            Ingen API-nyckel krävs. Om ett ISBN inte hittas, lämnas fält oförändrade
+            och du kan fylla i själv.
+          </li>
+        </ul>
+      </article>
+
       {/* Spel */}
       <article className="card p-4 space-y-3">
         <h2 className="font-semibold">Spel: lägga till & redigera</h2>
@@ -141,7 +230,9 @@ export default function InstructionsPage() {
             <span className="chip">Digital</span> och/eller{" "}
             <span className="chip">Önskelista</span>.
           </li>
-          <li>Tryck <strong>Spara</strong>. Senaste spel visas under Spel → Översikt.</li>
+          <li>
+            Tryck <strong>Spara</strong>. Senaste spel visas under Spel → Översikt.
+          </li>
         </ol>
         <div className="flex gap-2 flex-wrap">
           <Link to="/game/search" className="btn">
@@ -272,6 +363,11 @@ export default function InstructionsPage() {
               Profil
             </Link>
             .
+          </li>
+          <li>
+            <strong>Debug tips:</strong> Öppna devtools → Application → IndexedDB
+            för att se tabeller; kolla även Console-fel om OMDb-nyckeln saknas
+            (<code>VITE_OMDB_KEY</code>).
           </li>
         </ul>
       </article>
