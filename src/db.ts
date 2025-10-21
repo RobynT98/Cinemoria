@@ -8,7 +8,7 @@ import type {
   // gemensamt
   List,
   // film
-  Movie, MovieListLink, MovieFormat,
+  Movie, MovieListLink, /* OBS! Format i types → alias nedan */,
   // böcker
   Book, BookList, BookListLink, BookFormat,
   // spel
@@ -17,7 +17,11 @@ import type {
   Album, AlbumList, AlbumListLink,
   // serier
   Comic, ComicList, ComicListLink,
+  // (hjälpetiketter kan ligga i types, men behövs ej här)
 } from "@/types";
+
+// alias: i types heter film-formaten "Format"
+import type { Format as MovieFormat } from "@/types";
 
 export type {
   // gemensamt
@@ -33,10 +37,11 @@ export type {
   // serier
   Comic, ComicList, ComicListLink,
 } from "@/types";
+export type { Format as MovieFormat } from "@/types";
 
 /* ──────────────────────────────────────────────────────────
    Dexie DB
-   ────────────────────────────────────────── */
+   ────────────────────────────────────────────────────────── */
 export class CinemoriaDB extends Dexie {
   // Filmer
   movies!: Table<Movie, number>;
@@ -66,6 +71,8 @@ export class CinemoriaDB extends Dexie {
   constructor() {
     super("CinemoriaDB");
 
+    // OBS: om du redan haft en äldre schema-version i produktion,
+    // bumpa versionsnumret och lägg .upgrade() för migration.
     this.version(1).stores({
       // Film
       movies: "++id,title,year,createdAt,updatedAt",
@@ -166,6 +173,98 @@ export async function addComic(data: Partial<Comic> & { title: string }) {
     updatedAt: now,
     ...data,
   } as Comic);
+}
+
+/* ──────────────────────────────────────────────────────────
+   Helpers – list-översikter (för Home/Collections)
+   ────────────────────────────────────────────────────────── */
+export const getLists = () =>
+  db.lists.orderBy("createdAt").reverse().toArray();
+export const getListById = (id: number) => db.lists.get(id);
+export const getListCounts = async (): Promise<Record<number, number>> => {
+  const links = await db.movieList.toArray();
+  const counts: Record<number, number> = {};
+  for (const ln of links) {
+    const k = Number((ln as any).listId);
+    counts[k] = (counts[k] ?? 0) + 1;
+  }
+  return counts;
+};
+export async function createList(name: string) {
+  const now = Date.now();
+  return db.lists.add({ name: name.trim(), createdAt: now, updatedAt: now } as List);
+}
+
+// Böcker
+export const getBookLists = () =>
+  db.bookLists.orderBy("createdAt").reverse().toArray();
+export const getBookListById = (id: number) => db.bookLists.get(id);
+export const getBookListCounts = async (): Promise<Record<number, number>> => {
+  const links = await db.bookList.toArray();
+  const counts: Record<number, number> = {};
+  for (const ln of links) {
+    const k = Number((ln as any).listId);
+    counts[k] = (counts[k] ?? 0) + 1;
+  }
+  return counts;
+};
+export async function createBookList(name: string) {
+  const now = Date.now();
+  return db.bookLists.add({ name: name.trim(), createdAt: now, updatedAt: now } as BookList);
+}
+
+// Spel
+export const getGameLists = () =>
+  db.gameLists.orderBy("createdAt").reverse().toArray();
+export const getGameListById = (id: number) => db.gameLists.get(id);
+export const getGameListCounts = async (): Promise<Record<number, number>> => {
+  const links = await db.gameList.toArray();
+  const counts: Record<number, number> = {};
+  for (const ln of links) {
+    const k = Number((ln as any).listId);
+    counts[k] = (counts[k] ?? 0) + 1;
+  }
+  return counts;
+};
+export async function createGameList(name: string) {
+  const now = Date.now();
+  return db.gameLists.add({ name: name.trim(), createdAt: now, updatedAt: now } as GameList);
+}
+
+// Album (musik) – om/när UI-delarna kommer
+export const getAlbumLists = () =>
+  db.albumLists.orderBy("createdAt").reverse().toArray();
+export const getAlbumListById = (id: number) => db.albumLists.get(id);
+export const getAlbumListCounts = async (): Promise<Record<number, number>> => {
+  const links = await db.albumList.toArray();
+  const counts: Record<number, number> = {};
+  for (const ln of links) {
+    const k = Number((ln as any).listId);
+    counts[k] = (counts[k] ?? 0) + 1;
+  }
+  return counts;
+};
+export async function createAlbumList(name: string) {
+  const now = Date.now();
+  return db.albumLists.add({ name: name.trim(), createdAt: now, updatedAt: now } as AlbumList);
+}
+
+// Serier (comics) – om/när UI-delarna kommer
+export const getComicLists = () =>
+  db.comicLists.orderBy("createdAt").reverse().toArray();
+export const getComicListById = (id: number) => db.comicLists.get(id);
+export const getComicListCounts = async (): Promise<Record<number, number>> => {
+  const links = await db.comicList.toArray();
+  const counts: Record<number, number> = {};
+  for (const ln of links) {
+    const k = Number((ln as any).listId);
+    counts[k] = (counts[k] ?? 0) + 1;
+  }
+  return counts;
+};
+export async function createComicList(name: string) {
+  const now = Date.now();
+  return db.comicLists.add({ name: name.trim(), createdAt: now, updatedAt: now } as ComicList);
 }
 
 /* ──────────────────────────────────────────────────────────
