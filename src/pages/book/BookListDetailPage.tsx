@@ -1,3 +1,4 @@
+// src/pages/book/BookListDetailPage.tsx
 import { useEffect, useMemo, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import {
@@ -62,9 +63,10 @@ export default function BookListDetailPage() {
   }, [allBooks, inList, q]);
 
   async function handleAdd(b: Book) {
+    if (!b.id) return;
     setBusy(true);
     try {
-      await linkBookToList(listId, b.id!);
+      await linkBookToList(listId, b.id);
       setInList(await getBooksInBookList(listId));
     } finally {
       setBusy(false);
@@ -72,9 +74,10 @@ export default function BookListDetailPage() {
   }
 
   async function handleRemove(b: Book) {
+    if (!b.id) return;
     setBusy(true);
     try {
-      await unlinkBookFromList(listId, b.id!);
+      await unlinkBookFromList(listId, b.id);
       setInList(await getBooksInBookList(listId));
     } finally {
       setBusy(false);
@@ -84,7 +87,7 @@ export default function BookListDetailPage() {
   async function handleRename() {
     if (!list) return;
     const name = prompt("Byt namn på listan:", list.name);
-    if (!name || !name.trim() || name === list.name) return;
+    if (!name || !name.trim() || name.trim() === list.name) return;
     setBusy(true);
     try {
       await renameBookList(list.id!, name.trim());
@@ -115,7 +118,9 @@ export default function BookListDetailPage() {
           </Link>
           <h1 className="text-2xl font-semibold">Listan hittades inte</h1>
         </div>
-        <p className="text-sand-300">Antingen finns den inte, eller så var länken ogiltig.</p>
+        <p className="text-sand-300">
+          Antingen finns den inte, eller så var länken ogiltig.
+        </p>
       </section>
     );
   }
@@ -152,7 +157,9 @@ export default function BookListDetailPage() {
         </h2>
 
         {inList.length === 0 ? (
-          <p className="text-sand-300 text-sm">Inga böcker än. Lägg till från rutan nedan.</p>
+          <p className="text-sand-300 text-sm">
+            Inga böcker än. Lägg till från rutan nedan.
+          </p>
         ) : (
           <div className="mt-2 space-y-2">
             {inList
@@ -191,7 +198,10 @@ export default function BookListDetailPage() {
         <h2 className="font-semibold">Lägg till bok</h2>
 
         <div className="relative">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 opacity-60" />
+          <Search
+            size={16}
+            className="absolute left-3 top-1/2 -translate-y-1/2 opacity-60"
+          />
           <input
             className="pl-9"
             type="text"
@@ -242,7 +252,6 @@ function labelBookFormat(f?: Book["format"]) {
       return "E-bok";
     case "audiobook":
       return "Ljudbok";
-    case "other":
     default:
       return "Övrigt";
   }
