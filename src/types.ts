@@ -32,7 +32,7 @@ export interface Movie {
 
   // Status/omdöme
   status?: MovieStatus;
-  // används i UI som Sett-chip
+  /** används i UI som “Sett”-chip */
   seen?: boolean;
   rating?: number;
   notes?: string;
@@ -149,7 +149,7 @@ export interface Game {
   format?: GameFormat;
   platform?: GamePlatform | string;
   edition?: string;
-  // EAN/UPC – används i GameForm
+  /** EAN/UPC – används i GameForm */
   barcode?: string;
   location?: string;
 
@@ -168,7 +168,7 @@ export interface List {
   updatedAt?: number;
 }
 
-/* Film-listor */
+/* ───── Film-listor ───── */
 export interface MovieListLink {
   id?: number;
   movieId: number;
@@ -176,7 +176,7 @@ export interface MovieListLink {
   createdAt: number;
 }
 
-/* Bok-listor */
+/* ───── Bok-listor ───── */
 export interface BookList {
   id?: number;
   name: string;
@@ -190,7 +190,7 @@ export interface BookListLink {
   createdAt: number;
 }
 
-/* Spel-listor */
+/* ───── Spel-listor ───── */
 export interface GameList {
   id?: number;
   name: string;
@@ -276,10 +276,10 @@ export type ComicFormat =
   | "digital"
   | "magazine"
   | "other"
-|"paperback"
-  // alias som vissa komponenter råkar använda
+  // alias som vissa komponenter råkar använda:
   | "single"
-  | "trade";
+  | "trade"
+  | "paperback";
 
 export interface Comic {
   id?: number;
@@ -368,6 +368,8 @@ export function labelComicFormat(f?: ComicFormat): string {
     case "magazine": return "Magasin";
     case "single": return "Lösnummer"; // alias
     case "trade": return "TPB";        // alias
+    case "paperback": return "TPB";    // alias
     default: return "Övrigt";
   }
 }
+```0
