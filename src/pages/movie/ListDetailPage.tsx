@@ -1,17 +1,7 @@
 // src/pages/movie/ListDetailPage.tsx
 import { useEffect, useMemo, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import {
-  db,
-  type Movie,
-  type List as DbList,
-  getListById,
-  getMoviesInList,
-  linkMovieToList,
-  unlinkMovieFromList,
-  renameList,
-  deleteList,
-} from "@/db";
+import { db, type Movie, type List as DbList } from "@/db";
 import { Plus, Trash2, Edit3, ArrowLeft, X, Search } from "lucide-react";
 
 export default function ListDetailPage() {
@@ -31,21 +21,30 @@ export default function ListDetailPage() {
       setNotFound(true);
       return;
     }
-    (async () => {
-      const [l, movies, mIn] = await Promise.all([
-        getListById(listId),
-        db.movies.toArray(),
-        getMoviesInList(listId),
-      ]);
+    reload();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [listId]);
+
+  async function reload() {
+    try {
+      const [l, movies] = await Promise.all([db.lists.get(listId), db.movies.toArray()]);
       if (!l) {
         setNotFound(true);
         return;
       }
       setList(l);
       setAllMovies(movies);
-      setInList(mIn);
-    })();
-  }, [listId]);
+
+      // Hämta länkar och bygg "inList"
+      const links = await db.movieList.where("listId").equals(listId).toArray();
+      const ids = new Set<number>(links.map((ln: any) => ln.movieId));
+      const inside = movies.filter((m) => typeof m.id === "number" && ids.has(m.id!));
+      setInList(inside);
+    } catch (err) {
+      console.error("List reload failed:", err);
+      alert("Kunde inte läsa listan. Prova att ladda om sidan.");
+    }
+  }
 
   const notInList = useMemo(() => {
     const needle = q.trim().toLowerCase();
@@ -62,20 +61,32 @@ export default function ListDetailPage() {
   }, [allMovies, inList, q]);
 
   async function handleAdd(m: Movie) {
+    if (!m.id) return;
     setBusy(true);
     try {
-      await linkMovieToList(listId, m.id!);
-      setInList(await getMoviesInList(listId));
+      const exists = await db.movieList.where({ listId, movieId: m.id }).first();
+      if (!exists) {
+        await db.movieList.add({ listId, movieId: m.id, createdAt: Date.now() } as any);
+      }
+      await reload();
+    } catch (err) {
+      console.error("Add to list failed:", err);
+      alert("Kunde inte lägga till filmen i listan.");
     } finally {
       setBusy(false);
     }
   }
 
   async function handleRemove(m: Movie) {
+    if (!m.id) return;
     setBusy(true);
     try {
-      await unlinkMovieFromList(listId, m.id!);
-      setInList(await getMoviesInList(listId));
+      const link = await db.movieList.where({ listId, movieId: m.id }).first();
+      if (link?.id) await db.movieList.delete(link.id);
+      await reload();
+    } catch (err) {
+      console.error("Remove from list failed:", err);
+      alert("Kunde inte ta bort filmen från listan.");
     } finally {
       setBusy(false);
     }
@@ -87,8 +98,11 @@ export default function ListDetailPage() {
     if (!name || !name.trim() || name === list.name) return;
     setBusy(true);
     try {
-      await renameList(list.id!, name.trim());
-      setList(await getListById(listId));
+      await db.lists.update(list.id!, { name: name.trim(), updatedAt: Date.now() });
+      setList(await db.lists.get(listId));
+    } catch (err) {
+      console.error("Rename list failed:", err);
+      alert("Kunde inte byta namn på listan.");
     } finally {
       setBusy(false);
     }
@@ -104,8 +118,17 @@ export default function ListDetailPage() {
       return;
     setBusy(true);
     try {
-      await deleteList(list.id!);
+      const links = await db.movieList.where("listId").equals(listId).toArray();
+      await db.transaction("rw", [db.movieList, db.lists], async () => {
+        for (const ln of links) {
+          if (ln.id) await db.movieList.delete(ln.id);
+        }
+        await db.lists.delete(list.id!);
+      });
       nav("/movie/collections");
+    } catch (err) {
+      console.error("Delete list failed:", err);
+      alert("Kunde inte ta bort listan.");
     } finally {
       setBusy(false);
     }
@@ -120,9 +143,7 @@ export default function ListDetailPage() {
           </Link>
           <h1 className="text-2xl font-semibold">Listan hittades inte</h1>
         </div>
-        <p className="text-sand-300">
-          Antingen finns den inte, eller så var länken ogiltig.
-        </p>
+        <p className="text-sand-300">Antingen finns den inte, eller så var länken ogiltig.</p>
       </section>
     );
   }
