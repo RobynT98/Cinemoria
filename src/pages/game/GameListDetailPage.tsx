@@ -49,8 +49,11 @@ export default function GameListDetailPage() {
 
   const notInList = useMemo(() => {
     const needle = q.trim().toLowerCase();
-    const inSet = new Set(inList.map((g) => g.id));
-    let base = allGames.filter((g) => !inSet.has(g.id!));
+
+    // Normalisera id:n till number
+    const inSet = new Set(inList.map((g) => Number(g.id)));
+    let base = allGames.filter((g) => !inSet.has(Number(g.id)));
+
     if (needle) {
       base = base.filter(
         (g) =>
@@ -63,10 +66,11 @@ export default function GameListDetailPage() {
   }, [allGames, inList, q]);
 
   async function handleAdd(g: Game) {
-    if (!g.id) return;
+    const id = Number(g.id);
+    if (!Number.isFinite(id)) return;
     setBusy(true);
     try {
-      await linkGameToList(listId, g.id);
+      await linkGameToList(listId, id);
       setInList(await getGamesInGameList(listId));
     } finally {
       setBusy(false);
@@ -74,10 +78,11 @@ export default function GameListDetailPage() {
   }
 
   async function handleRemove(g: Game) {
-    if (!g.id) return;
+    const id = Number(g.id);
+    if (!Number.isFinite(id)) return;
     setBusy(true);
     try {
-      await unlinkGameFromList(listId, g.id);
+      await unlinkGameFromList(listId, id);
       setInList(await getGamesInGameList(listId));
     } finally {
       setBusy(false);
