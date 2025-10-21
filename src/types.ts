@@ -276,6 +276,7 @@ export type ComicFormat =
   | "digital"
   | "magazine"
   | "other"
+|"paperback"
   // alias som vissa komponenter råkar använda
   | "single"
   | "trade";
