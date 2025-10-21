@@ -37,8 +37,8 @@ export default function BookListDetailPage() {
       setList(l);
       setAllBooks(books);
 
-      // Läs länkar och bygg inList
-      const links = await db.bookLinks.where("listId").equals(listId).toArray();
+      // Bygg inList från länktabellen bookList
+      const links = await db.bookList.where("listId").equals(listId).toArray();
       const ids = new Set<number>(links.map((ln: any) => Number(ln.bookId)));
       const inside = books.filter((b) => typeof b.id === "number" && ids.has(Number(b.id)));
       setInList(inside);
@@ -67,9 +67,9 @@ export default function BookListDetailPage() {
     if (!b.id) return;
     setBusy(true);
     try {
-      const exists = await db.bookLinks.where({ listId, bookId: b.id }).first();
+      const exists = await db.bookList.where({ listId, bookId: b.id }).first();
       if (!exists) {
-        await db.bookLinks.add({ listId, bookId: b.id, createdAt: Date.now() } as any);
+        await db.bookList.add({ listId, bookId: b.id, createdAt: Date.now() } as any);
       }
       await reload();
     } catch (err) {
@@ -84,8 +84,8 @@ export default function BookListDetailPage() {
     if (!b.id) return;
     setBusy(true);
     try {
-      const link = await db.bookLinks.where({ listId, bookId: b.id }).first();
-      if (link?.id) await db.bookLinks.delete(link.id);
+      const link = await db.bookList.where({ listId, bookId: b.id }).first();
+      if ((link as any)?.id) await db.bookList.delete((link as any).id);
       await reload();
     } catch (err) {
       console.error("Remove book from list failed:", err);
@@ -116,9 +116,9 @@ export default function BookListDetailPage() {
     if (!confirm(`Ta bort listan "${list.name}"? (Böckerna ligger kvar)`)) return;
     setBusy(true);
     try {
-      const links = await db.bookLinks.where("listId").equals(listId).toArray();
-      await db.transaction("rw", [db.bookLinks, db.bookLists], async () => {
-        for (const ln of links) if (ln.id) await db.bookLinks.delete(ln.id);
+      const links = await db.bookList.where("listId").equals(listId).toArray();
+      await db.transaction("rw", [db.bookList, db.bookLists], async () => {
+        for (const ln of links) if ((ln as any).id) await db.bookList.delete((ln as any).id);
         await db.bookLists.delete(list.id!);
       });
       nav("/book/collections");
@@ -139,7 +139,9 @@ export default function BookListDetailPage() {
           </Link>
           <h1 className="text-2xl font-semibold">Listan hittades inte</h1>
         </div>
-        <p className="text-sand-300">Antingen finns den inte, eller så var länken ogiltig.</p>
+        <p className="text-sand-300">
+          Antingen finns den inte, eller så var länken ogiltig.
+        </p>
       </section>
     );
   }
@@ -176,7 +178,9 @@ export default function BookListDetailPage() {
         </h2>
 
         {inList.length === 0 ? (
-          <p className="text-sand-300 text-sm">Inga böcker än. Lägg till från rutan nedan.</p>
+          <p className="text-sand-300 text-sm">
+            Inga böcker än. Lägg till från rutan nedan.
+          </p>
         ) : (
           <div className="mt-2 space-y-2">
             {inList
