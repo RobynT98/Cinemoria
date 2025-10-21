@@ -1,17 +1,6 @@
-// src/pages/book/BookListDetailPage.tsx
 import { useEffect, useMemo, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import {
-  db,
-  type Book,
-  type BookList as DbList,
-  getBookListById,
-  getBooksInBookList,
-  linkBookToList,
-  unlinkBookFromList,
-  renameBookList,
-  deleteBookList,
-} from "@/db";
+import { db, type Book, type BookList as DbList } from "@/db";
 import { Plus, Trash2, Edit3, ArrowLeft, X, Search } from "lucide-react";
 
 export default function BookListDetailPage() {
@@ -31,11 +20,15 @@ export default function BookListDetailPage() {
       setNotFound(true);
       return;
     }
-    (async () => {
-      const [l, books, bIn] = await Promise.all([
-        getBookListById(listId),
+    reload();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [listId]);
+
+  async function reload() {
+    try {
+      const [l, books] = await Promise.all([
+        db.bookLists.get(listId),
         db.books.toArray(),
-        getBooksInBookList(listId),
       ]);
       if (!l) {
         setNotFound(true);
@@ -43,17 +36,22 @@ export default function BookListDetailPage() {
       }
       setList(l);
       setAllBooks(books);
-      setInList(bIn);
-    })();
-  }, [listId]);
+
+      // Läs länkar och bygg inList
+      const links = await db.bookLinks.where("listId").equals(listId).toArray();
+      const ids = new Set<number>(links.map((ln: any) => Number(ln.bookId)));
+      const inside = books.filter((b) => typeof b.id === "number" && ids.has(Number(b.id)));
+      setInList(inside);
+    } catch (err) {
+      console.error("Book list reload failed:", err);
+      alert("Kunde inte läsa boklistan. Prova att ladda om sidan.");
+    }
+  }
 
   const notInList = useMemo(() => {
     const needle = q.trim().toLowerCase();
-
-    // Normalisera id:n till number på båda sidor
-    const inSet = new Set(inList.map((b) => Number(b.id)));
-    let base = allBooks.filter((b) => !inSet.has(Number(b.id)));
-
+    const inSet = new Set(inList.map((b) => b.id));
+    let base = allBooks.filter((b) => !inSet.has(b.id!));
     if (needle) {
       base = base.filter(
         (b) =>
@@ -66,24 +64,32 @@ export default function BookListDetailPage() {
   }, [allBooks, inList, q]);
 
   async function handleAdd(b: Book) {
-    const id = Number(b.id);
-    if (!Number.isFinite(id)) return;
+    if (!b.id) return;
     setBusy(true);
     try {
-      await linkBookToList(listId, id);
-      setInList(await getBooksInBookList(listId));
+      const exists = await db.bookLinks.where({ listId, bookId: b.id }).first();
+      if (!exists) {
+        await db.bookLinks.add({ listId, bookId: b.id, createdAt: Date.now() } as any);
+      }
+      await reload();
+    } catch (err) {
+      console.error("Add book to list failed:", err);
+      alert("Kunde inte lägga till boken i listan.");
     } finally {
       setBusy(false);
     }
   }
 
   async function handleRemove(b: Book) {
-    const id = Number(b.id);
-    if (!Number.isFinite(id)) return;
+    if (!b.id) return;
     setBusy(true);
     try {
-      await unlinkBookFromList(listId, id);
-      setInList(await getBooksInBookList(listId));
+      const link = await db.bookLinks.where({ listId, bookId: b.id }).first();
+      if (link?.id) await db.bookLinks.delete(link.id);
+      await reload();
+    } catch (err) {
+      console.error("Remove book from list failed:", err);
+      alert("Kunde inte ta bort boken från listan.");
     } finally {
       setBusy(false);
     }
@@ -92,11 +98,14 @@ export default function BookListDetailPage() {
   async function handleRename() {
     if (!list) return;
     const name = prompt("Byt namn på listan:", list.name);
-    if (!name || !name.trim() || name.trim() === list.name) return;
+    if (!name || !name.trim() || name === list.name) return;
     setBusy(true);
     try {
-      await renameBookList(list.id!, name.trim());
-      setList(await getBookListById(listId));
+      await db.bookLists.update(list.id!, { name: name.trim(), updatedAt: Date.now() });
+      setList(await db.bookLists.get(listId));
+    } catch (err) {
+      console.error("Rename book list failed:", err);
+      alert("Kunde inte byta namn på listan.");
     } finally {
       setBusy(false);
     }
@@ -107,8 +116,15 @@ export default function BookListDetailPage() {
     if (!confirm(`Ta bort listan "${list.name}"? (Böckerna ligger kvar)`)) return;
     setBusy(true);
     try {
-      await deleteBookList(list.id!);
+      const links = await db.bookLinks.where("listId").equals(listId).toArray();
+      await db.transaction("rw", [db.bookLinks, db.bookLists], async () => {
+        for (const ln of links) if (ln.id) await db.bookLinks.delete(ln.id);
+        await db.bookLists.delete(list.id!);
+      });
       nav("/book/collections");
+    } catch (err) {
+      console.error("Delete book list failed:", err);
+      alert("Kunde inte ta bort listan.");
     } finally {
       setBusy(false);
     }
@@ -123,9 +139,7 @@ export default function BookListDetailPage() {
           </Link>
           <h1 className="text-2xl font-semibold">Listan hittades inte</h1>
         </div>
-        <p className="text-sand-300">
-          Antingen finns den inte, eller så var länken ogiltig.
-        </p>
+        <p className="text-sand-300">Antingen finns den inte, eller så var länken ogiltig.</p>
       </section>
     );
   }
@@ -162,9 +176,7 @@ export default function BookListDetailPage() {
         </h2>
 
         {inList.length === 0 ? (
-          <p className="text-sand-300 text-sm">
-            Inga böcker än. Lägg till från rutan nedan.
-          </p>
+          <p className="text-sand-300 text-sm">Inga böcker än. Lägg till från rutan nedan.</p>
         ) : (
           <div className="mt-2 space-y-2">
             {inList
