@@ -8,7 +8,7 @@ import type {
   // gemensamt
   List,
   // film
-  Movie, MovieListLink, MovieFormat,
+  Movie, MovieListLink, MovieFormat, VideoStandard, RegionCode,
   // böcker
   Book, BookList, BookListLink, BookFormat,
   // spel
@@ -19,11 +19,12 @@ import type {
   Comic, ComicList, ComicListLink,
 } from "@/types";
 
+// Vidareexportera typerna till resten av appen
 export type {
   // gemensamt
   List,
   // film
-  Movie, MovieListLink, MovieFormat,
+  Movie, MovieListLink, MovieFormat, VideoStandard, RegionCode,
   // böcker
   Book, BookList, BookListLink, BookFormat,
   // spel
@@ -34,6 +35,9 @@ export type {
   Comic, ComicList, ComicListLink,
 } from "@/types";
 
+// Alias för kompatibilitet med äldre komponenter (t.ex. MovieForm)
+export type Format = MovieFormat;
+export type { VideoStandard, RegionCode };
 /* ──────────────────────────────────────────────────────────
    Dexie DB
    ────────────────────────────────────────────────────────── */
