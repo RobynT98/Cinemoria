@@ -35,7 +35,7 @@ export type {
 };
 // Alias för kompatibilitet med äldre komponenter (t.ex. MovieForm)
 export type Format = MovieFormat;
-*/ ──────────────────────────────────────────────────────────
+/* ──────────────────────────────────────────────────────────
    Dexie DB
    ────────────────────────────────────────────────────────── */
 export class CinemoriaDB extends Dexie {
