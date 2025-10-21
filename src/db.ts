@@ -8,7 +8,7 @@ import type {
   // gemensamt
   List,
   // film
-  Movie, MovieListLink, Format as MovieFormat,
+  Movie, MovieListLink, MovieFormat,
   // böcker
   Book, BookList, BookListLink, BookFormat,
   // spel
@@ -36,7 +36,7 @@ export type {
 
 /* ──────────────────────────────────────────────────────────
    Dexie DB
-   ────────────────────────────────────────────────────────── */
+   ────────────────────────────────────────── */
 export class CinemoriaDB extends Dexie {
   // Filmer
   movies!: Table<Movie, number>;
