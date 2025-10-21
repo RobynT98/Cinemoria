@@ -1,24 +1,9 @@
-// src/db.ts
 import Dexie, { Table } from "dexie";
 
-/* ── Typer: re-exportera direkt från "@/types" (ingen lokal import) ── */
-export type {
-  // gemensamt
-  List,
-  // film
-  Movie, MovieListLink, MovieFormat, VideoStandard, RegionCode,
-  // böcker
-  Book, BookList, BookListLink, BookFormat,
-  // spel
-  Game, GameList, GameListLink,
-  // musik
-  Album, AlbumList, AlbumListLink,
-  // serier
-  Comic, ComicList, ComicListLink, ComicFormat,
-} from "@/types";
-
-// Vidareexportera typerna till resten av appen
-export type {
+/* ──────────────────────────────────────────────────────────
+   Typer – importera EN gång och re-exportera lokala bindningar
+   ────────────────────────────────────────────────────────── */
+import type {
   // gemensamt
   List,
   // film
@@ -33,6 +18,21 @@ export type {
   Comic, ComicList, ComicListLink,
 } from "@/types";
 
+// Re-exportera exakt de lokalt importerade typerna (ingen "from" här)
+export type {
+  // gemensamt
+  List,
+  // film
+  Movie, MovieListLink, MovieFormat, VideoStandard, RegionCode,
+  // böcker
+  Book, BookList, BookListLink, BookFormat,
+  // spel
+  Game, GameList, GameListLink,
+  // musik
+  Album, AlbumList, AlbumListLink,
+  // serier
+  Comic, ComicList, ComicListLink,
+};
 // Alias för kompatibilitet med äldre komponenter (t.ex. MovieForm)
 export type Format = MovieFormat;
 export type { VideoStandard, RegionCode };
