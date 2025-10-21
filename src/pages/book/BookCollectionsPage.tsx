@@ -1,20 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
-import {
-  createBookList,
-  deleteBookList,
-  getBookListCounts,
-  getBookLists,
-  renameBookList,
-  type BookList,
-} from "@/db";
 import { Plus, Edit3, Trash2, Search, SortAsc, SortDesc, ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
+import { db, type BookList } from "@/db";
 
 type SortMode = "alpha" | "newest";
 
 export default function BookCollectionsPage() {
   const [lists, setLists] = useState<BookList[]>([]);
-  const [counts, setCounts] = useState<Record<string, number>>({});
+  const [counts, setCounts] = useState<Record<number, number>>({});
   const [busy, setBusy] = useState(false);
   const [q, setQ] = useState("");
   const [sort, setSort] = useState<SortMode>("alpha");
@@ -22,43 +15,69 @@ export default function BookCollectionsPage() {
   useEffect(() => { load(); }, []);
 
   async function load() {
-    const [ls, cs] = await Promise.all([getBookLists(), getBookListCounts()]);
+    // Läs alla listor
+    const ls = await db.bookLists.toArray();
     setLists(ls);
-    setCounts(cs);
+
+    // Räkna antal länkar per lista
+    const links = await db.bookLinks.toArray();
+    const c: Record<number, number> = {};
+    for (const ln of links) {
+      const id = Number(ln.listId);
+      c[id] = (c[id] ?? 0) + 1;
+    }
+    setCounts(c);
   }
 
   async function handleCreate() {
     const name = prompt('Namn på ny boklista (t.ex. "TBR 2025", "Skräck")?');
     if (!name || !name.trim()) return;
     setBusy(true);
-    await createBookList(name.trim());
-    await load();
-    setBusy(false);
+    try {
+      const now = Date.now();
+      await db.bookLists.add({ name: name.trim(), createdAt: now, updatedAt: now } as BookList);
+      await load();
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function handleRename(list: BookList) {
     const name = prompt("Byt namn på lista:", list.name);
     if (!name || !name.trim() || name.trim() === list.name) return;
     setBusy(true);
-    await renameBookList(list.id!, name.trim());
-    await load();
-    setBusy(false);
+    try {
+      await db.bookLists.update(list.id!, { name: name.trim(), updatedAt: Date.now() });
+      await load();
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function handleDelete(list: BookList) {
     if (!confirm(`Ta bort listan "${list.name}"? (Böckerna ligger kvar, bara listan försvinner)`)) return;
     setBusy(true);
-    await deleteBookList(list.id!);
-    await load();
-    setBusy(false);
+    try {
+      // Ta bort länkposter först, sedan listan
+      const links = await db.bookLinks.where("listId").equals(list.id!).toArray();
+      await db.transaction("rw", [db.bookLinks, db.bookLists], async () => {
+        for (const ln of links) if (ln.id) await db.bookLinks.delete(ln.id);
+        await db.bookLists.delete(list.id!);
+      });
+      await load();
+    } finally {
+      setBusy(false);
+    }
   }
 
   const filtered = useMemo(() => {
     const needle = q.trim().toLowerCase();
     const base = needle ? lists.filter(l => l.name.toLowerCase().includes(needle)) : lists.slice();
-    base.sort((a, b) => sort === "alpha"
-      ? a.name.localeCompare(b.name, "sv")
-      : (b.createdAt || 0) - (a.createdAt || 0));
+    base.sort((a, b) =>
+      sort === "alpha"
+        ? a.name.localeCompare(b.name, "sv")
+        : (b.createdAt || 0) - (a.createdAt || 0) // nyast först
+    );
     return base;
   }, [lists, q, sort]);
 
@@ -86,16 +105,18 @@ export default function BookCollectionsPage() {
           </div>
           <div className="flex items-center gap-2">
             <button
-              className={`chip ${sort === "alpha" ? "bg-accent-500 text-white" : ""}`}
+              className={`chip ${sort === "alpha" ? "tab-active" : ""}`}
               onClick={() => setSort("alpha")}
               title="Sortera A–Ö"
+              type="button"
             >
               <SortAsc size={14} /> A–Ö
             </button>
             <button
-              className={`chip ${sort === "newest" ? "bg-accent-500 text-white" : ""}`}
+              className={`chip ${sort === "newest" ? "tab-active" : ""}`}
               onClick={() => setSort("newest")}
               title="Senast skapad"
+              type="button"
             >
               <SortDesc size={14} /> Nyast
             </button>
@@ -114,7 +135,7 @@ export default function BookCollectionsPage() {
       <div className="space-y-3">
         {filtered.map((l) => {
           const id = l.id!;
-          const count = counts[String(id)] ?? 0;
+          const count = counts[id] ?? 0;
           return (
             <article key={id} className="card p-4">
               <div className="flex items-start gap-3">
