@@ -32,7 +32,7 @@ export interface Movie {
 
   // Status/omdöme
   status?: MovieStatus;
-  /** Används som “Sett”-chip – separat från status för bakåtkomp. */
+  // används i UI som Sett-chip
   seen?: boolean;
   rating?: number;
   notes?: string;
@@ -149,7 +149,7 @@ export interface Game {
   format?: GameFormat;
   platform?: GamePlatform | string;
   edition?: string;
-  /** EAN/UPC – används i GameForm */
+  // EAN/UPC – används i GameForm
   barcode?: string;
   location?: string;
 
@@ -168,7 +168,7 @@ export interface List {
   updatedAt?: number;
 }
 
-/* ───── Film-listor ───── */
+/* Film-listor */
 export interface MovieListLink {
   id?: number;
   movieId: number;
@@ -176,7 +176,7 @@ export interface MovieListLink {
   createdAt: number;
 }
 
-/* ───── Bok-listor ───── */
+/* Bok-listor */
 export interface BookList {
   id?: number;
   name: string;
@@ -190,7 +190,7 @@ export interface BookListLink {
   createdAt: number;
 }
 
-/* ───── Spel-listor ───── */
+/* Spel-listor */
 export interface GameList {
   id?: number;
   name: string;
@@ -242,7 +242,7 @@ export interface Album {
   coverUrl?: string;
   notes?: string;
 
-  /** Betyg 0–10 (valfritt) – används i AlbumDetailsDialog */
+  // Valfritt betyg 0–10 – används i AlbumDetailsDialog
   rating?: number;
 
   // Metadata
@@ -276,7 +276,7 @@ export type ComicFormat =
   | "digital"
   | "magazine"
   | "other"
-  // kortalias som vissa komponenter råkar använda
+  // alias som vissa komponenter råkar använda
   | "single"
   | "trade";
 
@@ -291,7 +291,7 @@ export interface Comic {
   year?: number;
   genres?: string[];
 
-  // ---- Bakåtkomp/alias som vissa komponenter använder ----
+  // Bakåtkomp/alias som vissa komponenter använder
   /** @deprecated använd seriesTitle */
   series?: string;
   /** @deprecated använd issueNumber */
@@ -319,7 +319,7 @@ export interface Comic {
   coverUrl?: string;
   notes?: string;
 
-  /** Betyg 0–10 (valfritt) – används i ComicDetailsDialog */
+  // Valfritt betyg 0–10 – används i ComicDetailsDialog
   rating?: number;
 
   // Metadata
@@ -365,9 +365,8 @@ export function labelComicFormat(f?: ComicFormat): string {
     case "omnibus": return "Omnibus";
     case "digital": return "Digital";
     case "magazine": return "Magasin";
-    case "single": return "Lösnummer";        // alias
-    case "trade": return "TPB";               // alias
+    case "single": return "Lösnummer"; // alias
+    case "trade": return "TPB";        // alias
     default: return "Övrigt";
   }
 }
-```0
