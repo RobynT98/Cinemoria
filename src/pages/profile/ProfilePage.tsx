@@ -400,7 +400,7 @@ export default function ProfilePage() {
       {/* Om-appen */}
       <div className="text-sand-300 text-sm">
         <ul className="list-disc pl-6 space-y-1">
-          <li>App: Cinemoria v0.6.0</li>
+          <li>App: Cinemoria v0.8.0</li>
           <li>Lagring: Offline (IndexedDB). Ingen server krävs.</li>
           <li>Plattform: GitHub Pages.</li>
         </ul>
