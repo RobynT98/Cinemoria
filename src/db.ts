@@ -309,6 +309,16 @@ export const deleteList = async (id: number) => {
     await db.lists.delete(id);
   });
 };
+// Ta bort en film + alla listlänkar till den
+export async function deleteMovie(id: number) {
+  const links = await db.movieList.where("movieId").equals(id).toArray();
+  await db.transaction("rw", [db.movieList, db.movies], async () => {
+    for (const ln of links) {
+      if ((ln as any)?.id) await db.movieList.delete((ln as any).id);
+    }
+    await db.movies.delete(id);
+  });
+}
 
 // Böcker
 export const renameBookList = (id: number, name: string) =>
