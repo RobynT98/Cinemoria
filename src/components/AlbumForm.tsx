@@ -1,3 +1,4 @@
+// src/components/AlbumForm.tsx
 import { useState } from "react";
 import type { Album } from "@/types";
 import BarcodeScannerDialog from "@/components/BarcodeScannerDialog";
@@ -12,21 +13,21 @@ type Props = {
 export default function AlbumForm({ initial, onSubmit, busy, submitLabel = "Spara" }: Props) {
   const [scanOpen, setScanOpen] = useState(false);
 
-  const [title, setTitle] = useState(initial?.title ?? "");
-  const [artist, setArtist] = useState(initial?.artist ?? "");
+  const [title, setTitle] = useState<string>(initial?.title ?? "");
+  const [artist, setArtist] = useState<string>(initial?.artist ?? "");
   const [year, setYear] = useState<number | "">(initial?.year ?? "");
-  const [genres, setGenres] = useState(
-    Array.isArray(initial?.genres) ? initial!.genres!.join(", ") : (initial?.genres as any) ?? ""
+  const [genres, setGenres] = useState<string>(
+    Array.isArray(initial?.genres) ? initial!.genres!.join(", ") : (initial?.genres as unknown as string) ?? ""
   );
-  const [owned, setOwned] = useState(!!initial?.owned);
-  const [digital, setDigital] = useState(!!initial?.digital);
-  const [wishlisted, setWishlisted] = useState(!!initial?.wishlisted);
+  const [owned, setOwned] = useState<boolean>(!!initial?.owned);
+  const [digital, setDigital] = useState<boolean>(!!initial?.digital);
+  const [wishlisted, setWishlisted] = useState<boolean>(!!initial?.wishlisted);
   const [format, setFormat] = useState<Album["format"] | undefined>(initial?.format);
-  const [coverUrl, setCoverUrl] = useState(initial?.coverUrl ?? "");
-  const [barcode, setBarcode] = useState(initial?.barcode ?? "");
-  const [notes, setNotes] = useState(initial?.notes ?? "");
+  const [coverUrl, setCoverUrl] = useState<string>(initial?.coverUrl ?? "");
+  const [barcode, setBarcode] = useState<string>(initial?.barcode ?? "");
+  const [notes, setNotes] = useState<string>(initial?.notes ?? "");
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     await onSubmit({
       title: title.trim(),
@@ -35,7 +36,7 @@ export default function AlbumForm({ initial, onSubmit, busy, submitLabel = "Spar
       genres: genres
         .toString()
         .split(",")
-        .map((s) => s.trim())
+        .map((s: string) => s.trim())
         .filter(Boolean),
       owned,
       digital,
@@ -44,8 +45,7 @@ export default function AlbumForm({ initial, onSubmit, busy, submitLabel = "Spar
       coverUrl: coverUrl || undefined,
       barcode: barcode || undefined,
       notes: notes || undefined,
-      // resten (createdAt/updatedAt) sätts högre upp i flödet
-    } as any);
+    } as Omit<Album, "id" | "createdAt" | "updatedAt">);
   }
 
   return (
@@ -114,19 +114,14 @@ export default function AlbumForm({ initial, onSubmit, busy, submitLabel = "Spar
           Digital
         </label>
         <label className="chip cursor-pointer">
-          <input
-            className="mr-2"
-            type="checkbox"
-            checked={wishlisted}
-            onChange={(e) => setWishlisted(e.target.checked)}
-          />
+          <input className="mr-2" type="checkbox" checked={wishlisted} onChange={(e) => setWishlisted(e.target.checked)} />
           Önskelista
         </label>
       </div>
 
       <label className="grid gap-1">
         <span className="text-sm">Format</span>
-        <select value={format ?? ""} onChange={(e) => setFormat((e.target.value || undefined) as any)}>
+        <select value={format ?? ""} onChange={(e) => setFormat((e.target.value || undefined) as Album["format"])}>
           <option value="">(välj)</option>
           <option value="cd">CD</option>
           <option value="vinyl">Vinyl</option>
