@@ -32,7 +32,8 @@ export interface Movie {
 
   // Status/omdöme
   status?: MovieStatus;
-  seen?: boolean; // används i UI som “Sett”-chip
+  /** Används som “Sett”-chip – separat från status för bakåtkomp. */
+  seen?: boolean;
   rating?: number;
   notes?: string;
 
@@ -148,7 +149,8 @@ export interface Game {
   format?: GameFormat;
   platform?: GamePlatform | string;
   edition?: string;
-  barcode?: string;  // EAN/UPC – används i GameForm
+  /** EAN/UPC – används i GameForm */
+  barcode?: string;
   location?: string;
 
   createdAt: number;
@@ -240,6 +242,9 @@ export interface Album {
   coverUrl?: string;
   notes?: string;
 
+  /** Betyg 0–10 (valfritt) – används i AlbumDetailsDialog */
+  rating?: number;
+
   // Metadata
   createdAt: number;
   updatedAt?: number;
@@ -270,7 +275,10 @@ export type ComicFormat =
   | "omnibus"
   | "digital"
   | "magazine"
-  | "other";
+  | "other"
+  // kortalias som vissa komponenter råkar använda
+  | "single"
+  | "trade";
 
 export interface Comic {
   id?: number;
@@ -282,6 +290,12 @@ export interface Comic {
   issueNumber?: number;
   year?: number;
   genres?: string[];
+
+  // ---- Bakåtkomp/alias som vissa komponenter använder ----
+  /** @deprecated använd seriesTitle */
+  series?: string;
+  /** @deprecated använd issueNumber */
+  issue?: number;
 
   // Kreatörer & utgivning
   writer?: string;
@@ -304,6 +318,9 @@ export interface Comic {
   // Media & anteckningar
   coverUrl?: string;
   notes?: string;
+
+  /** Betyg 0–10 (valfritt) – används i ComicDetailsDialog */
+  rating?: number;
 
   // Metadata
   createdAt: number;
@@ -348,6 +365,9 @@ export function labelComicFormat(f?: ComicFormat): string {
     case "omnibus": return "Omnibus";
     case "digital": return "Digital";
     case "magazine": return "Magasin";
+    case "single": return "Lösnummer";        // alias
+    case "trade": return "TPB";               // alias
     default: return "Övrigt";
   }
 }
+```0
