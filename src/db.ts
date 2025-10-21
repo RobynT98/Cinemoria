@@ -1,10 +1,8 @@
 // src/db.ts
 import Dexie, { Table } from "dexie";
 
-/* ──────────────────────────────────────────────────────────
-   Typer – importera från central "@/types" och återexportera
-   ────────────────────────────────────────────────────────── */
-import type {
+/* ── Typer: re-exportera direkt från "@/types" (ingen lokal import) ── */
+export type {
   // gemensamt
   List,
   // film
@@ -16,7 +14,7 @@ import type {
   // musik
   Album, AlbumList, AlbumListLink,
   // serier
-  Comic, ComicList, ComicListLink,
+  Comic, ComicList, ComicListLink, ComicFormat,
 } from "@/types";
 
 // Vidareexportera typerna till resten av appen
