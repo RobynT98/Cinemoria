@@ -197,100 +197,135 @@ export interface GameListLink {
   listId: number;
   createdAt: number;
 }
-// --- MUSIC ---
-export type MusicFormat = "cd" | "vinyl" | "cassette" | "digital" | "minidisc" | "other";
+/* ========== MUSIK (Album) ========== */
+
+export type AlbumFormat =
+  | "cd"
+  | "vinyl"
+  | "cassette"
+  | "digital"
+  | "sacd"
+  | "bluray-audio"
+  | "other";
 
 export interface Album {
   id?: number;
+  // Bas
   title: string;
-  artist: string;
+  artist?: string;
   year?: number;
-  genres: string[];          // kommaseparerad i UI -> array i modellen
-  coverUrl?: string;
-  owned: boolean;
-  digital: boolean;
-  wishlisted: boolean;
-  format: MusicFormat;
-  // metadata
-  barcode?: string;          // EAN/UPC
-  label?: string;            // skivbolag
-  catalogNo?: string;        // t.ex. "WARP123"
-  country?: string;          // "SE", "UK", "US" …
-  language?: string;         // "sv", "en" …
-  discs?: number;            // antal skivor
-  tracks?: number;           // total antal spår
-  durationMin?: number;      // total speltid i minuter (valfritt)
-  edition?: string;          // "Deluxe", "Remastered 2011" …
-  releaseYear?: number;      // utgåveår om skilt från originalår
-  location?: string;         // hylla/låda
-  notes?: string;
-
+  genres?: string[];          // kommaseparerat i UI → lagras som array
+  // Ägande/status
+  owned?: boolean;
+  digital?: boolean;
+  wishlisted?: boolean;
+  // Utgåva/teknik
+  format?: AlbumFormat;       // CD/Vinyl/Digital/…
+  edition?: string;           // t.ex. "Deluxe", "Remastered", "Limited"
+  barcode?: string;           // EAN/UPC om du scannar
+  language?: string;          // t.ex. "sv", "en" om relevant (texthäften)
+  label?: string;             // skivbolag
+  // Media
+  coverUrl?: string;          // omslag (URL)
+  notes?: string;             // fria anteckningar
+  // Metadata
   createdAt: number;
-  updatedAt?: number;
+  updatedAt: number;
 }
 
 export interface AlbumList {
   id?: number;
   name: string;
   createdAt: number;
-  updatedAt?: number;
+  updatedAt: number;
 }
 
-export interface AlbumLink {
+export interface AlbumListLink {
   id?: number;
-  listId: number;
   albumId: number;
+  listId: number;
   createdAt: number;
 }
 
-// --- COMICS (serietidningar) ---
-export type ComicFormat = "single" | "tpb" | "hardcover" | "manga" | "magazine" | "digital" | "other";
+/* ========== SERIER (Comics) ========== */
+
+export type ComicFormat =
+  | "single-issue"     // lösnummer
+  | "trade-paperback"  // TPB
+  | "hardcover"        // HC
+  | "omnibus"
+  | "digital"
+  | "magazine"
+  | "other";
 
 export interface Comic {
   id?: number;
-  title: string;             // titel på numret/volymen
-  series?: string;           // serie-namn (t.ex. "Batman")
-  issueNumber?: string;      // t.ex. "#12", "12A"
-  volume?: string;           // volym/årgång om relevant
+  // Bas
+  title: string;             // serie-/albumtitel
+  seriesTitle?: string;      // om annan än title
+  volume?: number;           // volymnummer (t.ex. vol 2)
+  issueNumber?: number;      // #1, #12 etc (för lösnummer)
   year?: number;
-  month?: number;            // 1–12 (om du vill)
-  genres: string[];
-  coverUrl?: string;
-
-  owned: boolean;
-  digital: boolean;
-  wishlisted: boolean;
-  format: ComicFormat;
-
-  // metadata
-  publisher?: string;        // DC, Marvel, Bonniers…
-  writers?: string[];        // kommaseparerat i UI
-  artists?: string[];        // kommaseparerat i UI
-  language?: string;         // "sv", "en" …
-  isbn?: string;             // för album/TPB
-  issn?: string;             // för magasin
-  barcode?: string;          // EAN (vanligt på svenska tidningar/album)
-  printing?: string;         // "1st print", "2nd print"
+  genres?: string[];
+  // Kreatörer & utgivning
+  writer?: string;
+  artist?: string;
+  publisher?: string;        // Marvel, DC, Egmont, etc.
+  language?: string;         // "sv", "en"…
   pages?: number;
-  condition?: string;        // valfri fri text (VG, FN, NM…)
-  location?: string;
-  edition?: string;          // "Deluxe", "Omnibus", "Special"
+  isbn?: string;             // för samlingsvolymer
+  barcode?: string;          // streckkod (vanligt på lösnummer)
+  // Ägande/status
+  owned?: boolean;
+  digital?: boolean;
+  wishlisted?: boolean;
+  // Utgåva
+  format?: ComicFormat;
+  edition?: string;          // "Deluxe", "New Printing", etc.
+  // Media
+  coverUrl?: string;
   notes?: string;
-
+  // Metadata
   createdAt: number;
-  updatedAt?: number;
+  updatedAt: number;
 }
 
 export interface ComicList {
   id?: number;
   name: string;
   createdAt: number;
-  updatedAt?: number;
+  updatedAt: number;
 }
 
-export interface ComicLink {
+export interface ComicListLink {
   id?: number;
-  listId: number;
   comicId: number;
+  listId: number;
   createdAt: number;
+}
+
+/* ========== Hjälp-etiketter (valfritt men praktiskt i UI) ========== */
+
+export function labelAlbumFormat(f?: AlbumFormat) {
+  switch (f) {
+    case "cd": return "CD";
+    case "vinyl": return "Vinyl";
+    case "cassette": return "Kassett";
+    case "digital": return "Digital";
+    case "sacd": return "SACD";
+    case "bluray-audio": return "Blu-ray Audio";
+    default: return "Övrigt";
+  }
+}
+
+export function labelComicFormat(f?: ComicFormat) {
+  switch (f) {
+    case "single-issue": return "Lösnummer";
+    case "trade-paperback": return "TPB";
+    case "hardcover": return "Inbunden";
+    case "omnibus": return "Omnibus";
+    case "digital": return "Digital";
+    case "magazine": return "Magasin";
+    default: return "Övrigt";
+  }
 }
