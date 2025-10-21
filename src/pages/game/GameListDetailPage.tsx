@@ -1,17 +1,6 @@
-// src/pages/game/GameListDetailPage.tsx
 import { useEffect, useMemo, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import {
-  db,
-  type Game,
-  type GameList as DbList,
-  getGameListById,
-  getGamesInGameList,
-  linkGameToList,
-  unlinkGameFromList,
-  renameGameList,
-  deleteGameList,
-} from "@/db";
+import { db, type Game, type GameList as DbList } from "@/db";
 import { Plus, Trash2, Edit3, ArrowLeft, X, Search } from "lucide-react";
 
 export default function GameListDetailPage() {
@@ -31,11 +20,15 @@ export default function GameListDetailPage() {
       setNotFound(true);
       return;
     }
-    (async () => {
-      const [l, games, gIn] = await Promise.all([
-        getGameListById(listId),
+    reload();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [listId]);
+
+  async function reload() {
+    try {
+      const [l, games] = await Promise.all([
+        db.gameLists.get(listId),
         db.games.toArray(),
-        getGamesInGameList(listId),
       ]);
       if (!l) {
         setNotFound(true);
@@ -43,17 +36,22 @@ export default function GameListDetailPage() {
       }
       setList(l);
       setAllGames(games);
-      setInList(gIn);
-    })();
-  }, [listId]);
+
+      // Läs länkar och bygg inList
+      const links = await db.gameLinks.where("listId").equals(listId).toArray();
+      const ids = new Set<number>(links.map((ln: any) => Number(ln.gameId)));
+      const inside = games.filter((g) => typeof g.id === "number" && ids.has(Number(g.id)));
+      setInList(inside);
+    } catch (err) {
+      console.error("Game list reload failed:", err);
+      alert("Kunde inte läsa spellistan. Prova att ladda om sidan.");
+    }
+  }
 
   const notInList = useMemo(() => {
     const needle = q.trim().toLowerCase();
-
-    // Normalisera id:n till number
-    const inSet = new Set(inList.map((g) => Number(g.id)));
-    let base = allGames.filter((g) => !inSet.has(Number(g.id)));
-
+    const inSet = new Set(inList.map((g) => g.id));
+    let base = allGames.filter((g) => !inSet.has(g.id!));
     if (needle) {
       base = base.filter(
         (g) =>
@@ -66,24 +64,32 @@ export default function GameListDetailPage() {
   }, [allGames, inList, q]);
 
   async function handleAdd(g: Game) {
-    const id = Number(g.id);
-    if (!Number.isFinite(id)) return;
+    if (!g.id) return;
     setBusy(true);
     try {
-      await linkGameToList(listId, id);
-      setInList(await getGamesInGameList(listId));
+      const exists = await db.gameLinks.where({ listId, gameId: g.id }).first();
+      if (!exists) {
+        await db.gameLinks.add({ listId, gameId: g.id, createdAt: Date.now() } as any);
+      }
+      await reload();
+    } catch (err) {
+      console.error("Add game to list failed:", err);
+      alert("Kunde inte lägga till spelet i listan.");
     } finally {
       setBusy(false);
     }
   }
 
   async function handleRemove(g: Game) {
-    const id = Number(g.id);
-    if (!Number.isFinite(id)) return;
+    if (!g.id) return;
     setBusy(true);
     try {
-      await unlinkGameFromList(listId, id);
-      setInList(await getGamesInGameList(listId));
+      const link = await db.gameLinks.where({ listId, gameId: g.id }).first();
+      if (link?.id) await db.gameLinks.delete(link.id);
+      await reload();
+    } catch (err) {
+      console.error("Remove game from list failed:", err);
+      alert("Kunde inte ta bort spelet från listan.");
     } finally {
       setBusy(false);
     }
@@ -95,8 +101,11 @@ export default function GameListDetailPage() {
     if (!name || !name.trim() || name === list.name) return;
     setBusy(true);
     try {
-      await renameGameList(list.id!, name.trim());
-      setList(await getGameListById(listId));
+      await db.gameLists.update(list.id!, { name: name.trim(), updatedAt: Date.now() });
+      setList(await db.gameLists.get(listId));
+    } catch (err) {
+      console.error("Rename game list failed:", err);
+      alert("Kunde inte byta namn på listan.");
     } finally {
       setBusy(false);
     }
@@ -107,8 +116,15 @@ export default function GameListDetailPage() {
     if (!confirm(`Ta bort listan "${list.name}"? (Spelen ligger kvar)`)) return;
     setBusy(true);
     try {
-      await deleteGameList(list.id!);
+      const links = await db.gameLinks.where("listId").equals(listId).toArray();
+      await db.transaction("rw", [db.gameLinks, db.gameLists], async () => {
+        for (const ln of links) if (ln.id) await db.gameLinks.delete(ln.id);
+        await db.gameLists.delete(list.id!);
+      });
       nav("/game/collections");
+    } catch (err) {
+      console.error("Delete game list failed:", err);
+      alert("Kunde inte ta bort listan.");
     } finally {
       setBusy(false);
     }
@@ -174,8 +190,7 @@ export default function GameListDetailPage() {
                   <div className="min-w-0">
                     <div className="font-medium truncate">{g.title}</div>
                     <div className="text-sand-300 text-xs">
-                      {(g.platform || "Okänd plattform") +
-                        (g.year ? ` • ${g.year}` : "")}
+                      {(g.platform || "Okänd plattform") + (g.year ? ` • ${g.year}` : "")}
                     </div>
                   </div>
                   <button
