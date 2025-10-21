@@ -1,140 +1,113 @@
-// src/components/comic/ComicForm.tsx
 import { useState } from "react";
-import { db } from "@/db";
 import type { Comic } from "@/types";
-import { useNavigate } from "react-router-dom";
 import BarcodeScannerDialog from "@/components/BarcodeScannerDialog";
 
-interface ComicFormProps {
-  initial?: Comic;
-  submitLabel: string;
-  onSubmit?: (data: Comic) => Promise<void>;
-}
+type Props = {
+  initial?: Partial<Comic>;
+  onSubmit: (data: Omit<Comic, "id" | "createdAt" | "updatedAt">) => Promise<void> | void;
+  busy?: boolean;
+  submitLabel?: string;
+};
 
-export default function ComicForm({ initial, submitLabel, onSubmit }: ComicFormProps) {
-  const nav = useNavigate();
+export default function ComicForm({ initial, onSubmit, busy, submitLabel = "Spara" }: Props) {
+  const init = initial ?? {};
+
+  // Bakåtkomp: stöd både seriesTitle/issueNumber och äldre series/issue
+  const initialSeriesTitle = (init as any).seriesTitle ?? (init as any).series ?? "";
+  const initialIssueNumber = (init as any).issueNumber ?? (init as any).issue ?? "";
+
+  const [title, setTitle] = useState(init.title ?? "");
+  const [seriesTitle, setSeriesTitle] = useState(initialSeriesTitle as string);
+  const [volume, setVolume] = useState<number | "">(init.volume ?? "");
+  const [issueNumber, setIssueNumber] = useState<number | "">(initialIssueNumber || "");
+  const [year, setYear] = useState<number | "">(init.year ?? "");
+  const [owned, setOwned] = useState(!!init.owned);
+  const [digital, setDigital] = useState(!!init.digital);
+  const [wishlisted, setWishlisted] = useState(!!init.wishlisted);
+  const [format, setFormat] = useState<Comic["format"] | undefined>(init.format);
+  const [coverUrl, setCoverUrl] = useState(init.coverUrl ?? "");
+  const [barcode, setBarcode] = useState(init.barcode ?? "");
+  const [notes, setNotes] = useState(init.notes ?? "");
   const [scanOpen, setScanOpen] = useState(false);
 
-  const [c, setC] = useState<Comic>(
-    initial ?? ({
-      title: "",
-      seriesTitle: initial?.seriesTitle ?? initial?.series, // bakåtkomp
-      volume: undefined,
-      issueNumber: initial?.issueNumber ?? (initial as any)?.issue,
-      year: undefined,
-      genres: [],
-      coverUrl: "",
-      barcode: "",
-      owned: false,
-      digital: false,
-      wishlisted: false,
-      format: undefined,
-      notes: "",
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-    } as Comic)
-  );
-
-  function set<K extends keyof Comic>(key: K, val: Comic[K]) {
-    setC((x) => ({ ...x, [key]: val }));
-  }
-
-  async function save() {
-    if (!c.title.trim()) return alert("Titel krävs");
-    const data: Comic = {
-      ...c,
-      title: c.title.trim(),
-      seriesTitle: c.seriesTitle?.trim() || undefined,
-      createdAt: c.createdAt || Date.now(),
-      updatedAt: Date.now(),
-    };
-
-    if (onSubmit) {
-      await onSubmit(data);
-    } else {
-      if (initial?.id != null) {
-        await db.comics.put({ ...data, id: initial.id });
-      } else {
-        await db.comics.add(data);
-      }
-      nav("/comic");
-    }
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    await onSubmit({
+      title: title.trim(),
+      seriesTitle: seriesTitle.trim() || undefined,
+      volume: typeof volume === "number" ? volume : undefined,
+      issueNumber: typeof issueNumber === "number" ? issueNumber : undefined,
+      year: typeof year === "number" ? year : undefined,
+      owned,
+      digital,
+      wishlisted,
+      format,
+      coverUrl: coverUrl || undefined,
+      barcode: barcode || undefined,
+      notes: notes || undefined,
+    } as any);
   }
 
   return (
-    <div className="card p-4 space-y-3">
-      {/* Basfält */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div>
-          <label className="block text-sm mb-1">Titel</label>
-          <input value={c.title} onChange={(e) => set("title", e.target.value)} placeholder="Watchmen" />
-        </div>
-        <div>
-          <label className="block text-sm mb-1">Serie</label>
-          <input value={c.seriesTitle ?? ""} onChange={(e) => set("seriesTitle", e.target.value)} placeholder="—" />
-        </div>
+    <form className="space-y-3" onSubmit={handleSubmit}>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <label className="grid gap-1">
+          <span className="text-sm">Titel *</span>
+          <input required value={title} onChange={(e) => setTitle(e.target.value)} />
+        </label>
+        <label className="grid gap-1">
+          <span className="text-sm">Serie</span>
+          <input value={seriesTitle} onChange={(e) => setSeriesTitle(e.target.value)} />
+        </label>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <div>
-          <label className="block text-sm mb-1">Volym</label>
+      <div className="grid gap-3 sm:grid-cols-3">
+        <label className="grid gap-1">
+          <span className="text-sm">Volym</span>
           <input
-            type="number"
-            value={c.volume ?? ""}
-            onChange={(e) => set("volume", Number(e.target.value) || undefined)}
-            placeholder="1"
+            inputMode="numeric"
+            value={volume}
+            onChange={(e) => setVolume(e.target.value ? Number(e.target.value) : "")}
           />
-        </div>
-        <div>
-          <label className="block text-sm mb-1">Nummer</label>
+        </label>
+        <label className="grid gap-1">
+          <span className="text-sm">Nummer</span>
           <input
-            type="number"
-            value={c.issueNumber ?? ""}
-            onChange={(e) => set("issueNumber", Number(e.target.value) || undefined)}
-            placeholder="12"
+            inputMode="numeric"
+            value={issueNumber}
+            onChange={(e) => setIssueNumber(e.target.value ? Number(e.target.value) : "")}
           />
-        </div>
-        <div>
-          <label className="block text-sm mb-1">År</label>
-          <input
-            type="number"
-            value={c.year ?? ""}
-            onChange={(e) => set("year", Number(e.target.value) || undefined)}
-            placeholder="1986"
-          />
-        </div>
+        </label>
+        <label className="grid gap-1">
+          <span className="text-sm">År</span>
+          <input inputMode="numeric" value={year} onChange={(e) => setYear(e.target.value ? Number(e.target.value) : "")}/>
+        </label>
       </div>
 
-      {/* Omslag */}
+      <label className="grid gap-1">
+        <span className="text-sm">Omslagsbild (URL)</span>
+        <input type="url" value={coverUrl} onChange={(e) => setCoverUrl(e.target.value)} />
+      </label>
+
       <div>
-        <label className="block text-sm mb-1">Omslagsbild (URL)</label>
-        <input
-          type="url"
-          value={c.coverUrl ?? ""}
-          onChange={(e) => set("coverUrl", e.target.value)}
-          placeholder="https://…/cover.jpg"
-        />
-      </div>
-
-      {/* Streckkod */}
-      <div>
-        <label className="block text-sm mb-1">Streckkod (EAN/UPC)</label>
+        <span className="text-sm block mb-1">Streckkod (EAN/UPC)</span>
         <div className="flex items-center gap-2">
           <input
-            type="text"
-            value={c.barcode ?? ""}
-            onChange={(e) => set("barcode", e.target.value)}
-            placeholder="t.ex. 9781401207137"
             className="flex-1"
+            value={barcode}
+            onChange={(e) => setBarcode(e.target.value)}
+            placeholder="t.ex. 9781401207137"
           />
-          <button className="btn" onClick={() => setScanOpen(true)}>Skanna</button>
+          <button type="button" className="btn" onClick={() => setScanOpen(true)}>
+            Skanna
+          </button>
         </div>
         {scanOpen && (
           <BarcodeScannerDialog
             title="Skanna seriestreckkod"
             subtitle="Rikta mot EAN/UPC"
             onDetected={(code) => {
-              set("barcode", code);
+              setBarcode(code);
               setScanOpen(false);
             }}
             onClose={() => setScanOpen(false)}
@@ -142,32 +115,24 @@ export default function ComicForm({ initial, submitLabel, onSubmit }: ComicFormP
         )}
       </div>
 
-      {/* Ägande */}
-      <div className="card p-3">
-        <h3 className="font-semibold mb-2">Ägande</h3>
-        <div className="flex items-center gap-4 flex-wrap">
-          <label className="inline-flex items-center gap-2">
-            <input type="checkbox" checked={!!c.owned} onChange={(e) => set("owned", e.target.checked)} />
-            Ägd
-          </label>
-          <label className="inline-flex items-center gap-2">
-            <input type="checkbox" checked={!!c.digital} onChange={(e) => set("digital", e.target.checked)} />
-            Digital
-          </label>
-          <label className="inline-flex items-center gap-2">
-            <input type="checkbox" checked={!!c.wishlisted} onChange={(e) => set("wishlisted", e.target.checked)} />
-            Önskelista
-          </label>
-        </div>
+      <div className="flex flex-wrap gap-2">
+        <label className="chip cursor-pointer">
+          <input className="mr-2" type="checkbox" checked={owned} onChange={(e) => setOwned(e.target.checked)} />
+          Ägd
+        </label>
+        <label className="chip cursor-pointer">
+          <input className="mr-2" type="checkbox" checked={digital} onChange={(e) => setDigital(e.target.checked)} />
+          Digital
+        </label>
+        <label className="chip cursor-pointer">
+          <input className="mr-2" type="checkbox" checked={wishlisted} onChange={(e) => setWishlisted(e.target.checked)} />
+          Önskelista
+        </label>
       </div>
 
-      {/* Format */}
-      <div>
-        <label className="block text-sm mb-1">Format</label>
-        <select
-          value={c.format ?? ""}
-          onChange={(e) => set("format", (e.target.value || undefined) as Comic["format"])}
-        >
+      <label className="grid gap-1">
+        <span className="text-sm">Format</span>
+        <select value={format ?? ""} onChange={(e) => setFormat((e.target.value || undefined) as any)}>
           <option value="">(välj)</option>
           <option value="single-issue">Lösnummer</option>
           <option value="trade-paperback">TPB</option>
@@ -177,22 +142,18 @@ export default function ComicForm({ initial, submitLabel, onSubmit }: ComicFormP
           <option value="digital">Digital</option>
           <option value="other">Övrigt</option>
         </select>
-      </div>
+      </label>
 
-      {/* Anteckningar */}
-      <div>
-        <label className="block text-sm mb-1">Anteckningar</label>
-        <textarea
-          rows={4}
-          value={c.notes ?? ""}
-          onChange={(e) => set("notes", e.target.value)}
-          placeholder="Upplaga, skick, var den finns …"
-        />
-      </div>
+      <label className="grid gap-1">
+        <span className="text-sm">Anteckningar</span>
+        <textarea rows={4} value={notes} onChange={(e) => setNotes(e.target.value)} />
+      </label>
 
       <div className="pt-2">
-        <button className="btn btn-primary" onClick={save}>{submitLabel}</button>
+        <button className="btn btn-primary" disabled={busy} type="submit">
+          {submitLabel}
+        </button>
       </div>
-    </div>
+    </form>
   );
 }
