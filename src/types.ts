@@ -4,7 +4,7 @@
 
 export type MovieStatus = "planned" | "watching" | "watched";
 
-export type Format =
+export type MovieFormat =
   | "uhd"      // 4K UHD
   | "bluray"
   | "dvd"
@@ -41,7 +41,7 @@ export interface Movie {
   owned?: boolean;
   wishlisted?: boolean;
   digital?: boolean;
-  format?: Format;
+  format?: MovieFormat;
   location?: string;
   provider?: string;
 
@@ -230,14 +230,14 @@ export interface Album {
   notes?: string;             // fria anteckningar
   // Metadata
   createdAt: number;
-  updatedAt: number;
+  updatedAt?: number;
 }
 
 export interface AlbumList {
   id?: number;
   name: string;
   createdAt: number;
-  updatedAt: number;
+  updatedAt?: number;
 }
 
 export interface AlbumListLink {
@@ -287,14 +287,14 @@ export interface Comic {
   notes?: string;
   // Metadata
   createdAt: number;
-  updatedAt: number;
+  updatedAt?: number;
 }
 
 export interface ComicList {
   id?: number;
   name: string;
   createdAt: number;
-  updatedAt: number;
+  updatedAt?: number;
 }
 
 export interface ComicListLink {
