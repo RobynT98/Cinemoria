@@ -5,7 +5,7 @@
 export type MovieStatus = "planned" | "watching" | "watched";
 
 export type MovieFormat =
-  | "uhd"      // 4K UHD
+  | "uhd"       // 4K UHD
   | "bluray"
   | "dvd"
   | "digital"
@@ -32,8 +32,7 @@ export interface Movie {
 
   // Status/omdöme
   status?: MovieStatus;
-  /** Används i UI som “Sett”-chip — separat från status för bakåtkomp. */
-  seen?: boolean;
+  seen?: boolean; // används i UI som “Sett”-chip
   rating?: number;
   notes?: string;
 
@@ -114,7 +113,13 @@ export type GamePlatform =
   | "Retro"
   | "Other";
 
-export type GameFormat = "physical" | "digital" | "cartridge" | "disc" | "other";
+export type GameFormat =
+  | "physical"
+  | "digital"
+  | "cartridge"
+  | "disc"
+  | "other";
+
 export type GameStatus = "planned" | "playing" | "completed" | "abandoned";
 
 export interface Game {
@@ -143,8 +148,7 @@ export interface Game {
   format?: GameFormat;
   platform?: GamePlatform | string;
   edition?: string;
-  /** EAN/UPC – används i GameForm */
-  barcode?: string;
+  barcode?: string;  // EAN/UPC – används i GameForm
   location?: string;
 
   createdAt: number;
@@ -162,7 +166,7 @@ export interface List {
   updatedAt?: number;
 }
 
-/* Film-listor */
+/* ───── Film-listor ───── */
 export interface MovieListLink {
   id?: number;
   movieId: number;
@@ -170,7 +174,7 @@ export interface MovieListLink {
   createdAt: number;
 }
 
-/* Bok-listor */
+/* ───── Bok-listor ───── */
 export interface BookList {
   id?: number;
   name: string;
@@ -184,7 +188,7 @@ export interface BookListLink {
   createdAt: number;
 }
 
-/* Spel-listor */
+/* ───── Spel-listor ───── */
 export interface GameList {
   id?: number;
   name: string;
@@ -197,7 +201,10 @@ export interface GameListLink {
   listId: number;
   createdAt: number;
 }
-/* ========== MUSIK (Album) ========== */
+
+/* ============================================================
+   MUSIK (Album)
+   ============================================================ */
 
 export type AlbumFormat =
   | "cd"
@@ -210,24 +217,29 @@ export type AlbumFormat =
 
 export interface Album {
   id?: number;
+
   // Bas
   title: string;
   artist?: string;
   year?: number;
-  genres?: string[];          // kommaseparerat i UI → lagras som array
+  genres?: string[];
+
   // Ägande/status
   owned?: boolean;
   digital?: boolean;
   wishlisted?: boolean;
+
   // Utgåva/teknik
-  format?: AlbumFormat;       // CD/Vinyl/Digital/…
-  edition?: string;           // t.ex. "Deluxe", "Remastered", "Limited"
-  barcode?: string;           // EAN/UPC om du scannar
-  language?: string;          // t.ex. "sv", "en" om relevant (texthäften)
-  label?: string;             // skivbolag
-  // Media
-  coverUrl?: string;          // omslag (URL)
-  notes?: string;             // fria anteckningar
+  format?: AlbumFormat;
+  edition?: string;
+  barcode?: string;
+  language?: string;
+  label?: string;
+
+  // Media & anteckningar
+  coverUrl?: string;
+  notes?: string;
+
   // Metadata
   createdAt: number;
   updatedAt?: number;
@@ -247,7 +259,9 @@ export interface AlbumListLink {
   createdAt: number;
 }
 
-/* ========== SERIER (Comics) ========== */
+/* ============================================================
+   SERIER (Comics)
+   ============================================================ */
 
 export type ComicFormat =
   | "single-issue"     // lösnummer
@@ -260,31 +274,37 @@ export type ComicFormat =
 
 export interface Comic {
   id?: number;
+
   // Bas
-  title: string;             // serie-/albumtitel
-  seriesTitle?: string;      // om annan än title
-  volume?: number;           // volymnummer (t.ex. vol 2)
-  issueNumber?: number;      // #1, #12 etc (för lösnummer)
+  title: string;
+  seriesTitle?: string;
+  volume?: number;
+  issueNumber?: number;
   year?: number;
   genres?: string[];
+
   // Kreatörer & utgivning
   writer?: string;
   artist?: string;
-  publisher?: string;        // Marvel, DC, Egmont, etc.
-  language?: string;         // "sv", "en"…
+  publisher?: string;
+  language?: string;
   pages?: number;
-  isbn?: string;             // för samlingsvolymer
-  barcode?: string;          // streckkod (vanligt på lösnummer)
+  isbn?: string;
+  barcode?: string;
+
   // Ägande/status
   owned?: boolean;
   digital?: boolean;
   wishlisted?: boolean;
+
   // Utgåva
   format?: ComicFormat;
-  edition?: string;          // "Deluxe", "New Printing", etc.
-  // Media
+  edition?: string;
+
+  // Media & anteckningar
   coverUrl?: string;
   notes?: string;
+
   // Metadata
   createdAt: number;
   updatedAt?: number;
@@ -304,9 +324,11 @@ export interface ComicListLink {
   createdAt: number;
 }
 
-/* ========== Hjälp-etiketter (valfritt men praktiskt i UI) ========== */
+/* ============================================================
+   HJÄLP-ETIKETTER (för UI)
+   ============================================================ */
 
-export function labelAlbumFormat(f?: AlbumFormat) {
+export function labelAlbumFormat(f?: AlbumFormat): string {
   switch (f) {
     case "cd": return "CD";
     case "vinyl": return "Vinyl";
@@ -318,7 +340,7 @@ export function labelAlbumFormat(f?: AlbumFormat) {
   }
 }
 
-export function labelComicFormat(f?: ComicFormat) {
+export function labelComicFormat(f?: ComicFormat): string {
   switch (f) {
     case "single-issue": return "Lösnummer";
     case "trade-paperback": return "TPB";
