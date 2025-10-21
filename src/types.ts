@@ -372,4 +372,3 @@ export function labelComicFormat(f?: ComicFormat): string {
     default: return "Övrigt";
   }
 }
-```0
