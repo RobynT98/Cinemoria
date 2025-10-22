@@ -1,23 +1,22 @@
-import { useState } from "react";
+// src/pages/album/AlbumAdd.tsx
 import { useNavigate } from "react-router-dom";
-import { db } from "@/db";
 import AlbumForm from "@/components/AlbumForm";
+import { addAlbum } from "@/db";
+import type { Album } from "@/db";
 
 export default function AlbumAdd() {
-  const nav = useNavigate();
-  const [busy, setBusy] = useState(false);
+  const navigate = useNavigate();
 
-  async function onSubmit(data: any) {
-    setBusy(true);
-    const now = Date.now();
-    await db.albums.add({ ...data, createdAt: now, updatedAt: now } as any);
-    setBusy(false);
-    nav("/album");
+  async function handleSubmit(data: Album) {
+    await addAlbum(data);
+    alert("Album sparat!");
+    navigate("/album");
   }
+
   return (
-    <section className="p-4 space-y-3">
-      <h1 className="text-2xl font-semibold">Lägg till album</h1>
-      <AlbumForm onSubmit={onSubmit} busy={busy} />
+    <section className="p-4">
+      <h1 className="text-2xl font-semibold mb-3">Lägg till album</h1>
+      <AlbumForm submitLabel="Spara album" onSubmit={handleSubmit} />
     </section>
   );
 }
