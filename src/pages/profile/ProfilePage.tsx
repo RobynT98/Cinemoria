@@ -221,96 +221,99 @@ export default function ProfilePage() {
       </div>
 
       {/* Datakällor & Autofyll */}
-      <div className="card p-4 space-y-3">
-        <h2 className="font-semibold">Datakällor & Autofyll</h2>
+<div className="card p-4 space-y-3">
+  <h2 className="font-semibold">Datakällor & Autofyll</h2>
 
-        {/* OMDb */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between gap-2">
-            <label className="inline-flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={omdbEnabled}
-                onChange={(e) => setOmdbEnabled(e.target.checked)}
-              />
-              Använd OMDb för film-autofyll
-            </label>
-            <span
-              className={
-                omdbCheck === "ok"
-                  ? "text-green-500 text-sm"
-                  : omdbCheck === "fail"
-                  ? "text-red-500 text-sm"
-                  : omdbCheck === "busy"
-                  ? "text-sand-300 text-sm"
-                  : "text-sand-300 text-sm"
-              }
-            >
-              {omdbCheck === "ok" ? "OK" : omdbCheck === "fail" ? "Fel" : omdbCheck === "busy" ? "Testar…" : "—"}
-            </span>
-          </div>
+  {/* OMDb */}
+  <div className="space-y-2">
+    <div className="flex items-center justify-between gap-2">
+      <label className="inline-flex items-center gap-2">
+        <input
+          type="checkbox"
+          checked={omdbEnabled}
+          onChange={(e) => setOmdbEnabled(e.target.checked)}
+        />
+        Använd OMDb för film-autofyll
+      </label>
+      <span
+        className={
+          omdbCheck === "ok"
+            ? "text-green-500 text-sm"
+            : omdbCheck === "fail"
+            ? "text-red-500 text-sm"
+            : omdbCheck === "busy"
+            ? "text-sand-300 text-sm"
+            : "text-sand-300 text-sm"
+        }
+      >
+        {omdbCheck === "ok" ? "OK" : omdbCheck === "fail" ? "Fel" : omdbCheck === "busy" ? "Testar…" : "—"}
+      </span>
+    </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-2">
-            <input
-              type="password"
-              value={omdbKey}
-              onChange={(e) => setOmdbKey(e.target.value)}
-              placeholder="OMDb API-nyckel"
-              aria-label="OMDb API-nyckel"
-            />
-            <button className="btn" onClick={testOmdb} disabled={!omdbEnabled || !omdbKey.trim()}>
-              Testa OMDb
-            </button>
-          </div>
+    <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-2">
+      <input
+        type="password"
+        value={omdbKey}
+        onChange={(e) => setOmdbKey(e.target.value)}
+        placeholder="OMDb API-nyckel"
+        aria-label="OMDb API-nyckel"
+      />
+      <button className="btn" onClick={testOmdb} disabled={!omdbEnabled || !omdbKey.trim()}>
+        Testa OMDb
+      </button>
+    </div>
 
-          <p className="text-sand-300 text-xs">
-  Din OMDb-nyckel sparas endast lokalt i webbläsaren. När du lägger till eller redigerar en film kan
-  appen använda nyckeln för att automatiskt hämta titel, poster och genrer via knappen <em>Hämta från OMDb</em>.
-  <br />
-  <span className="text-sand-400">
-    Tips: Klicka <strong>Testa OMDb</strong> ovan för att kontrollera att din nyckel fungerar.
-  </span>
-</p>
+    <p className="text-sand-300 text-xs">
+      Din OMDb-nyckel sparas endast lokalt i webbläsaren. När du lägger till eller redigerar en film kan
+      appen använda nyckeln för att automatiskt hämta titel, poster och genrer via knappen <em>Hämta från OMDb</em>.
+      <br />
+      <span className="text-sand-400">
+        Tips: Klicka <strong>Testa OMDb</strong> ovan för att kontrollera att din nyckel fungerar.
+      </span>
+    </p>
+  </div>
 
-        <hr className="border-ink-700/30" />
+  <hr className="border-ink-700/30" />
 
-        {/* Streckkod */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between gap-2">
-            <div>
-              <div className="font-medium">Streckkodsskanning</div>
-              <div className="text-sand-300 text-xs">
-  Testa kameratillstånd så att streckkodsskannern kan starta direkt i formulären.
-  <br />
-  <span className="text-sand-400">
-    Tips: Om testet lyckas kan du skanna EAN, ISBN eller andra koder direkt när du lägger till film, bok eller spel.
-  </span>
-</div>
-            <span
-              className={
-                cameraStatus === "ok"
-                  ? "text-green-500 text-sm"
-                  : cameraStatus === "denied" || cameraStatus === "error"
-                  ? "text-red-500 text-sm"
-                  : cameraStatus === "busy"
-                  ? "text-sand-300 text-sm"
-                  : "text-sand-300 text-sm"
-              }
-            >
-              {cameraStatus === "ok"
-                ? "Kamera OK"
-                : cameraStatus === "denied"
-                ? "Nekad"
-                : cameraStatus === "error"
-                ? "Fel"
-                : cameraStatus === "busy"
-                ? "Testar…"
-                : "—"}
-            </span>
-          </div>
-          <button className="btn" onClick={testCamera}>Testa kamera</button>
+  {/* Streckkod */}
+  <div className="space-y-2">
+    <div className="flex items-center justify-between gap-2">
+      <div>
+        <div className="font-medium">Streckkodsskanning</div>
+        <div className="text-sand-300 text-xs">
+          Testa kameratillstånd så att streckkodsskannern kan starta direkt i formulären.
+          <br />
+          <span className="text-sand-400">
+            Tips: Om testet lyckas kan du skanna EAN, ISBN eller andra koder direkt när du lägger till film, bok eller spel.
+          </span>
         </div>
       </div>
+      <span
+        className={
+          cameraStatus === "ok"
+            ? "text-green-500 text-sm"
+            : cameraStatus === "denied" || cameraStatus === "error"
+            ? "text-red-500 text-sm"
+            : cameraStatus === "busy"
+            ? "text-sand-300 text-sm"
+            : "text-sand-300 text-sm"
+        }
+      >
+        {cameraStatus === "ok"
+          ? "Kamera OK"
+          : cameraStatus === "denied"
+          ? "Nekad"
+          : cameraStatus === "error"
+          ? "Fel"
+          : cameraStatus === "busy"
+          ? "Testar…"
+          : "—"}
+      </span>
+    </div>
+
+    <button className="btn" onClick={testCamera}>Testa kamera</button>
+  </div>
+</div>
 
       {/* Backup */}
       <div className="card p-4 space-y-3">
