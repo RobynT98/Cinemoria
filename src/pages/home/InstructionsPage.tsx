@@ -81,7 +81,7 @@ export default function InstructionsPage() {
             <em>Skanna</em>. Tryck <em>Skanna</em> – inte bara på fältet.
           </li>
           <li>
-            <strong>Film & spel:</strong> appen sparar EAN/UPC lokalt (för
+            <strong>Film & spel & Serier & Musik:</strong> appen sparar EAN/UPC lokalt (för
             igenkänning/anteckning). Ingen extern uppslagning i nuläget.
           </li>
           <li>
