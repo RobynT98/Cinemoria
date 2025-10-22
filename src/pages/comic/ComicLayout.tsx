@@ -1,3 +1,4 @@
+// src/layouts/comic/ComicLayout.tsx
 import { NavLink, Outlet } from "react-router-dom";
 import clsx from "classnames";
 import { Home, Search, PlusCircle, Library } from "lucide-react";
@@ -24,6 +25,7 @@ export default function ComicLayout() {
           </nav>
         </div>
       </header>
+
       <main className="flex-1 max-w-3xl mx-auto px-3 py-4">
         <Outlet />
       </main>
@@ -32,8 +34,14 @@ export default function ComicLayout() {
 }
 
 function Tab({
-  to, label, icon,
-}: { to: string; label: string; icon: React.ReactNode }) {
+  to,
+  label,
+  icon,
+}: {
+  to: string;
+  label: string;
+  icon: React.ReactNode;
+}) {
   return (
     <NavLink
       to={to}
@@ -48,7 +56,8 @@ function Tab({
       }
       aria-label={label}
     >
-      {icon}<span>{label}</span>
+      {icon}
+      <span>{label}</span>
     </NavLink>
   );
 }
