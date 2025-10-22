@@ -106,7 +106,8 @@ export default function ProfilePage() {
       `Språk: ${navigator.language}`,
       `UA: ${navigator.userAgent}`,
     ].join("\n");
-    return `mailto:turessonrobyn@gmail.com?subject=${encodeURIComponent("Cinemoria – feedback")}&body=${encodeURIComponent(tech)}`;`;
+    // FIX: ta bort extra backtick/citat i slutet
+    return `mailto:turessonrobyn@gmail.com?subject=${encodeURIComponent("Cinemoria – feedback")}&body=${encodeURIComponent(tech)}`;
   };
 
   const copyLink = async () => {
