@@ -1,29 +1,53 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { db, type Comic } from "@/db";
+import { getComic, updateComic, type Comic } from "@/db";
+import { useParams, useNavigate } from "react-router-dom";
 import ComicForm from "@/components/ComicForm";
 
 export default function ComicEdit() {
-  const { id } = useParams<{id: string}>();
-  const nav = useNavigate();
-  const [item, setItem] = useState<Comic | undefined>();
-  const [busy, setBusy] = useState(false);
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [comic, setComic] = useState<Comic | null>(null);
+  const [notFound, setNotFound] = useState(false);
 
-  useEffect(() => { if (id) db.comics.get(Number(id)).then(setItem); }, [id]);
+  useEffect(() => {
+    const num = Number(id);
+    if (!num) return;
+    getComic(num).then((c) => {
+      if (!c) setNotFound(true);
+      else setComic(c);
+    });
+  }, [id]);
 
-  async function onSubmit(data: any) {
-    if (!item?.id) return;
-    setBusy(true);
-    await db.comics.update(item.id, { ...data, updatedAt: Date.now() } as any);
-    setBusy(false);
-    nav("/comic");
+  if (notFound) {
+    return (
+      <section className="p-4">
+        <h1 className="text-2xl font-semibold mb-3">Hittar inte serien</h1>
+        <p className="text-sand-300">Den kan ha tagits bort.</p>
+      </section>
+    );
   }
 
-  if (!item) return <div className="p-4">Hämtar…</div>;
+  if (!comic) {
+    return (
+      <section className="p-4">
+        <h1 className="text-2xl font-semibold mb-3">Redigerar…</h1>
+        <div className="card p-6">Laddar serie…</div>
+      </section>
+    );
+  }
+
   return (
-    <section className="p-4 space-y-3">
-      <h1 className="text-2xl font-semibold">Redigera serietidning</h1>
-      <ComicForm initial={item} onSubmit={onSubmit} busy={busy} />
+    <section className="p-4">
+      <h1 className="text-2xl font-semibold mb-3">Redigera serie</h1>
+      <ComicForm
+        initial={comic}
+        submitLabel="Spara ändringar"
+        onSubmit={async (data) => {
+          await updateComic(comic.id!, data);
+          alert("Uppdaterad!");
+          navigate(-1);
+        }}
+      />
     </section>
   );
 }
