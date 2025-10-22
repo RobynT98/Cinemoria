@@ -243,6 +243,59 @@ export default function InstructionsPage() {
           </Link>
         </div>
       </article>
+{/* Serier */}
+<article className="card p-4 space-y-3">
+  <h2 className="font-semibold">Serier: lägga till & redigera</h2>
+  <ol className="list-decimal pl-6 space-y-1 text-sand-300">
+    <li>
+      Fyll i <em>Titel</em>, <em>Säsong</em>, <em>Avsnitt</em> och valfritt <em>År</em>.
+    </li>
+    <li>
+      Markera <span className="chip">Ägd</span> / <span className="chip">Digital</span> /{" "}
+      <span className="chip">Önskelista</span> och lägg gärna till <em>Format</em> (Blu-ray, DVD, streaming).
+    </li>
+    <li>
+      Du kan också skriva in <em>Skapare</em>, <em>Genre</em> och <em>Anteckningar</em> (t.ex. var serien finns).
+    </li>
+    <li>Tryck <strong>Spara</strong>.</li>
+  </ol>
+  <div className="flex gap-2 flex-wrap">
+    <Link to="/comic/search" className="btn">
+      Sök serier
+    </Link>
+    <Link to="/comic/collections" className="btn">
+      Serielistor
+    </Link>
+  </div>
+</article>
+
+{/* Musik */}
+<article className="card p-4 space-y-3">
+  <h2 className="font-semibold">Musik & album: lägga till & redigera</h2>
+  <ol className="list-decimal pl-6 space-y-1 text-sand-300">
+    <li>
+      Fyll i <em>Albumtitel</em>, <em>Artist</em>, valfritt <em>År</em> och <em>Genre</em>.
+    </li>
+    <li>
+      Markera <span className="chip">Ägd</span>, <span className="chip">Digital</span> och/eller{" "}
+      <span className="chip">Önskelista</span>.
+    </li>
+    <li>
+      Ange <em>Format</em> (vinyl, CD, kassett, digitalt) och <em>Anteckningar</em> (t.ex. utgåva, färgvinyl, plats).
+    </li>
+    <li>
+      Tryck <strong>Spara</strong>. Senaste album visas under Musik → Översikt.
+    </li>
+  </ol>
+  <div className="flex gap-2 flex-wrap">
+    <Link to="/album/search" className="btn">
+      Sök album
+    </Link>
+    <Link to="/album/collections" className="btn">
+      Musiklistor
+    </Link>
+  </div>
+</article>
 
       {/* Samlingar */}
       <article className="card p-4 space-y-3">
