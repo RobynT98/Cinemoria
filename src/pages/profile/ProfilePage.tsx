@@ -37,14 +37,12 @@ export default function ProfilePage() {
   }, [omdbEnabled]);
 
   useEffect(() => {
-    // Spara tom sträng om nyckeln rensas
     localStorage.setItem("cm_omdb_key", omdbKey || "");
   }, [omdbKey]);
 
   // Är vi redan i standalone?
   const checkStandalone = useCallback(() => {
     const standaloneMedia = window.matchMedia?.("(display-mode: standalone)")?.matches;
-    // iOS Safari (old school)
     const iosStandalone = (navigator as any).standalone;
     return Boolean(standaloneMedia || iosStandalone);
   }, []);
@@ -66,12 +64,10 @@ export default function ProfilePage() {
     window.addEventListener("beforeinstallprompt", onBIP);
     window.addEventListener("appinstalled", onInstalled);
 
-    // Uppdatera installed om display-mode ändras (Chrome m.fl.)
     const mm = window.matchMedia?.("(display-mode: standalone)");
     const onMM = () => setInstalled(checkStandalone());
     mm?.addEventListener?.("change", onMM);
 
-    // iOS-koll
     const ua = navigator.userAgent;
     setIsIOS(/iPad|iPhone|iPod/.test(ua) && !("MSStream" in window));
 
@@ -93,7 +89,7 @@ export default function ProfilePage() {
         setInstallable(false);
       }
     } catch {
-      // användaren avbröt – inget att göra
+      // användaren avbröt
     }
   }, []);
 
@@ -106,10 +102,7 @@ export default function ProfilePage() {
     }
     try {
       setOmdbCheck("busy");
-      // Minimal testfråga: "t=Inception&y=2010"
-      const url = `https://www.omdbapi.com/?apikey=${encodeURIComponent(
-        omdbKey.trim()
-      )}&t=Inception&y=2010`;
+      const url = `https://www.omdbapi.com/?apikey=${encodeURIComponent(omdbKey.trim())}&t=Inception&y=2010`;
       const res = await fetch(url);
       const json = await res.json();
       if (json?.Response === "True") {
@@ -133,13 +126,11 @@ export default function ProfilePage() {
         video: { facingMode: { ideal: "environment" } },
         audio: false,
       });
-      // Stäng direkt – vi vill bara trigga permission
       stream.getTracks().forEach((t) => t.stop());
       setCameraStatus("ok");
       localStorage.setItem("cm_barcode_tested", "1");
       setMsg("Kamera OK – streckkodsskannern kan användas.");
     } catch (e: any) {
-      // Försök läsa permissions API (kan saknas)
       try {
         const perm = await (navigator as any).permissions?.query({ name: "camera" });
         if (perm?.state === "denied") {
@@ -147,15 +138,13 @@ export default function ProfilePage() {
           setMsg("Kamera nekad. Tillåt kamera i webbläsarens inställningar.");
           return;
         }
-      } catch {
-        // ignore
-      }
+      } catch {}
       setCameraStatus("error");
       setMsg(e?.message || "Kunde inte öppna kameran.");
     }
   }
 
-  // ---- Backup / Import / Wipe ----
+  // ---- Backup / Export ----
   async function handleExport() {
     const data = await exportJson();
     const blob = new Blob([data], { type: "application/json" });
@@ -167,28 +156,41 @@ export default function ProfilePage() {
     URL.revokeObjectURL(url);
   }
 
+  // ---- Import ----
   async function handleImport(file: File) {
     try {
       const text = await file.text();
       const res = await importJson(text);
 
-      // Stöd för alla counters (filmer, böcker, spel)
       const {
+        // Film
         addedMovies = 0,
         addedLists = 0,
         addedLinks = 0,
+        // Böcker
         addedBooks = 0,
         addedBookLists = 0,
         addedBookLinks = 0,
+        // Spel
         addedGames = 0,
         addedGameLists = 0,
         addedGameLinks = 0,
+        // Album
+        addedAlbums = 0,
+        addedAlbumLists = 0,
+        addedAlbumLinks = 0,
+        // Serier
+        addedComics = 0,
+        addedComicLists = 0,
+        addedComicLinks = 0,
       } = (res ?? {}) as any;
 
       const lines = [
         `• Filmer +${addedMovies}, Listor +${addedLists}, Film-kopplingar +${addedLinks}`,
         `• Böcker +${addedBooks}, Boklistor +${addedBookLists}, Bok-kopplingar +${addedBookLinks}`,
         `• Spel +${addedGames}, Spellistor +${addedGameLists}, Spel-kopplingar +${addedGameLinks}`,
+        `• Album +${addedAlbums}, Albumlistor +${addedAlbumLists}, Album-kopplingar +${addedAlbumLinks}`,
+        `• Serier +${addedComics}, Serielistor +${addedComicLists}, Serie-kopplingar +${addedComicLinks}`,
       ].join("\n");
 
       setMsg(`Import klar:\n\n${lines}`);
@@ -198,12 +200,9 @@ export default function ProfilePage() {
   }
 
   async function handleWipe() {
-    if (
-      !confirm(
-        "Rensa all din data? (Filmer, listor, kopplingar, böcker, boklistor, spel och spellistor tas bort. Appen ligger kvar.)"
-      )
-    )
+    if (!confirm("Rensa all din data? (Filmer, listor, kopplingar, böcker, boklistor, spel, spellistor, album, albumlistor, serier och serielistor tas bort. Appen ligger kvar.)")) {
       return;
+    }
     await wipeAll();
     setMsg("All data rensad.");
   }
@@ -220,17 +219,14 @@ export default function ProfilePage() {
                   <h2 className="font-semibold">Installera som app</h2>
                   <p className="text-sand-300 text-sm">Fungerar offline och startar helskärm.</p>
                 </div>
-                <button className="btn btn-primary" onClick={handleInstall}>
-                  Installera
-                </button>
+                <button className="btn btn-primary" onClick={handleInstall}>Installera</button>
               </div>
             </div>
           ) : isIOS ? (
             <div className="card p-4">
               <h2 className="font-semibold mb-1">Installera på iPhone/iPad</h2>
               <p className="text-sand-300 text-sm">
-                Öppna delnings-menyn och välj{" "}
-                <span className="font-semibold">“Lägg till på hemskärmen”</span>.
+                Öppna delnings-menyn och välj <span className="font-semibold">“Lägg till på hemskärmen”</span>.
               </p>
             </div>
           ) : null}
@@ -242,24 +238,9 @@ export default function ProfilePage() {
         <h2 className="font-semibold">Tema</h2>
         <p className="text-sand-300 text-sm">Välj mellan mörkt, ljust eller sepia.</p>
         <div className="flex gap-2 flex-wrap">
-          <button
-            className={`btn ${theme === "dark" ? "btn-primary" : ""}`}
-            onClick={() => setTheme("dark")}
-          >
-            Mörkt
-          </button>
-          <button
-            className={`btn ${theme === "light" ? "btn-primary" : ""}`}
-            onClick={() => setTheme("light")}
-          >
-            Ljust
-          </button>
-          <button
-            className={`btn ${theme === "sepia" ? "btn-primary" : ""}`}
-            onClick={() => setTheme("sepia")}
-          >
-            Sepia
-          </button>
+          <button className={`btn ${theme === "dark" ? "btn-primary" : ""}`} onClick={() => setTheme("dark")}>Mörkt</button>
+          <button className={`btn ${theme === "light" ? "btn-primary" : ""}`} onClick={() => setTheme("light")}>Ljust</button>
+          <button className={`btn ${theme === "sepia" ? "btn-primary" : ""}`} onClick={() => setTheme("sepia")}>Sepia</button>
         </div>
       </div>
 
@@ -289,13 +270,7 @@ export default function ProfilePage() {
                   : "text-sand-300 text-sm"
               }
             >
-              {omdbCheck === "ok"
-                ? "OK"
-                : omdbCheck === "fail"
-                ? "Fel"
-                : omdbCheck === "busy"
-                ? "Testar…"
-                : "—"}
+              {omdbCheck === "ok" ? "OK" : omdbCheck === "fail" ? "Fel" : omdbCheck === "busy" ? "Testar…" : "—"}
             </span>
           </div>
 
@@ -324,9 +299,7 @@ export default function ProfilePage() {
           <div className="flex items-center justify-between gap-2">
             <div>
               <div className="font-medium">Streckkodsskanning</div>
-              <div className="text-sand-300 text-xs">
-                Testa kameratillstånd så skannern kan starta direkt i formulären.
-              </div>
+              <div className="text-sand-300 text-xs">Testa kameratillstånd så skannern kan starta direkt i formulären.</div>
             </div>
             <span
               className={
@@ -358,12 +331,8 @@ export default function ProfilePage() {
       <div className="card p-4 space-y-3">
         <h2 className="font-semibold">Backup</h2>
         <div className="flex gap-2 flex-wrap">
-          <button className="btn btn-primary" onClick={handleExport}>
-            Exportera JSON
-          </button>
-          <button className="btn" onClick={() => fileRef.current?.click()}>
-            Importera JSON
-          </button>
+          <button className="btn btn-primary" onClick={handleExport}>Exportera JSON</button>
+          <button className="btn" onClick={() => fileRef.current?.click()}>Importera JSON</button>
           <input
             ref={fileRef}
             type="file"
@@ -382,18 +351,14 @@ export default function ProfilePage() {
       {/* Hjälp */}
       <div className="card p-4">
         <h2 className="font-semibold mb-2">Behöver du hjälp?</h2>
-        <p className="text-sand-300 text-sm mb-2">
-          Läs en kort guide med tips om hur du använder appen.
-        </p>
+        <p className="text-sand-300 text-sm mb-2">Läs en kort guide med tips om hur du använder appen.</p>
         <Link to="/instructions" className="btn">Instruktioner</Link>
       </div>
 
       {/* Datahantering */}
       <div className="card p-4">
         <h2 className="font-semibold">Datahantering</h2>
-        <p className="text-sand-300 text-sm mb-2">
-          Behöver du börja om från noll? Du kan rensa all lokal data.
-        </p>
+        <p className="text-sand-300 text-sm mb-2">Behöver du börja om från noll? Du kan rensa all lokal data.</p>
         <button className="btn" onClick={handleWipe}>Rensa allt</button>
       </div>
 
@@ -401,7 +366,10 @@ export default function ProfilePage() {
       <div className="text-sand-300 text-sm">
         <ul className="list-disc pl-6 space-y-1">
           <li>App: Cinemoria v1.0.0</li>
-<li>© 2025 Conri Turesson — Licens: <a href="/LICENSE.md">GNU GPL v3.0</a> (<a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank" rel="noopener">mer info</a>).</li>
+          <li>
+            © 2025 Conri Turesson — Licens: <a href="/LICENSE.md">GNU GPL v3.0</a>{" "}
+            (<a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank" rel="noopener">mer info</a>).
+          </li>
           <li>Lagring: Offline (IndexedDB). Ingen server krävs.</li>
           <li>Plattform: GitHub Pages.</li>
         </ul>
