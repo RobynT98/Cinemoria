@@ -7,7 +7,7 @@ import type { Comic } from "@/db";
 export default function ComicAdd() {
   const navigate = useNavigate();
 
-  async function handleSubmit(data: Comic) {
+  async function handleSubmit(data: Omit<Comic, "id" | "createdAt" | "updatedAt">) {
     await addComic(data);
     alert("Serien sparad!");
     navigate("/comic");
