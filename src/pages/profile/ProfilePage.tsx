@@ -264,9 +264,13 @@ export default function ProfilePage() {
           </div>
 
           <p className="text-sand-300 text-xs">
-            Nyckeln sparas lokalt i din webbläsare. Formulären kan läsa den och fylla i fält åt dig.
-          </p>
-        </div>
+  Din OMDb-nyckel sparas endast lokalt i webbläsaren. När du lägger till eller redigerar en film kan
+  appen använda nyckeln för att automatiskt hämta titel, poster och genrer via knappen <em>Hämta från OMDb</em>.
+  <br />
+  <span className="text-sand-400">
+    Tips: Klicka <strong>Testa OMDb</strong> ovan för att kontrollera att din nyckel fungerar.
+  </span>
+</p>
 
         <hr className="border-ink-700/30" />
 
@@ -275,8 +279,13 @@ export default function ProfilePage() {
           <div className="flex items-center justify-between gap-2">
             <div>
               <div className="font-medium">Streckkodsskanning</div>
-              <div className="text-sand-300 text-xs">Testa kameratillstånd så skannern kan starta direkt i formulären.</div>
-            </div>
+              <div className="text-sand-300 text-xs">
+  Testa kameratillstånd så att streckkodsskannern kan starta direkt i formulären.
+  <br />
+  <span className="text-sand-400">
+    Tips: Om testet lyckas kan du skanna EAN, ISBN eller andra koder direkt när du lägger till film, bok eller spel.
+  </span>
+</div>
             <span
               className={
                 cameraStatus === "ok"
