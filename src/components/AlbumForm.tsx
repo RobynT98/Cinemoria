@@ -26,6 +26,8 @@ export default function AlbumForm({ initial, onSubmit, busy, submitLabel = "Spar
   const [barcode, setBarcode] = useState<string>(initial?.barcode ?? "");
   const [notes, setNotes] = useState<string>(initial?.notes ?? "");
 
+  const f = "w-full rounded-2xl";
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     await onSubmit({
@@ -53,36 +55,59 @@ export default function AlbumForm({ initial, onSubmit, busy, submitLabel = "Spar
         {/* Titel */}
         <div>
           <label className="block text-sm mb-1">Titel *</label>
-          <input required value={title} onChange={(e) => setTitle(e.target.value)} placeholder="The Dark Side of the Moon" />
+          <input
+            className={f}
+            required
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="The Dark Side of the Moon"
+          />
         </div>
 
-        {/* År + Artist */}
+        {/* Artist + År (2 kolumner som i GameForm) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label className="block text-sm mb-1">Artist</label>
+            <input
+              className={f}
+              value={artist}
+              onChange={(e) => setArtist(e.target.value)}
+              placeholder="Pink Floyd"
+            />
+          </div>
           <div>
             <label className="block text-sm mb-1">År</label>
             <input
+              className={f}
               type="number"
               value={year ?? ""}
               onChange={(e) => setYear(e.target.value ? Number(e.target.value) : "")}
               placeholder="1973"
             />
           </div>
-          <div>
-            <label className="block text-sm mb-1">Artist</label>
-            <input value={artist} onChange={(e) => setArtist(e.target.value)} placeholder="Pink Floyd" />
-          </div>
         </div>
 
         {/* Genrer */}
         <div>
           <label className="block text-sm mb-1">Genrer (kommaseparerat)</label>
-          <input value={genres} onChange={(e) => setGenres(e.target.value)} placeholder="Rock, Prog ..." />
+          <input
+            className={f}
+            value={genres}
+            onChange={(e) => setGenres(e.target.value)}
+            placeholder="Rock, Prog …"
+          />
         </div>
 
         {/* Omslag */}
         <div>
           <label className="block text-sm mb-1">Omslagsbild (URL)</label>
-          <input type="url" value={coverUrl} onChange={(e) => setCoverUrl(e.target.value)} placeholder="https://…/cover.jpg" />
+          <input
+            className={f}
+            type="url"
+            value={coverUrl}
+            onChange={(e) => setCoverUrl(e.target.value)}
+            placeholder="https://…/cover.jpg"
+          />
         </div>
 
         {/* Streckkod */}
@@ -90,7 +115,7 @@ export default function AlbumForm({ initial, onSubmit, busy, submitLabel = "Spar
           <label className="block text-sm mb-1">Streckkod (EAN/UPC)</label>
           <div className="flex items-center gap-2">
             <input
-              className="flex-1"
+              className={`${f} flex-1`}
               value={barcode}
               onChange={(e) => setBarcode(e.target.value)}
               placeholder="t.ex. 0886971234567"
@@ -134,7 +159,11 @@ export default function AlbumForm({ initial, onSubmit, busy, submitLabel = "Spar
         {/* Format */}
         <div>
           <label className="block text-sm mb-1">Format</label>
-          <select value={format ?? ""} onChange={(e) => setFormat((e.target.value || undefined) as Album["format"])}>
+          <select
+            className={f}
+            value={format ?? ""}
+            onChange={(e) => setFormat((e.target.value || undefined) as Album["format"])}
+          >
             <option value="">(välj)</option>
             <option value="cd">CD</option>
             <option value="vinyl">Vinyl</option>
@@ -149,7 +178,13 @@ export default function AlbumForm({ initial, onSubmit, busy, submitLabel = "Spar
         {/* Anteckningar */}
         <div>
           <label className="block text-sm mb-1">Anteckningar</label>
-          <textarea rows={4} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Utgåva, press, matrix, skick …" />
+          <textarea
+            className={f}
+            rows={4}
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            placeholder="Utgåva, press, matrix, skick …"
+          />
         </div>
 
         {/* Actions */}
