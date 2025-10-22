@@ -29,15 +29,18 @@ html, body, #root { height: 100%; }
 /* ────────────────────────────────────────────────────────────
    Scopes per databas (accentkulör)
 ────────────────────────────────────────────────────────────── */
+/* Accent-färger per scope */
 .scope-movie   { --accent: #d97706; } /* film = amber/guld */
 .scope-book    { --accent: #2e7d32; } /* böcker = skogsgrön */
 .scope-game    { --accent: #2563eb; } /* spel = blå */
-.scope-album   { --accent: #ea580c; } /* musik = orange */
-.scope-comic   { --accent: #f43f5e; } /* serier = rosé/röd */
 .scope-home    { --accent: #a855f7; } /* hem = lila */
 .scope-profile { --accent: #6b7280; } /* profil = grå */
+.scope-album   { --accent: #0ea5e9; } /* album = cyan/blågrön */
+.scope-comic   { --accent: #f59e0b; } /* serier = orange */
 
-/* iOS input-zoom-skydd (hindrar autozoom vid tangentbord) */
+/* ────────────────────────────────────────────────────────────
+   iOS input-zoom-skydd (hindrar autozoom vid tangentbord)
+────────────────────────────────────────────────────────────── */
 .scope-movie input[type="text"],
 .scope-movie input[type="number"],
 .scope-movie input[type="url"],
