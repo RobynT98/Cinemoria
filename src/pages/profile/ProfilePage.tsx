@@ -1,14 +1,9 @@
 // src/pages/profile/ProfilePage.tsx
 import { exportJson, importJson, wipeAll } from "@/lib/backup";
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useThemeStore } from "@/store/themeStore";
 import { Link } from "react-router-dom";
-
-// Inofficiell typ för beforeinstallprompt-eventet
-type BeforeInstallPromptEvent = Event & {
-  prompt: () => Promise<void>;
-  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
-};
+import { usePWAInstall } from "@/hooks/usePWAInstall";
 
 // Valfritt: kan ersättas med build-injektion senare
 const APP_VERSION = "1.0.0";
@@ -18,11 +13,8 @@ export default function ProfilePage() {
   const [msg, setMsg] = useState<string | null>(null);
   const { theme, setTheme } = useThemeStore();
 
-  // ---- PWA Install state ----
-  const deferredRef = useRef<BeforeInstallPromptEvent | null>(null);
-  const [isInstallable, setInstallable] = useState(false);
-  const [installed, setInstalled] = useState(false);
-  const [isIOS, setIsIOS] = useState(false);
+  // ---- PWA Install state (via hook) ----
+  const { isInstallable, installed, isIOS, install } = usePWAInstall();
 
   // ---- OMDb & Streckkod (localStorage-backed) ----
   const [omdbEnabled, setOmdbEnabled] = useState(
@@ -49,59 +41,6 @@ export default function ProfilePage() {
   useEffect(() => {
     localStorage.setItem("cm_omdb_key", omdbKey || "");
   }, [omdbKey]);
-
-  // Är vi redan i standalone?
-  const checkStandalone = useCallback(() => {
-    const standaloneMedia = window.matchMedia?.("(display-mode: standalone)")?.matches;
-    const iosStandalone = (navigator as any).standalone;
-    return Boolean(standaloneMedia || iosStandalone);
-  }, []);
-
-  useEffect(() => {
-    setInstalled(checkStandalone());
-
-    const onBIP = (e: Event) => {
-      e.preventDefault();
-      deferredRef.current = e as BeforeInstallPromptEvent;
-      setInstallable(true);
-    };
-    const onInstalled = () => {
-      deferredRef.current = null;
-      setInstallable(false);
-      setInstalled(true);
-    };
-
-    window.addEventListener("beforeinstallprompt", onBIP);
-    window.addEventListener("appinstalled", onInstalled);
-
-    const mm = window.matchMedia?.("(display-mode: standalone)");
-    const onMM = () => setInstalled(checkStandalone());
-    mm?.addEventListener?.("change", onMM);
-
-    const ua = navigator.userAgent;
-    setIsIOS(/iPad|iPhone|iPod/.test(ua) && !("MSStream" in window));
-
-    return () => {
-      window.removeEventListener("beforeinstallprompt", onBIP);
-      window.removeEventListener("appinstalled", onInstalled);
-      mm?.removeEventListener?.("change", onMM);
-    };
-  }, [checkStandalone]);
-
-  const handleInstall = useCallback(async () => {
-    const ev = deferredRef.current;
-    if (!ev) return;
-    await ev.prompt();
-    try {
-      const choice = await ev.userChoice;
-      if (choice.outcome === "accepted") {
-        deferredRef.current = null;
-        setInstallable(false);
-      }
-    } catch {
-      // användaren avbröt
-    }
-  }, []);
 
   // ---- OMDb: snabb test ----
   async function testOmdb() {
@@ -255,7 +194,7 @@ export default function ProfilePage() {
                   <h2 className="font-semibold">Installera som app</h2>
                   <p className="text-sand-300 text-sm">Fungerar offline och startar helskärm.</p>
                 </div>
-                <button className="btn btn-primary" onClick={handleInstall}>Installera</button>
+                <button className="btn btn-primary" onClick={install}>Installera</button>
               </div>
             </div>
           ) : isIOS ? (
