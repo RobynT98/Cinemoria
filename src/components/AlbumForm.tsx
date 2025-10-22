@@ -26,7 +26,7 @@ export default function AlbumForm({ initial, onSubmit, busy, submitLabel = "Spar
   const [barcode, setBarcode] = useState<string>(initial?.barcode ?? "");
   const [notes, setNotes] = useState<string>(initial?.notes ?? "");
 
-  const f = "w-full rounded-2xl";
+  const inputCls = "w-full rounded-2xl border border-ink-700/30 bg-ink-800 px-3 py-2";
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -34,11 +34,7 @@ export default function AlbumForm({ initial, onSubmit, busy, submitLabel = "Spar
       title: title.trim(),
       artist: artist.trim() || undefined,
       year: typeof year === "number" ? year : undefined,
-      genres: genres
-        .toString()
-        .split(",")
-        .map((s: string) => s.trim())
-        .filter(Boolean),
+      genres: genres.toString().split(",").map((s: string) => s.trim()).filter(Boolean),
       owned,
       digital,
       wishlisted,
@@ -56,7 +52,7 @@ export default function AlbumForm({ initial, onSubmit, busy, submitLabel = "Spar
         <div>
           <label className="block text-sm mb-1">Titel *</label>
           <input
-            className={f}
+            className={inputCls}
             required
             value={title}
             onChange={(e) => setTitle(e.target.value)}
@@ -64,12 +60,12 @@ export default function AlbumForm({ initial, onSubmit, busy, submitLabel = "Spar
           />
         </div>
 
-        {/* Artist + År (2 kolumner som i GameForm) */}
+        {/* Artist + År */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label className="block text-sm mb-1">Artist</label>
             <input
-              className={f}
+              className={inputCls}
               value={artist}
               onChange={(e) => setArtist(e.target.value)}
               placeholder="Pink Floyd"
@@ -78,7 +74,7 @@ export default function AlbumForm({ initial, onSubmit, busy, submitLabel = "Spar
           <div>
             <label className="block text-sm mb-1">År</label>
             <input
-              className={f}
+              className={inputCls}
               type="number"
               value={year ?? ""}
               onChange={(e) => setYear(e.target.value ? Number(e.target.value) : "")}
@@ -91,7 +87,7 @@ export default function AlbumForm({ initial, onSubmit, busy, submitLabel = "Spar
         <div>
           <label className="block text-sm mb-1">Genrer (kommaseparerat)</label>
           <input
-            className={f}
+            className={inputCls}
             value={genres}
             onChange={(e) => setGenres(e.target.value)}
             placeholder="Rock, Prog …"
@@ -102,7 +98,7 @@ export default function AlbumForm({ initial, onSubmit, busy, submitLabel = "Spar
         <div>
           <label className="block text-sm mb-1">Omslagsbild (URL)</label>
           <input
-            className={f}
+            className={inputCls}
             type="url"
             value={coverUrl}
             onChange={(e) => setCoverUrl(e.target.value)}
@@ -115,7 +111,7 @@ export default function AlbumForm({ initial, onSubmit, busy, submitLabel = "Spar
           <label className="block text-sm mb-1">Streckkod (EAN/UPC)</label>
           <div className="flex items-center gap-2">
             <input
-              className={`${f} flex-1`}
+              className={`${inputCls} flex-1`}
               value={barcode}
               onChange={(e) => setBarcode(e.target.value)}
               placeholder="t.ex. 0886971234567"
@@ -128,10 +124,7 @@ export default function AlbumForm({ initial, onSubmit, busy, submitLabel = "Spar
             <BarcodeScannerDialog
               title="Skanna albumstreckkod"
               subtitle="Kameran startar – rikta mot EAN/UPC"
-              onDetected={(code) => {
-                setBarcode(code);
-                setScanOpen(false);
-              }}
+              onDetected={(code) => { setBarcode(code); setScanOpen(false); }}
               onClose={() => setScanOpen(false)}
             />
           )}
@@ -160,7 +153,7 @@ export default function AlbumForm({ initial, onSubmit, busy, submitLabel = "Spar
         <div>
           <label className="block text-sm mb-1">Format</label>
           <select
-            className={f}
+            className={inputCls}
             value={format ?? ""}
             onChange={(e) => setFormat((e.target.value || undefined) as Album["format"])}
           >
@@ -179,7 +172,7 @@ export default function AlbumForm({ initial, onSubmit, busy, submitLabel = "Spar
         <div>
           <label className="block text-sm mb-1">Anteckningar</label>
           <textarea
-            className={f}
+            className={inputCls}
             rows={4}
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
