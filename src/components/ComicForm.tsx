@@ -1,4 +1,3 @@
-// src/components/ComicForm.tsx
 import { useState } from "react";
 import type { Comic } from "@/types";
 import BarcodeScannerDialog from "@/components/BarcodeScannerDialog";
@@ -10,10 +9,10 @@ type Props = {
   submitLabel?: string;
 };
 
-export default function ComicForm({ initial, onSubmit, busy, submitLabel = "Spara" }: Props) {
+export default function ComicForm({ initial, onSubmit, busy, submitLabel = "Spara serie" }: Props) {
   const init = initial ?? {};
 
-  // Bakåtkomp: stöd både nya (seriesTitle/issueNumber) och äldre (series/issue) fält
+  // Bakåtkomp (series/issue)
   const initialSeriesTitle = (init as any).seriesTitle ?? (init as any).series ?? "";
   const initialIssueNumber = (init as any).issueNumber ?? (init as any).issue ?? "";
 
@@ -31,7 +30,7 @@ export default function ComicForm({ initial, onSubmit, busy, submitLabel = "Spar
   const [notes, setNotes] = useState<string>(init.notes ?? "");
   const [scanOpen, setScanOpen] = useState<boolean>(false);
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     await onSubmit({
       title: title.trim(),
@@ -50,114 +49,131 @@ export default function ComicForm({ initial, onSubmit, busy, submitLabel = "Spar
   }
 
   return (
-    <form className="space-y-3" onSubmit={handleSubmit}>
-      <div className="grid gap-3 sm:grid-cols-2">
-        <label className="grid gap-1">
-          <span className="text-sm">Titel *</span>
-          <input required value={title} onChange={(e) => setTitle(e.target.value)} />
-        </label>
-        <label className="grid gap-1">
-          <span className="text-sm">Serie</span>
-          <input value={seriesTitle} onChange={(e) => setSeriesTitle(e.target.value)} />
-        </label>
-      </div>
+    <form onSubmit={handleSubmit}>
+      <div className="card p-4 space-y-3">
+        {/* Titel + Serie */}
+        <div>
+          <label className="block text-sm mb-1">Titel *</label>
+          <input required value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Batman: Year One" />
+        </div>
 
-      <div className="grid gap-3 sm:grid-cols-3">
-        <label className="grid gap-1">
-          <span className="text-sm">Volym</span>
-          <input
-            inputMode="numeric"
-            value={volume}
-            onChange={(e) => setVolume(e.target.value ? Number(e.target.value) : "")}
-          />
-        </label>
-        <label className="grid gap-1">
-          <span className="text-sm">Nummer</span>
-          <input
-            inputMode="numeric"
-            value={issueNumber}
-            onChange={(e) => setIssueNumber(e.target.value ? Number(e.target.value) : "")}
-          />
-        </label>
-        <label className="grid gap-1">
-          <span className="text-sm">År</span>
-          <input
-            inputMode="numeric"
-            value={year}
-            onChange={(e) => setYear(e.target.value ? Number(e.target.value) : "")}
-          />
-        </label>
-      </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label className="block text-sm mb-1">Serie</label>
+            <input value={seriesTitle} onChange={(e) => setSeriesTitle(e.target.value)} placeholder="Batman" />
+          </div>
+          <div>
+            <label className="block text-sm mb-1">Volym</label>
+            <input
+              type="number"
+              value={volume ?? ""}
+              onChange={(e) => setVolume(e.target.value ? Number(e.target.value) : "")}
+              placeholder="1"
+            />
+          </div>
+        </div>
 
-      <label className="grid gap-1">
-        <span className="text-sm">Omslagsbild (URL)</span>
-        <input type="url" value={coverUrl} onChange={(e) => setCoverUrl(e.target.value)} />
-      </label>
+        {/* Nummer + År */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label className="block text-sm mb-1">Nummer</label>
+            <input
+              type="number"
+              value={issueNumber ?? ""}
+              onChange={(e) => setIssueNumber(e.target.value ? Number(e.target.value) : "")}
+              placeholder="404"
+            />
+          </div>
+          <div>
+            <label className="block text-sm mb-1">År</label>
+            <input
+              type="number"
+              value={year ?? ""}
+              onChange={(e) => setYear(e.target.value ? Number(e.target.value) : "")}
+              placeholder="1987"
+            />
+          </div>
+        </div>
 
-      <div>
-        <span className="text-sm block mb-1">Streckkod (EAN/UPC)</span>
-        <div className="flex items-center gap-2">
-          <input
-            className="flex-1"
-            value={barcode}
-            onChange={(e) => setBarcode(e.target.value)}
-            placeholder="t.ex. 9781401207137"
-          />
-          <button type="button" className="btn" onClick={() => setScanOpen(true)}>
-            Skanna
+        {/* Omslag */}
+        <div>
+          <label className="block text-sm mb-1">Omslagsbild (URL)</label>
+          <input type="url" value={coverUrl} onChange={(e) => setCoverUrl(e.target.value)} placeholder="https://…/cover.jpg" />
+        </div>
+
+        {/* Streckkod */}
+        <div>
+          <label className="block text-sm mb-1">Streckkod (EAN/UPC)</label>
+          <div className="flex items-center gap-2">
+            <input
+              className="flex-1"
+              value={barcode}
+              onChange={(e) => setBarcode(e.target.value)}
+              placeholder="t.ex. 9781401207137"
+            />
+            <button type="button" className="btn" onClick={() => setScanOpen(true)}>
+              Skanna
+            </button>
+          </div>
+          {scanOpen && (
+            <BarcodeScannerDialog
+              title="Skanna seriestreckkod"
+              subtitle="Kameran startar – rikta mot EAN/UPC"
+              onDetected={(code) => {
+                setBarcode(code);
+                setScanOpen(false);
+              }}
+              onClose={() => setScanOpen(false)}
+            />
+          )}
+        </div>
+
+        {/* Ägande */}
+        <div className="card p-3">
+          <h3 className="font-semibold mb-2">Ägande</h3>
+          <div className="flex items-center gap-4 flex-wrap">
+            <label className="inline-flex items-center gap-2">
+              <input type="checkbox" checked={owned} onChange={(e) => setOwned(e.target.checked)} />
+              Ägd
+            </label>
+            <label className="inline-flex items-center gap-2">
+              <input type="checkbox" checked={digital} onChange={(e) => setDigital(e.target.checked)} />
+              Digital
+            </label>
+            <label className="inline-flex items-center gap-2">
+              <input type="checkbox" checked={wishlisted} onChange={(e) => setWishlisted(e.target.checked)} />
+              Önskelista
+            </label>
+          </div>
+        </div>
+
+        {/* Format */}
+        <div>
+          <label className="block text-sm mb-1">Format</label>
+          <select value={format ?? ""} onChange={(e) => setFormat((e.target.value || undefined) as Comic["format"])}>
+            <option value="">(välj)</option>
+            <option value="single-issue">Lösnummer</option>
+            <option value="trade-paperback">TPB</option>
+            <option value="hardcover">Inbunden</option>
+            <option value="omnibus">Omnibus</option>
+            <option value="magazine">Magasin</option>
+            <option value="digital">Digital</option>
+            <option value="other">Övrigt</option>
+          </select>
+        </div>
+
+        {/* Anteckningar */}
+        <div>
+          <label className="block text-sm mb-1">Anteckningar</label>
+          <textarea rows={4} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Utgåva, variant, skick …" />
+        </div>
+
+        {/* Actions */}
+        <div className="pt-2">
+          <button className="btn btn-primary" disabled={busy} type="submit">
+            {submitLabel}
           </button>
         </div>
-        {scanOpen && (
-          <BarcodeScannerDialog
-            title="Skanna seriestreckkod"
-            subtitle="Rikta mot EAN/UPC"
-            onDetected={(code) => {
-              setBarcode(code);
-              setScanOpen(false);
-            }}
-            onClose={() => setScanOpen(false)}
-          />
-        )}
-      </div>
-
-      <div className="flex flex-wrap gap-2">
-        <label className="chip cursor-pointer">
-          <input className="mr-2" type="checkbox" checked={owned} onChange={(e) => setOwned(e.target.checked)} />
-          Ägd
-        </label>
-        <label className="chip cursor-pointer">
-          <input className="mr-2" type="checkbox" checked={digital} onChange={(e) => setDigital(e.target.checked)} />
-          Digital
-        </label>
-        <label className="chip cursor-pointer">
-          <input className="mr-2" type="checkbox" checked={wishlisted} onChange={(e) => setWishlisted(e.target.checked)} />
-          Önskelista
-        </label>
-      </div>
-
-      <label className="grid gap-1">
-        <span className="text-sm">Format</span>
-        <select value={format ?? ""} onChange={(e) => setFormat((e.target.value || undefined) as Comic["format"])}>
-          <option value="">(välj)</option>
-          <option value="single-issue">Lösnummer</option>
-          <option value="trade-paperback">TPB</option>
-          <option value="hardcover">Inbunden</option>
-          <option value="omnibus">Omnibus</option>
-          <option value="magazine">Magasin</option>
-          <option value="digital">Digital</option>
-          <option value="other">Övrigt</option>
-        </select>
-      </label>
-
-      <label className="grid gap-1">
-        <span className="text-sm">Anteckningar</span>
-        <textarea rows={4} value={notes} onChange={(e) => setNotes(e.target.value)} />
-      </label>
-
-      <div className="pt-2">
-        <button className="btn btn-primary" disabled={busy} type="submit">
-          {submitLabel}
-        </button>
       </div>
     </form>
   );
