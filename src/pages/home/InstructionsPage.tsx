@@ -39,6 +39,20 @@ export default function InstructionsPage() {
             </Link>{" "}
             och ange titel, plattform och status.
           </li>
+<li>
+          Musik: gå till{" "}
+            <Link to="/album/add" className="underline">
+              Lägg till musik
+            </Link>{" "}
+            och fyll i titel, EAN m.m.
+          </li>
+            <li>
+            Musik: gå till{" "}
+            <Link to="/comics/add" className="underline">
+              Lägg till en serietidning
+            </Link>{" "}
+            och fyll i volym, nummer m.m.
+          </li>
           <li>
             Under{" "}
             <Link to="/profile" className="underline">
@@ -51,6 +65,8 @@ export default function InstructionsPage() {
           <Link to="/movie/add" className="btn btn-primary">+ Ny film</Link>
           <Link to="/book/add" className="btn">+ Ny bok</Link>
           <Link to="/game/add" className="btn">+ Nytt spel</Link>
+<Link to="/album/add" className="btn">+ Ny Skiva</Link>
+<Link to="/comics/add" className="btn">+ Nytt spel</Link>
           <Link to="/profile" className="btn">Backup</Link>
         </div>
       </article>
