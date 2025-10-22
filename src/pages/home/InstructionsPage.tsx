@@ -280,32 +280,50 @@ export default function InstructionsPage() {
       </article>
 
       {/* Sök & filter */}
-      <article className="card p-4 space-y-3">
-        <h2 className="font-semibold">Sök & filter</h2>
-        <div className="grid gap-3 md:grid-cols-3">
-          <div>
-            <h3 className="font-medium">Film</h3>
-            <p className="text-sand-300 text-sm">
-              Fritext på titel, genrer, plats/tjänst, år. Filtrera på Ägd/Digital/Önskelista.
-            </p>
-            <Link to="/movie/search" className="btn mt-2">Öppna filmsök</Link>
-          </div>
-          <div>
-            <h3 className="font-medium">Böcker</h3>
-            <p className="text-sand-300 text-sm">
-              Sök på titel, författare, språk, format, ISBN, år. Samma statusfilter som film.
-            </p>
-            <Link to="/book/search" className="btn mt-2">Öppna boksök</Link>
-          </div>
-          <div>
-            <h3 className="font-medium">Spel</h3>
-            <p className="text-sand-300 text-sm">
-              Sök på titel, plattform, år och anteckningar. Filtrera på Ägd/Digital/Önskelista.
-            </p>
-            <Link to="/game/search" className="btn mt-2">Öppna spelsök</Link>
-          </div>
-        </div>
-      </article>
+<article className="card p-4 space-y-3">
+  <h2 className="font-semibold">Sök & filter</h2>
+  <div className="grid gap-3 md:grid-cols-3">
+    <div>
+      <h3 className="font-medium">Film</h3>
+      <p className="text-sand-300 text-sm">
+        Fritext på titel, genrer, plats/tjänst, år. Filtrera på Ägd/Digital/Önskelista.
+      </p>
+      <Link to="/movie/search" className="btn mt-2">Öppna filmsök</Link>
+    </div>
+
+    <div>
+      <h3 className="font-medium">Böcker</h3>
+      <p className="text-sand-300 text-sm">
+        Sök på titel, författare, språk, format, ISBN, år. Samma statusfilter som film.
+      </p>
+      <Link to="/book/search" className="btn mt-2">Öppna boksök</Link>
+    </div>
+
+    <div>
+      <h3 className="font-medium">Spel</h3>
+      <p className="text-sand-300 text-sm">
+        Sök på titel, plattform, år och anteckningar. Filtrera på Ägd/Digital/Önskelista.
+      </p>
+      <Link to="/game/search" className="btn mt-2">Öppna spelsök</Link>
+    </div>
+
+    <div>
+      <h3 className="font-medium">Musik</h3>
+      <p className="text-sand-300 text-sm">
+        Sök på albumtitel, artist, år, genre och format. Filtrera på Ägd/Digital/Önskelista.
+      </p>
+      <Link to="/album/search" className="btn mt-2">Öppna musik­sök</Link>
+    </div>
+
+    <div>
+      <h3 className="font-medium">Serietidningar</h3>
+      <p className="text-sand-300 text-sm">
+        Sök på titel, volym, nummer, år och anteckningar. Filtrera på Ägd/Digital/Önskelista.
+      </p>
+      <Link to="/comic/search" className="btn mt-2">Öppna serie­sök</Link>
+    </div>
+  </div>
+</article>
 
       {/* Backup */}
       <article className="card p-4 space-y-3">
