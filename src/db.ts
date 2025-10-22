@@ -35,6 +35,7 @@ export type {
 };
 // Alias för kompatibilitet med äldre komponenter (t.ex. MovieForm)
 export type Format = MovieFormat;
+
 /* ──────────────────────────────────────────────────────────
    Dexie DB
    ────────────────────────────────────────────────────────── */
@@ -89,6 +90,7 @@ export class CinemoriaDB extends Dexie {
       albumList: "++id,albumId,listId,createdAt",
 
       // Serier
+      // Notera: vi indexar på seriesTitle (nya fältet) för sök
       comics: "++id,title,seriesTitle,year,createdAt,updatedAt",
       comicLists: "++id,name,createdAt,updatedAt",
       comicList: "++id,comicId,listId,createdAt",
@@ -200,7 +202,7 @@ export async function getListCounts() {
     counts[id] = (counts[id] ?? 0) + 1;
   }
   return counts;
-};
+}
 export async function createList(name: string) {
   const now = Date.now();
   return db.lists.add({
@@ -209,18 +211,10 @@ export async function createList(name: string) {
     updatedAt: now,
   } as List);
 }
-// Hämta en film
-export function getMovie(id: number) {
-  return db.movies.get(id);
-}
-
-// Uppdatera en film (sätter alltid updatedAt)
-export function updateMovie(id: number, patch: Partial<Movie>) {
-  return db.movies.update(id, {
-    ...patch,
-    updatedAt: Date.now(),
-  });
-}
+// Hämta/uppdatera film
+export const getMovie = (id: number) => db.movies.get(id);
+export const updateMovie = (id: number, patch: Partial<Movie>) =>
+  db.movies.update(id, { ...patch, updatedAt: Date.now() });
 
 // Böcker
 export const getBooksInBookList = async (listId: number) => {
@@ -278,6 +272,7 @@ export const unlinkAlbumFromList = async (listId: number, albumId: number) => {
 export const getAlbum = (id: number) => db.albums.get(id);
 export const updateAlbum = (id: number, patch: Partial<Album>) =>
   db.albums.update(id, { ...patch, updatedAt: Date.now() });
+
 // Serier (comics)
 export const getComicsInComicList = async (listId: number) => {
   const links = await db.comicList.where("listId").equals(listId).toArray();
@@ -298,7 +293,7 @@ export const updateComic = (id: number, patch: Partial<Comic>) =>
   db.comics.update(id, { ...patch, updatedAt: Date.now() });
 
 /* ──────────────────────────────────────────────────────────
-   Små helpers för att byta namn/ta bort listor (återanvänds)
+   Helpers – byt namn / ta bort listor (per sektion)
    ────────────────────────────────────────────────────────── */
 // Film
 export const renameList = (id: number, name: string) =>
@@ -314,9 +309,7 @@ export const deleteList = async (id: number) => {
 export async function deleteMovie(id: number) {
   const links = await db.movieList.where("movieId").equals(id).toArray();
   await db.transaction("rw", [db.movieList, db.movies], async () => {
-    for (const ln of links) {
-      if ((ln as any)?.id) await db.movieList.delete((ln as any).id);
-    }
+    for (const ln of links) if ((ln as any)?.id) await db.movieList.delete((ln as any).id);
     await db.movies.delete(id);
   });
 }
@@ -331,6 +324,14 @@ export const deleteBookList = async (id: number) => {
     await db.bookLists.delete(id);
   });
 };
+// Ta bort en bok + alla listlänkar till den
+export async function deleteBook(id: number) {
+  const links = await db.bookList.where("bookId").equals(id).toArray();
+  await db.transaction("rw", [db.bookList, db.books], async () => {
+    for (const ln of links) if ((ln as any)?.id) await db.bookList.delete((ln as any).id);
+    await db.books.delete(id);
+  });
+}
 
 // Spel
 export const renameGameList = (id: number, name: string) =>
@@ -342,6 +343,14 @@ export const deleteGameList = async (id: number) => {
     await db.gameLists.delete(id);
   });
 };
+// Ta bort ett spel + alla listlänkar till det
+export async function deleteGame(id: number) {
+  const links = await db.gameList.where("gameId").equals(id).toArray();
+  await db.transaction("rw", [db.gameList, db.games], async () => {
+    for (const ln of links) if ((ln as any)?.id) await db.gameList.delete((ln as any).id);
+    await db.games.delete(id);
+  });
+}
 
 // Musik
 export const renameAlbumList = (id: number, name: string) =>
@@ -353,6 +362,14 @@ export const deleteAlbumList = async (id: number) => {
     await db.albumLists.delete(id);
   });
 };
+// Ta bort ett album + alla listlänkar till det
+export async function deleteAlbum(id: number) {
+  const links = await db.albumList.where("albumId").equals(id).toArray();
+  await db.transaction("rw", [db.albumList, db.albums], async () => {
+    for (const ln of links) if ((ln as any)?.id) await db.albumList.delete((ln as any).id);
+    await db.albums.delete(id);
+  });
+}
 
 // Serier
 export const renameComicList = (id: number, name: string) =>
@@ -364,3 +381,11 @@ export const deleteComicList = async (id: number) => {
     await db.comicLists.delete(id);
   });
 };
+// Ta bort en serie + alla listlänkar till den
+export async function deleteComic(id: number) {
+  const links = await db.comicList.where("comicId").equals(id).toArray();
+  await db.transaction("rw", [db.comicList, db.comics], async () => {
+    for (const ln of links) if ((ln as any)?.id) await db.comicList.delete((ln as any).id);
+    await db.comics.delete(id);
+  });
+}
