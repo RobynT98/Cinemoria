@@ -1,4 +1,3 @@
-// src/components/AlbumForm.tsx
 import { useState } from "react";
 import type { Album } from "@/types";
 import BarcodeScannerDialog from "@/components/BarcodeScannerDialog";
@@ -10,14 +9,14 @@ type Props = {
   submitLabel?: string;
 };
 
-export default function AlbumForm({ initial, onSubmit, busy, submitLabel = "Spara" }: Props) {
+export default function AlbumForm({ initial, onSubmit, busy, submitLabel = "Spara album" }: Props) {
   const [scanOpen, setScanOpen] = useState(false);
 
   const [title, setTitle] = useState<string>(initial?.title ?? "");
   const [artist, setArtist] = useState<string>(initial?.artist ?? "");
   const [year, setYear] = useState<number | "">(initial?.year ?? "");
   const [genres, setGenres] = useState<string>(
-    Array.isArray(initial?.genres) ? initial!.genres!.join(", ") : (initial?.genres as unknown as string) ?? ""
+    Array.isArray(initial?.genres) ? initial!.genres!.join(", ") : ((initial?.genres as unknown as string) ?? "")
   );
   const [owned, setOwned] = useState<boolean>(!!initial?.owned);
   const [digital, setDigital] = useState<boolean>(!!initial?.digital);
@@ -27,7 +26,7 @@ export default function AlbumForm({ initial, onSubmit, busy, submitLabel = "Spar
   const [barcode, setBarcode] = useState<string>(initial?.barcode ?? "");
   const [notes, setNotes] = useState<string>(initial?.notes ?? "");
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     await onSubmit({
       title: title.trim(),
@@ -49,99 +48,116 @@ export default function AlbumForm({ initial, onSubmit, busy, submitLabel = "Spar
   }
 
   return (
-    <form className="space-y-3" onSubmit={handleSubmit}>
-      <div className="grid gap-3 sm:grid-cols-2">
-        <label className="grid gap-1">
-          <span className="text-sm">Titel *</span>
-          <input required value={title} onChange={(e) => setTitle(e.target.value)} />
-        </label>
-        <label className="grid gap-1">
-          <span className="text-sm">Artist</span>
-          <input value={artist} onChange={(e) => setArtist(e.target.value)} />
-        </label>
-        <label className="grid gap-1">
-          <span className="text-sm">År</span>
-          <input
-            inputMode="numeric"
-            value={year}
-            onChange={(e) => setYear(e.target.value ? Number(e.target.value) : "")}
-          />
-        </label>
-        <label className="grid gap-1">
-          <span className="text-sm">Genrer (kommaseparerat)</span>
-          <input value={genres} onChange={(e) => setGenres(e.target.value)} />
-        </label>
-      </div>
+    <form onSubmit={handleSubmit}>
+      <div className="card p-4 space-y-3">
+        {/* Titel */}
+        <div>
+          <label className="block text-sm mb-1">Titel *</label>
+          <input required value={title} onChange={(e) => setTitle(e.target.value)} placeholder="The Dark Side of the Moon" />
+        </div>
 
-      <label className="grid gap-1">
-        <span className="text-sm">Omslagsbild (URL)</span>
-        <input type="url" value={coverUrl} onChange={(e) => setCoverUrl(e.target.value)} />
-      </label>
+        {/* År + Artist */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label className="block text-sm mb-1">År</label>
+            <input
+              type="number"
+              value={year ?? ""}
+              onChange={(e) => setYear(e.target.value ? Number(e.target.value) : "")}
+              placeholder="1973"
+            />
+          </div>
+          <div>
+            <label className="block text-sm mb-1">Artist</label>
+            <input value={artist} onChange={(e) => setArtist(e.target.value)} placeholder="Pink Floyd" />
+          </div>
+        </div>
 
-      <div>
-        <span className="text-sm block mb-1">Streckkod (EAN/UPC)</span>
-        <div className="flex items-center gap-2">
-          <input
-            className="flex-1"
-            value={barcode}
-            onChange={(e) => setBarcode(e.target.value)}
-            placeholder="t.ex. 0886971234567"
-          />
-          <button type="button" className="btn" onClick={() => setScanOpen(true)}>
-            Skanna
+        {/* Genrer */}
+        <div>
+          <label className="block text-sm mb-1">Genrer (kommaseparerat)</label>
+          <input value={genres} onChange={(e) => setGenres(e.target.value)} placeholder="Rock, Prog ..." />
+        </div>
+
+        {/* Omslag */}
+        <div>
+          <label className="block text-sm mb-1">Omslagsbild (URL)</label>
+          <input type="url" value={coverUrl} onChange={(e) => setCoverUrl(e.target.value)} placeholder="https://…/cover.jpg" />
+        </div>
+
+        {/* Streckkod */}
+        <div>
+          <label className="block text-sm mb-1">Streckkod (EAN/UPC)</label>
+          <div className="flex items-center gap-2">
+            <input
+              className="flex-1"
+              value={barcode}
+              onChange={(e) => setBarcode(e.target.value)}
+              placeholder="t.ex. 0886971234567"
+            />
+            <button type="button" className="btn" onClick={() => setScanOpen(true)}>
+              Skanna
+            </button>
+          </div>
+          {scanOpen && (
+            <BarcodeScannerDialog
+              title="Skanna albumstreckkod"
+              subtitle="Kameran startar – rikta mot EAN/UPC"
+              onDetected={(code) => {
+                setBarcode(code);
+                setScanOpen(false);
+              }}
+              onClose={() => setScanOpen(false)}
+            />
+          )}
+        </div>
+
+        {/* Ägande */}
+        <div className="card p-3">
+          <h3 className="font-semibold mb-2">Ägande</h3>
+          <div className="flex items-center gap-4 flex-wrap">
+            <label className="inline-flex items-center gap-2">
+              <input type="checkbox" checked={owned} onChange={(e) => setOwned(e.target.checked)} />
+              Ägd
+            </label>
+            <label className="inline-flex items-center gap-2">
+              <input type="checkbox" checked={digital} onChange={(e) => setDigital(e.target.checked)} />
+              Digital
+            </label>
+            <label className="inline-flex items-center gap-2">
+              <input type="checkbox" checked={wishlisted} onChange={(e) => setWishlisted(e.target.checked)} />
+              Önskelista
+            </label>
+          </div>
+        </div>
+
+        {/* Format */}
+        <div>
+          <label className="block text-sm mb-1">Format</label>
+          <select value={format ?? ""} onChange={(e) => setFormat((e.target.value || undefined) as Album["format"])}>
+            <option value="">(välj)</option>
+            <option value="cd">CD</option>
+            <option value="vinyl">Vinyl</option>
+            <option value="cassette">Kassett</option>
+            <option value="digital">Digital</option>
+            <option value="sacd">SACD</option>
+            <option value="bluray-audio">Blu-ray Audio</option>
+            <option value="other">Övrigt</option>
+          </select>
+        </div>
+
+        {/* Anteckningar */}
+        <div>
+          <label className="block text-sm mb-1">Anteckningar</label>
+          <textarea rows={4} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Utgåva, press, matrix, skick …" />
+        </div>
+
+        {/* Actions */}
+        <div className="pt-2">
+          <button className="btn btn-primary" disabled={busy} type="submit">
+            {submitLabel}
           </button>
         </div>
-        {scanOpen && (
-          <BarcodeScannerDialog
-            title="Skanna albumstreckkod"
-            subtitle="Rikta mot EAN/UPC"
-            onDetected={(code) => {
-              setBarcode(code);
-              setScanOpen(false);
-            }}
-            onClose={() => setScanOpen(false)}
-          />
-        )}
-      </div>
-
-      <div className="flex flex-wrap gap-2">
-        <label className="chip cursor-pointer">
-          <input className="mr-2" type="checkbox" checked={owned} onChange={(e) => setOwned(e.target.checked)} />
-          Ägd
-        </label>
-        <label className="chip cursor-pointer">
-          <input className="mr-2" type="checkbox" checked={digital} onChange={(e) => setDigital(e.target.checked)} />
-          Digital
-        </label>
-        <label className="chip cursor-pointer">
-          <input className="mr-2" type="checkbox" checked={wishlisted} onChange={(e) => setWishlisted(e.target.checked)} />
-          Önskelista
-        </label>
-      </div>
-
-      <label className="grid gap-1">
-        <span className="text-sm">Format</span>
-        <select value={format ?? ""} onChange={(e) => setFormat((e.target.value || undefined) as Album["format"])}>
-          <option value="">(välj)</option>
-          <option value="cd">CD</option>
-          <option value="vinyl">Vinyl</option>
-          <option value="cassette">Kassett</option>
-          <option value="digital">Digital</option>
-          <option value="sacd">SACD</option>
-          <option value="bluray-audio">Blu-ray Audio</option>
-          <option value="other">Övrigt</option>
-        </select>
-      </label>
-
-      <label className="grid gap-1">
-        <span className="text-sm">Anteckningar</span>
-        <textarea rows={4} value={notes} onChange={(e) => setNotes(e.target.value)} />
-      </label>
-
-      <div className="pt-2">
-        <button className="btn btn-primary" disabled={busy} type="submit">
-          {submitLabel}
-        </button>
       </div>
     </form>
   );
