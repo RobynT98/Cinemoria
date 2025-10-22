@@ -1,10 +1,12 @@
 // src/pages/home/HomePage.tsx
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { db, type Movie, type Book, type Game } from "@/db";
+import { db, type Movie, type Book, type Game, type Album, type Comic } from "@/db";
 import MovieCard from "@/components/MovieCard";
 import BookCard from "@/components/BookCard";
 import GameCard from "@/components/game/GameCard";
+import AlbumCard from "@/components/AlbumCard";
+import ComicCard from "@/components/ComicCard";
 
 type Stats = { total: number; owned: number; digital: number; wish: number; lists: number };
 
@@ -13,13 +15,17 @@ export default function HomePage() {
 
   const [loading, setLoading] = useState(true);
 
-  const [movieStats, setMovieStats] = useState<Stats>({ total: 0, owned: 0, digital: 0, wish: 0, lists: 0 });
-  const [bookStats, setBookStats]   = useState<Stats>({ total: 0, owned: 0, digital: 0, wish: 0, lists: 0 });
-  const [gameStats, setGameStats]   = useState<Stats>({ total: 0, owned: 0, digital: 0, wish: 0, lists: 0 });
+  const [movieStats, setMovieStats]   = useState<Stats>({ total: 0, owned: 0, digital: 0, wish: 0, lists: 0 });
+  const [bookStats, setBookStats]     = useState<Stats>({ total: 0, owned: 0, digital: 0, wish: 0, lists: 0 });
+  const [gameStats, setGameStats]     = useState<Stats>({ total: 0, owned: 0, digital: 0, wish: 0, lists: 0 });
+  const [albumStats, setAlbumStats]   = useState<Stats>({ total: 0, owned: 0, digital: 0, wish: 0, lists: 0 });
+  const [comicStats, setComicStats]   = useState<Stats>({ total: 0, owned: 0, digital: 0, wish: 0, lists: 0 });
 
   const [recentMovies, setRecentMovies] = useState<Movie[]>([]);
   const [recentBooks,  setRecentBooks]  = useState<Book[]>([]);
   const [recentGames,  setRecentGames]  = useState<Game[]>([]);
+  const [recentAlbums, setRecentAlbums] = useState<Album[]>([]);
+  const [recentComics, setRecentComics] = useState<Comic[]>([]);
 
   useEffect(() => {
     let alive = true;
@@ -27,14 +33,18 @@ export default function HomePage() {
     (async () => {
       try {
         const [
-          // Film
-          mvTotal, mvOwned, mvDigital, mvWish, mvLists, mvRecent,
-          // Bok
-          bkTotal, bkOwned, bkDigital, bkWish, bkLists, bkRecent,
-          // Spel
-          gmTotal, gmOwned, gmDigital, gmWish, gmLists, gmRecent,
-        ] = await Promise.all([
           // ----- FILM -----
+          mvTotal, mvOwned, mvDigital, mvWish, mvLists, mvRecent,
+          // ----- BÖCKER -----
+          bkTotal, bkOwned, bkDigital, bkWish, bkLists, bkRecent,
+          // ----- SPEL -----
+          gmTotal, gmOwned, gmDigital, gmWish, gmLists, gmRecent,
+          // ----- ALBUM -----
+          alTotal, alOwned, alDigital, alWish, alLists, alRecent,
+          // ----- SERIER -----
+          ccTotal, ccOwned, ccDigital, ccWish, ccLists, ccRecent,
+        ] = await Promise.all([
+          // FILM
           db.movies.count(),
           db.movies.filter((m) => !!m.owned).count(),
           db.movies.filter((m) => !!m.digital).count(),
@@ -42,7 +52,7 @@ export default function HomePage() {
           db.lists.count(),
           db.movies.orderBy("createdAt").reverse().limit(4).toArray(),
 
-          // ----- BÖCKER -----
+          // BÖCKER
           db.books.count(),
           db.books.filter((b) => !!b.owned).count(),
           db.books.filter((b) => !!b.digital).count(),
@@ -50,13 +60,29 @@ export default function HomePage() {
           db.bookLists.count(),
           db.books.orderBy("createdAt").reverse().limit(4).toArray(),
 
-          // ----- SPEL -----
+          // SPEL
           db.games.count(),
           db.games.filter((g) => !!g.owned).count(),
           db.games.filter((g) => !!g.digital).count(),
           db.games.filter((g) => !!g.wishlisted).count(),
           db.gameLists.count(),
           db.games.orderBy("createdAt").reverse().limit(4).toArray(),
+
+          // ALBUM (musik)
+          db.albums.count(),
+          db.albums.filter((a) => !!a.owned).count(),
+          db.albums.filter((a) => !!a.digital).count(),
+          db.albums.filter((a) => !!a.wishlisted).count(),
+          db.albumLists.count(),
+          db.albums.orderBy("createdAt").reverse().limit(4).toArray(),
+
+          // SERIER (comics)
+          db.comics.count(),
+          db.comics.filter((c) => !!c.owned).count(),
+          db.comics.filter((c) => !!c.digital).count(),
+          db.comics.filter((c) => !!c.wishlisted).count(),
+          db.comicLists.count(),
+          db.comics.orderBy("createdAt").reverse().limit(4).toArray(),
         ]);
 
         if (!alive) return;
@@ -64,10 +90,14 @@ export default function HomePage() {
         setMovieStats({ total: mvTotal, owned: mvOwned, digital: mvDigital, wish: mvWish, lists: mvLists });
         setBookStats ({ total: bkTotal, owned: bkOwned, digital: bkDigital, wish: bkWish, lists: bkLists });
         setGameStats ({ total: gmTotal, owned: gmOwned, digital: gmDigital, wish: gmWish, lists: gmLists });
+        setAlbumStats({ total: alTotal, owned: alOwned, digital: alDigital, wish: alWish, lists: alLists });
+        setComicStats({ total: ccTotal, owned: ccOwned, digital: ccDigital, wish: ccWish, lists: ccLists });
 
         setRecentMovies(mvRecent);
         setRecentBooks(bkRecent);
         setRecentGames(gmRecent);
+        setRecentAlbums(alRecent);
+        setRecentComics(ccRecent);
       } finally {
         if (alive) setLoading(false);
       }
@@ -77,7 +107,12 @@ export default function HomePage() {
   }, []);
 
   const totallyEmpty =
-    !loading && movieStats.total === 0 && bookStats.total === 0 && gameStats.total === 0;
+    !loading &&
+    movieStats.total === 0 &&
+    bookStats.total === 0 &&
+    gameStats.total === 0 &&
+    albumStats.total === 0 &&
+    comicStats.total === 0;
 
   return (
     <section className="p-4 space-y-6">
@@ -102,6 +137,8 @@ export default function HomePage() {
             <Link to="/movie" className="btn btn-primary">Film</Link>
             <Link to="/book" className="btn">Böcker</Link>
             <Link to="/game" className="btn">Spel</Link>
+            <Link to="/album" className="btn">Musik</Link>
+            <Link to="/comic" className="btn">Serier</Link>
           </div>
         </div>
       </div>
@@ -164,6 +201,36 @@ export default function HomePage() {
         }
       />
 
+      {/* MUSIK (Album) */}
+      <Section
+        title="Musik"
+        stats={albumStats}
+        onAdd={() => navigate("/album/add")}
+        onSearch={() => navigate("/album/search")}
+        onLists={() => navigate("/album/collections")}
+        recent={
+          <div className="space-y-3">
+            {recentAlbums.map((a) => <AlbumCard key={a.id} album={a} />)}
+            {!loading && recentAlbums.length === 0 && <EmptyLine label="Inga album ännu." />}
+          </div>
+        }
+      />
+
+      {/* SERIER (Comics) */}
+      <Section
+        title="Serier"
+        stats={comicStats}
+        onAdd={() => navigate("/comic/add")}
+        onSearch={() => navigate("/comic/search")}
+        onLists={() => navigate("/comic/collections")}
+        recent={
+          <div className="space-y-3">
+            {recentComics.map((c) => <ComicCard key={c.id} comic={c} />)}
+            {!loading && recentComics.length === 0 && <EmptyLine label="Inga serier ännu." />}
+          </div>
+        }
+      />
+
       {/* Tomt heltläge */}
       {totallyEmpty && (
         <div className="card p-4">
@@ -175,6 +242,8 @@ export default function HomePage() {
             <button className="btn btn-primary" onClick={() => navigate("/movie/add")}>Lägg till film</button>
             <button className="btn" onClick={() => navigate("/book/add")}>Lägg till bok</button>
             <button className="btn" onClick={() => navigate("/game/add")}>Lägg till spel</button>
+            <button className="btn" onClick={() => navigate("/album/add")}>Lägg till album</button>
+            <button className="btn" onClick={() => navigate("/comic/add")}>Lägg till serie</button>
             <Link to="/profile" className="btn">Importera backup</Link>
           </div>
         </div>
@@ -239,4 +308,3 @@ function StatCard({ label, value }: { label: string; value: number }) {
 function EmptyLine({ label }: { label: string }) {
   return <div className="text-sand-300 text-sm">{label}</div>;
 }
-        
