@@ -10,6 +10,9 @@ type BeforeInstallPromptEvent = Event & {
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 };
 
+// Valfritt: kan ersättas med build-injektion senare
+const APP_VERSION = "1.0.0";
+
 export default function ProfilePage() {
   const fileRef = useRef<HTMLInputElement>(null);
   const [msg, setMsg] = useState<string | null>(null);
@@ -31,6 +34,13 @@ export default function ProfilePage() {
   const [omdbCheck, setOmdbCheck] = useState<null | "ok" | "fail" | "busy">(null);
 
   const [cameraStatus, setCameraStatus] = useState<null | "ok" | "denied" | "error" | "busy">(null);
+
+  // ---- Feedback & delning ----
+  const [copied, setCopied] = useState(false);
+  const appUrl =
+    typeof window !== "undefined"
+      ? window.location.origin + window.location.pathname
+      : "";
 
   useEffect(() => {
     localStorage.setItem("cm_omdb_enabled", omdbEnabled ? "1" : "0");
@@ -143,6 +153,32 @@ export default function ProfilePage() {
       setMsg(e?.message || "Kunde inte öppna kameran.");
     }
   }
+
+  // ---- Feedback helpers ----
+  const buildFeedbackMailto = () => {
+    const tech = [
+      "Beskriv din feedback här...",
+      "",
+      "--- Tekniskt (frivilligt, hjälper felsökning) ---",
+      `Version: v${APP_VERSION}`,
+      `Tema: ${theme}`,
+      `Installerad (PWA): ${installed ? "ja" : "nej"}`,
+      `Display-mode: ${window.matchMedia?.("(display-mode: standalone)")?.matches ? "standalone" : "browser"}`,
+      `Språk: ${navigator.language}`,
+      `UA: ${navigator.userAgent}`,
+    ].join("\n");
+    return `mailto:?subject=${encodeURIComponent("Cinemoria – feedback")}&body=${encodeURIComponent(tech)}`;
+  };
+
+  const copyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(appUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      setMsg("Kunde inte kopiera länken.");
+    }
+  };
 
   // ---- Backup / Export ----
   async function handleExport() {
@@ -348,6 +384,20 @@ export default function ProfilePage() {
         )}
       </div>
 
+      {/* Feedback & delning */}
+      <div className="card p-4 space-y-3">
+        <h2 className="font-semibold">Feedback & delning</h2>
+        <p className="text-sand-300 text-sm">
+          Skicka frivillig feedback eller dela appens länk. Ingen data skickas automatiskt.
+        </p>
+        <div className="flex gap-2 flex-wrap">
+          <a href={buildFeedbackMailto()} className="btn">Skicka feedback</a>
+          <button className="btn" onClick={copyLink}>
+            {copied ? "Länk kopierad ✓" : "Kopiera app-länk"}
+          </button>
+        </div>
+      </div>
+
       {/* Hjälp */}
       <div className="card p-4">
         <h2 className="font-semibold mb-2">Behöver du hjälp?</h2>
@@ -365,7 +415,7 @@ export default function ProfilePage() {
       {/* Om-appen */}
       <div className="text-sand-300 text-sm">
         <ul className="list-disc pl-6 space-y-1">
-          <li>App: Cinemoria v1.0.0</li>
+          <li>App: Cinemoria v{APP_VERSION}</li>
           <li>
             © 2025 Conri Turesson — Licens: <a href="/LICENSE.md">GNU GPL v3.0</a>{" "}
             (<a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank" rel="noopener">mer info</a>).
