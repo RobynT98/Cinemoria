@@ -30,6 +30,8 @@ export default function ComicForm({ initial, onSubmit, busy, submitLabel = "Spar
   const [notes, setNotes] = useState<string>(init.notes ?? "");
   const [scanOpen, setScanOpen] = useState<boolean>(false);
 
+  const f = "w-full rounded-2xl";
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     await onSubmit({
@@ -51,20 +53,33 @@ export default function ComicForm({ initial, onSubmit, busy, submitLabel = "Spar
   return (
     <form onSubmit={handleSubmit}>
       <div className="card p-4 space-y-3">
-        {/* Titel + Serie */}
+        {/* Titel */}
         <div>
           <label className="block text-sm mb-1">Titel *</label>
-          <input required value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Batman: Year One" />
+          <input
+            className={f}
+            required
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Batman: Year One"
+          />
         </div>
 
+        {/* Serie + Volym */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label className="block text-sm mb-1">Serie</label>
-            <input value={seriesTitle} onChange={(e) => setSeriesTitle(e.target.value)} placeholder="Batman" />
+            <input
+              className={f}
+              value={seriesTitle}
+              onChange={(e) => setSeriesTitle(e.target.value)}
+              placeholder="Batman"
+            />
           </div>
           <div>
             <label className="block text-sm mb-1">Volym</label>
             <input
+              className={f}
               type="number"
               value={volume ?? ""}
               onChange={(e) => setVolume(e.target.value ? Number(e.target.value) : "")}
@@ -78,6 +93,7 @@ export default function ComicForm({ initial, onSubmit, busy, submitLabel = "Spar
           <div>
             <label className="block text-sm mb-1">Nummer</label>
             <input
+              className={f}
               type="number"
               value={issueNumber ?? ""}
               onChange={(e) => setIssueNumber(e.target.value ? Number(e.target.value) : "")}
@@ -87,6 +103,7 @@ export default function ComicForm({ initial, onSubmit, busy, submitLabel = "Spar
           <div>
             <label className="block text-sm mb-1">År</label>
             <input
+              className={f}
               type="number"
               value={year ?? ""}
               onChange={(e) => setYear(e.target.value ? Number(e.target.value) : "")}
@@ -98,7 +115,13 @@ export default function ComicForm({ initial, onSubmit, busy, submitLabel = "Spar
         {/* Omslag */}
         <div>
           <label className="block text-sm mb-1">Omslagsbild (URL)</label>
-          <input type="url" value={coverUrl} onChange={(e) => setCoverUrl(e.target.value)} placeholder="https://…/cover.jpg" />
+          <input
+            className={f}
+            type="url"
+            value={coverUrl}
+            onChange={(e) => setCoverUrl(e.target.value)}
+            placeholder="https://…/cover.jpg"
+          />
         </div>
 
         {/* Streckkod */}
@@ -106,7 +129,7 @@ export default function ComicForm({ initial, onSubmit, busy, submitLabel = "Spar
           <label className="block text-sm mb-1">Streckkod (EAN/UPC)</label>
           <div className="flex items-center gap-2">
             <input
-              className="flex-1"
+              className={`${f} flex-1`}
               value={barcode}
               onChange={(e) => setBarcode(e.target.value)}
               placeholder="t.ex. 9781401207137"
@@ -150,7 +173,11 @@ export default function ComicForm({ initial, onSubmit, busy, submitLabel = "Spar
         {/* Format */}
         <div>
           <label className="block text-sm mb-1">Format</label>
-          <select value={format ?? ""} onChange={(e) => setFormat((e.target.value || undefined) as Comic["format"])}>
+          <select
+            className={f}
+            value={format ?? ""}
+            onChange={(e) => setFormat((e.target.value || undefined) as Comic["format"])}
+          >
             <option value="">(välj)</option>
             <option value="single-issue">Lösnummer</option>
             <option value="trade-paperback">TPB</option>
@@ -165,7 +192,13 @@ export default function ComicForm({ initial, onSubmit, busy, submitLabel = "Spar
         {/* Anteckningar */}
         <div>
           <label className="block text-sm mb-1">Anteckningar</label>
-          <textarea rows={4} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Utgåva, variant, skick …" />
+          <textarea
+            className={f}
+            rows={4}
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            placeholder="Utgåva, variant, skick …"
+          />
         </div>
 
         {/* Actions */}
