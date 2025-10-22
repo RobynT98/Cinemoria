@@ -1,22 +1,22 @@
-import { useState } from "react";
+// src/pages/comic/ComicAdd.tsx
 import { useNavigate } from "react-router-dom";
-import { db } from "@/db";
 import ComicForm from "@/components/ComicForm";
+import { addComic } from "@/db";
+import type { Comic } from "@/db";
 
 export default function ComicAdd() {
-  const nav = useNavigate();
-  const [busy, setBusy] = useState(false);
-  async function onSubmit(data: any) {
-    setBusy(true);
-    const now = Date.now();
-    await db.comics.add({ ...data, createdAt: now, updatedAt: now } as any);
-    setBusy(false);
-    nav("/comic");
+  const navigate = useNavigate();
+
+  async function handleSubmit(data: Comic) {
+    await addComic(data);
+    alert("Serien sparad!");
+    navigate("/comic");
   }
+
   return (
-    <section className="p-4 space-y-3">
-      <h1 className="text-2xl font-semibold">Lägg till serietidning</h1>
-      <ComicForm onSubmit={onSubmit} busy={busy} />
+    <section className="p-4">
+      <h1 className="text-2xl font-semibold mb-3">Lägg till serie</h1>
+      <ComicForm submitLabel="Spara serie" onSubmit={handleSubmit} />
     </section>
   );
 }
