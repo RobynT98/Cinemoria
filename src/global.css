@@ -32,16 +32,48 @@ html, body, #root { height: 100%; }
 .scope-movie   { --accent: #d97706; } /* film = amber/guld */
 .scope-book    { --accent: #2e7d32; } /* böcker = skogsgrön */
 .scope-game    { --accent: #2563eb; } /* spel = blå */
+.scope-album   { --accent: #ea580c; } /* musik = orange */
+.scope-comic   { --accent: #f43f5e; } /* serier = rosé/röd */
 .scope-home    { --accent: #a855f7; } /* hem = lila */
 .scope-profile { --accent: #6b7280; } /* profil = grå */
 
-/* iOS input-zoom-skydd specifikt för filmsidor */
+/* iOS input-zoom-skydd (hindrar autozoom vid tangentbord) */
 .scope-movie input[type="text"],
 .scope-movie input[type="number"],
 .scope-movie input[type="url"],
 .scope-movie select,
-.scope-movie textarea {
-  font-size: 16px; /* >=16px hindrar autozoom */
+.scope-movie textarea,
+.scope-book input[type="text"],
+.scope-book input[type="number"],
+.scope-book input[type="url"],
+.scope-book select,
+.scope-book textarea,
+.scope-game input[type="text"],
+.scope-game input[type="number"],
+.scope-game input[type="url"],
+.scope-game select,
+.scope-game textarea,
+.scope-album input[type="text"],
+.scope-album input[type="number"],
+.scope-album input[type="url"],
+.scope-album select,
+.scope-album textarea,
+.scope-comic input[type="text"],
+.scope-comic input[type="number"],
+.scope-comic input[type="url"],
+.scope-comic select,
+.scope-comic textarea,
+.scope-home input[type="text"],
+.scope-home input[type="number"],
+.scope-home input[type="url"],
+.scope-home select,
+.scope-home textarea,
+.scope-profile input[type="text"],
+.scope-profile input[type="number"],
+.scope-profile input[type="url"],
+.scope-profile select,
+.scope-profile textarea {
+  font-size: 16px; /* >=16px hindrar autozoom på iOS */
 }
 
 /* ────────────────────────────────────────────────────────────
