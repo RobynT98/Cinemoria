@@ -48,7 +48,7 @@ export default function InstructionsPage() {
           </li>
             <li>
             Serier: gå till{" "}
-            <Link to="/comics/add" className="underline">
+            <Link to="/comic/add" className="underline">
               Lägg till en serietidning
             </Link>{" "}
             och fyll i volym, nummer m.m.
@@ -66,7 +66,7 @@ export default function InstructionsPage() {
           <Link to="/book/add" className="btn">+ Ny bok</Link>
           <Link to="/game/add" className="btn">+ Nytt spel</Link>
 <Link to="/album/add" className="btn">+ Ny Skiva</Link>
-<Link to="/comics/add" className="btn">+ Ny serietidning</Link>
+<Link to="/comic/add" className="btn">+ Ny serietidning</Link>
           <Link to="/profile" className="btn">Backup</Link>
         </div>
       </article>
