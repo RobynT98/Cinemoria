@@ -18,28 +18,35 @@ export type AlbumCardProps = {
   className?: string;
 };
 
-export default function AlbumCard({
-  id,
-  title,
-  artist,
-  year,
-  coverUrl,
-  owned,
-  digital,
-  wishlisted,
-  format,
-  to,
-  className,
-}: AlbumCardProps) {
-  const metaParts = [
-    artist?.trim() || undefined,
-    typeof year === "number" ? String(year) : undefined,
-    format ? labelAlbumFormat(format) : undefined,
-  ].filter(Boolean);
+// Accept both <AlbumCard album={a}/> and <AlbumCard {...a}/>
+type AlbumCardUnion = AlbumCardProps | { album: Album };
+
+export default function AlbumCard(_props: AlbumCardUnion) {
+  const p: AlbumCardProps =
+    "album" in _props
+      ? {
+          id: _props.album.id,
+          title: _props.album.title,
+          artist: _props.album.artist,
+          year: _props.album.year,
+          coverUrl: _props.album.coverUrl,
+          owned: _props.album.owned,
+          digital: _props.album.digital,
+          wishlisted: _props.album.wishlisted,
+          format: _props.album.format,
+          className: undefined,
+          to: undefined,
+        }
+      : _props;
+
+  const { id, title, artist, year, coverUrl, owned, digital, wishlisted, format, to, className } = p;
+
+  const meta = [artist?.trim() || undefined, year ? String(year) : undefined, format ? labelAlbumFormat(format) : undefined]
+    .filter(Boolean)
+    .join(" • ");
 
   const body = (
     <article className={clsx("card p-3 flex gap-3 items-start", className)}>
-      {/* Omslag */}
       {coverUrl ? (
         <img
           src={coverUrl}
@@ -53,25 +60,18 @@ export default function AlbumCard({
         </div>
       )}
 
-      {/* Text */}
       <div className="min-w-0 flex-1">
         <div className="font-semibold truncate">{title}</div>
-        <div className="text-sand-300 text-xs truncate">
-          {metaParts.join(" • ")}
-        </div>
+        <div className="text-sand-300 text-xs truncate">{meta}</div>
 
-        {/* Chips */}
         <div className="mt-2 flex gap-2 flex-wrap">
           {owned && <span className="chip">Ägd</span>}
           {digital && <span className="chip">Digital</span>}
           {wishlisted && <span className="chip">Önskelista</span>}
         </div>
 
-        {/* Actions */}
         <div className="mt-3 flex gap-2">
-          {typeof id === "number" && (
-            <Link to={`/album/edit/${id}`} className="btn">Redigera</Link>
-          )}
+          {typeof id === "number" && <Link to={`/album/edit/${id}`} className="btn">Redigera</Link>}
         </div>
       </div>
     </article>
