@@ -284,7 +284,7 @@ export default function ProfilePage() {
           Testa kameratillstånd så att streckkodsskannern kan starta direkt i formulären.
           <br />
           <span className="text-sand-400">
-            Tips: Om testet lyckas kan du skanna EAN, ISBN eller andra koder direkt när du lägger till film, bok eller spel.
+            Tips: Om testet lyckas kan du skanna EAN, ISBN eller andra koder direkt när du lägger till film, bok, musik, serietidningar eller spel.
           </span>
         </div>
       </div>
