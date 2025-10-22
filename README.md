@@ -1,5 +1,5 @@
 [![Live](https://img.shields.io/badge/Live-Cinemoria-%231f6feb?logo=githubpages&logoColor=white)](https://robynt98.github.io/Cinemoria/)
-[![Docs](https://img.shields.io/badge/Docs-index.md-%23555555)](index.md)
+[![Docs](https://img.shields.io/badge/Docs-index.md-%666258)](index.md)
 [![License](https://img.shields.io/badge/License-GPL--3.0-%2323b26d)](LICENSE.md)
 [![PWA](https://img.shields.io/badge/PWA-Ready-%237851fa)](#installera-som-app-pwa)
 [![Privacy](https://img.shields.io/badge/Privacy-Local%20only-%2300b894)](#integritet)
