@@ -33,7 +33,7 @@ _(fungerar på dator, surfplatta och mobil)_
 
 ### 📨 Feedback
 Vill du lämna en tanke eller tips?  
-[Skicka feedback](mailto:?subject=Cinemoria%20feedback&body=Hej%20Conri%2C%0A%0AJag%20ville%20bara%20dela%20lite%20feedback%20om%20Cinemoria%3A%0A%0A---%0A(Tekniskt%20valfritt)%0ABrowser%3A%20{{site.github.environment}})
+[Skicka feedback](mailto:turessonrobyn@gmail.com?subject=Cinemoria%20feedback&body=Hej%20Conri%2C%0A%0AJag%20ville%20bara%20dela%20lite%20feedback%20om%20Cinemoria%3A%0A%0A---%0A(Tekniskt%20valfritt)%0ABrowser%3A%20{{site.github.environment}})
 
 ---
 
