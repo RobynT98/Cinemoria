@@ -7,7 +7,7 @@ import type { Album } from "@/db";
 export default function AlbumAdd() {
   const navigate = useNavigate();
 
-  async function handleSubmit(data: Album) {
+  async function handleSubmit(data: Omit<Album, "id" | "createdAt" | "updatedAt">) {
     await addAlbum(data);
     alert("Album sparat!");
     navigate("/album");
