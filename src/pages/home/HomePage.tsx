@@ -1,3 +1,4 @@
+// src/pages/home/HomePage.tsx
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { db, type Movie, type Book, type Game, type Album, type Comic } from "@/db";
@@ -231,10 +232,7 @@ export default function HomePage() {
   );
 }
 
-/* * ====== Små helpers ====== 
- * Flyttad till HomePage.tsx för att använda t-funktionen, 
- * eller så skickar vi med den (görs nedan)
- */
+/* * ====== Små helpers ====== */
 
 interface SectionProps {
   t: (key: string, options?: any) => string;
@@ -295,7 +293,7 @@ function Section({
   );
 }
 
-function StatCard({ t, labelKey, value }: { t: (key: string) => string; labelKey: string; value: number }) {
+function StatCard({ t, labelKey, value }: { t: (key: string, options?: any) => string; labelKey: string; value: number }) {
   return (
     <div className="card p-3 text-center">
       <div className="text-2xl font-semibold">{value}</div>
