@@ -21,49 +21,49 @@ const InstructionsPage = lazy(() => import("./pages/home/InstructionsPage"));
 const ProfileLayout = lazy(() => import("./pages/profile/ProfileLayout"));
 const ProfilePage = lazy(() => import("./pages/profile/ProfilePage"));
 
-/* Movie (KORREKT) */
+/* Movie */
 const MovieLayout = lazy(() => import("./pages/movie/MovieLayout"));
 const MovieHome = lazy(() => import("./pages/movie/MovieHome"));
 const MovieSearch = lazy(() => import("./pages/movie/SearchPage"));
 const MovieAdd = lazy(() => import("./pages/movie/AddPage"));
 const MovieCollections = lazy(() => import("./pages/movie/CollectionsPage"));
-const MovieListDetail = lazy(() => import("./pages/movie/ListDetailPage")); 
+const MovieListDetail = lazy(() => import("./pages/movie/ListDetailPage")); // KORREKT ENLIGT DITT REPO
 const MovieEdit = lazy(() => import("./pages/movie/EditPage"));
 
-/* Book (KORREKT ENLIGT BILD) */
+/* Book */
 const BookLayout = lazy(() => import("./pages/book/BookLayout"));
 const BookHome = lazy(() => import("./pages/book/BookHome"));
 const BookSearch = lazy(() => import("./pages/book/BookSearch"));
 const BookAdd = lazy(() => import("./pages/book/BookAdd"));
 const BookCollections = lazy(() => import("./pages/book/BookCollectionsPage"));
-const BookListDetail = lazy(() => import("./pages/book/BookListDetailPage")); // LÅNGT FILNAMN
+const BookListDetail = lazy(() => import("./pages/book/BookListDetailPage")); // KORREKT ENLIGT DITT REPO
 const BookEdit = lazy(() => import("./pages/book/BookEdit"));
 
-/* Game (FIXAD) */
+/* Game */
 const GameLayout = lazy(() => import("./pages/game/GameLayout"));
 const GameHome = lazy(() => import("./pages/game/GameHome"));
-const GameSearch = lazy(() => import("./pages/game/SearchPage"));
+const GameSearch = lazy(() => import("./pages/game/GameSearch"));
 const GameAdd = lazy(() => import("./pages/game/AddPage"));
-const GameCollections = lazy(() => import("./pages/game/CollectionsPage")); // ANTAGER KORT NAMN
-const GameListDetail = lazy(() => import("./pages/game/ListDetailPage")); // ANTAGER KORT NAMN
+const GameCollections = lazy(() => import("./pages/game/CollectionsPage"));
+const GameListDetail = lazy(() => import("./pages/game/ListDetailPage")); // KORREKT ENLIGT DITT REPO
 const GameEdit = lazy(() => import("./pages/game/EditPage"));
 
-/* Music (Albums) (FIXAD) */
+/* Music (Albums) */
 const AlbumLayout = lazy(() => import("./pages/album/AlbumLayout"));
 const AlbumHome = lazy(() => import("./pages/album/AlbumHome"));
 const AlbumSearch = lazy(() => import("./pages/album/SearchPage"));
 const AlbumAdd = lazy(() => import("./pages/album/AddPage"));
-const AlbumCollections = lazy(() => import("./pages/album/CollectionsPage")); // ANTAGER KORT NAMN
-const AlbumListDetail = lazy(() => import("./pages/album/ListDetailPage")); // ANTAGER KORT NAMN
+const AlbumCollections = lazy(() => import("./pages/album/CollectionsPage"));
+const AlbumListDetail = lazy(() => import("./pages/album/ListDetailPage")); // KORREKT ENLIGT DITT REPO
 const AlbumEdit = lazy(() => import("./pages/album/EditPage"));
 
-/* Comics (Serietidningar) (FIXAD) */
+/* Comics (Serietidningar) */
 const ComicLayout = lazy(() => import("./pages/comic/ComicLayout"));
 const ComicHome = lazy(() => import("./pages/comic/ComicHome"));
 const ComicSearch = lazy(() => import("./pages/comic/SearchPage"));
 const ComicAdd = lazy(() => import("./pages/comic/AddPage"));
-const ComicCollections = lazy(() => import("./pages/comic/CollectionsPage")); // ANTAGER KORT NAMN
-const ComicListDetail = lazy(() => import("./pages/comic/ListDetailPage")); // ANTAGER KORT NAMN
+const ComicCollections = lazy(() => import("./pages/comic/CollectionsPage"));
+const ComicListDetail = lazy(() => import("./pages/comic/ListDetailPage")); // KORREKT ENLIGT DITT REPO
 const ComicEdit = lazy(() => import("./pages/comic/EditPage"));
 
 export default function App() {
@@ -151,7 +151,7 @@ export default function App() {
           "fixed bottom-0 inset-x-0 border-t backdrop-blur",
           "bg-white/90 border-sand-200",
           "dark:bg-ink-800/80 dark:border-ink-700",
-          "sepia:bg-[#f3e8c7]/90 sepia:border-[#e7d3a8]"
+          "sepia:bg-[#f3e8c7}/90 sepia:border-[#e7d3a8]"
         )}
       >
         <div className="max-w-3xl mx-auto grid grid-cols-7">
@@ -178,6 +178,7 @@ function NavItem({
   icon: React.ReactNode;
 }) {
   const { t } = useTranslation();
+  // Använder t(k) utan fallback eftersom nav-nycklarna finns i translation.json
   const label = t(k);
 
   return (
