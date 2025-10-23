@@ -1,4 +1,3 @@
-// src/App.tsx
 import { NavLink, Route, Routes } from "react-router-dom";
 import {
   Home,
@@ -11,6 +10,7 @@ import {
 } from "lucide-react";
 import { Suspense, lazy } from "react";
 import clsx from "classnames";
+import { useTranslation } from "react-i18next";
 
 /* Home */
 const HomeLayout = lazy(() => import("./pages/home/HomeLayout"));
@@ -67,6 +67,8 @@ const ComicListDetail = lazy(() => import("./pages/comic/ComicListDetailPage"));
 const ComicEdit = lazy(() => import("./pages/comic/ComicEdit"));
 
 export default function App() {
+  const { t } = useTranslation();
+
   return (
     <div
       className={clsx(
@@ -77,7 +79,7 @@ export default function App() {
       )}
     >
       <main className="pb-20 max-w-3xl mx-auto px-3">
-        <Suspense fallback={<div className="p-4">Laddar…</div>}>
+        <Suspense fallback={<div className="p-4">{t("loading")}</div>}>
           <Routes>
             {/* HEM */}
             <Route path="/" element={<HomeLayout />}>
@@ -143,7 +145,7 @@ export default function App() {
         </Suspense>
       </main>
 
-      {/* Bottennavigation – 7 ikoner */}
+      {/* Bottennavigation */}
       <nav
         className={clsx(
           "fixed bottom-0 inset-x-0 border-t backdrop-blur",
@@ -153,13 +155,13 @@ export default function App() {
         )}
       >
         <div className="max-w-3xl mx-auto grid grid-cols-7">
-          <NavItem to="/" label="Hem" icon={<Home size={22} />} />
-          <NavItem to="/movie" label="Film" icon={<Library size={22} />} />
-          <NavItem to="/game" label="Spel" icon={<Gamepad2 size={22} />} />
-          <NavItem to="/book" label="Böcker" icon={<BookOpen size={22} />} />
-          <NavItem to="/album" label="Musik" icon={<Disc3 size={22} />} />
-          <NavItem to="/comic" label="Serier" icon={<PanelsTopLeft size={22} />} />
-          <NavItem to="/profile" label="Profil" icon={<User size={22} />} />
+          <NavItem to="/"        labelKey="nav.home"    icon={<Home size={22} />} />
+          <NavItem to="/movie"   labelKey="nav.movies"  icon={<Library size={22} />} />
+          <NavItem to="/game"    labelKey="nav.games"   icon={<Gamepad2 size={22} />} />
+          <NavItem to="/book"    labelKey="nav.books"   icon={<BookOpen size={22} />} />
+          <NavItem to="/album"   labelKey="nav.music"   icon={<Disc3 size={22} />} />
+          <NavItem to="/comic"   labelKey="nav.comics"  icon={<PanelsTopLeft size={22} />} />
+          <NavItem to="/profile" labelKey="nav.profile" icon={<User size={22} />} />
         </div>
       </nav>
     </div>
@@ -168,13 +170,16 @@ export default function App() {
 
 function NavItem({
   to,
-  label,
+  labelKey,
   icon,
 }: {
   to: string;
-  label: string;
+  labelKey: string;
   icon: React.ReactNode;
 }) {
+  const { t } = useTranslation();
+  const label = t(labelKey);
+
   return (
     <NavLink
       to={to}
