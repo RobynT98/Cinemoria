@@ -7,14 +7,16 @@ import { useEffect, useState } from "react";
 import clsx from "classnames";
 import { useTranslation } from "react-i18next";
 
+
 // Helper-komponent för navigering
 function NavItem({ to, k, icon }: { to: string; k: string; icon: React.ReactNode; }) {
-  // OBS: Vi litar på att Suspension och Zustand fixade timing globalt.
-  // Vi tar bort all manuell fallback-logik här.
   const { t } = useTranslation();
+  
+  // Vi litar på att t(k) fungerar nu
+  // Om navigeringsrutan är stabil och bara behöver det snygga utseendet, 
+  // använder vi den rena t(k) logiken.
   const label = t(k); 
 
-  // Denna är kopierad från App.tsx och ger det snygga utseendet
   return (
     <NavLink
       to={to}
@@ -37,11 +39,26 @@ function NavItem({ to, k, icon }: { to: string; k: string; icon: React.ReactNode
 
 
 export default function BottomNav() {
-  // VIKTIG FIX: Dummy state/effect MÅSTE TAS BORT om du inte ska ha placeholder
-  // Jag tar bort ready state och returnerar den snygga nav-en direkt.
+  // 1. ÅTERINFÖR DUMMY STATE FÖR ATT TVINGA FRAM RENDERING AV NAVET
+  const [ready, setReady] = useState(false);
   
+  useEffect(() => {
+    // VIKTIG FIX: Tvinga fram en omrendering efter 10ms.
+    const timer = setTimeout(() => {
+      setReady(true); // Detta tvingar komponenten att ritas om
+    }, 10); 
+
+    return () => clearTimeout(timer);
+  }, []);
+
+
+  // 2. KÖR DEN RENA OCH SNYGGA KODEN DIREKT
+  // Vi tar bort IF-satsen och litar på att ready=true triggar en omrendering 
+  // som löser uppslagningen.
+
   return (
     <nav
+      // ... (Dina snygga clsx klasser)
       className={clsx(
         "fixed bottom-0 inset-x-0 border-t backdrop-blur",
         "bg-white/90 border-sand-200",
