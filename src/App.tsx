@@ -79,7 +79,7 @@ export default function App() {
       )}
     >
       <main className="pb-20 max-w-3xl mx-auto px-3">
-        <Suspense fallback={<div className="p-4">{t("loading")}</div>}>
+        <Suspense fallback={<div className="p-4">{t("loading", { defaultValue: "Laddar..." })}</div>}>
           <Routes>
             {/* HEM */}
             <Route path="/" element={<HomeLayout />}>
@@ -155,13 +155,13 @@ export default function App() {
         )}
       >
         <div className="max-w-3xl mx-auto grid grid-cols-7">
-          <NavItem to="/"        labelKey="nav.home"    icon={<Home size={22} />} />
-          <NavItem to="/movie"   labelKey="nav.movies"  icon={<Library size={22} />} />
-          <NavItem to="/game"    labelKey="nav.games"   icon={<Gamepad2 size={22} />} />
-          <NavItem to="/book"    labelKey="nav.books"   icon={<BookOpen size={22} />} />
-          <NavItem to="/album"   labelKey="nav.music"   icon={<Disc3 size={22} />} />
-          <NavItem to="/comic"   labelKey="nav.comics"  icon={<PanelsTopLeft size={22} />} />
-          <NavItem to="/profile" labelKey="nav.profile" icon={<User size={22} />} />
+          <NavItem to="/"        k="nav.home"    def="Hem"      icon={<Home size={22} />} />
+          <NavItem to="/movie"   k="nav.movies"  def="Film"     icon={<Library size={22} />} />
+          <NavItem to="/game"    k="nav.games"   def="Spel"     icon={<Gamepad2 size={22} />} />
+          <NavItem to="/book"    k="nav.books"   def="Böcker"   icon={<BookOpen size={22} />} />
+          <NavItem to="/album"   k="nav.music"   def="Musik"    icon={<Disc3 size={22} />} />
+          <NavItem to="/comic"   k="nav.comics"  def="Serier"   icon={<PanelsTopLeft size={22} />} />
+          <NavItem to="/profile" k="nav.profile" def="Profil"   icon={<User size={22} />} />
         </div>
       </nav>
     </div>
@@ -170,15 +170,17 @@ export default function App() {
 
 function NavItem({
   to,
-  labelKey,
+  k,
+  def,
   icon,
 }: {
   to: string;
-  labelKey: string;
+  k: string;
+  def: string;
   icon: React.ReactNode;
 }) {
   const { t } = useTranslation();
-  const label = t(labelKey);
+  const label = t(k, { defaultValue: def });
 
   return (
     <NavLink
