@@ -1,6 +1,6 @@
 // src/store/languageStore.ts
 import { create } from 'zustand';
-import i18n from '@/i18n'; // Importera din i18n-instans
+import i18n from '@/i18n'; // Se till att sökvägen till din i18n-fil är korrekt
 
 type LanguageState = {
   currentLang: 'sv' | 'en';
@@ -14,8 +14,8 @@ export const useLanguageStore = create<LanguageState>((set) => ({
   currentLang: initialLang,
 
   setLang: (lang) => {
-    // 1. Byt språk i i18next globalt
-    i18n.changeLanguage(lang, (err, t) => {
+    // 1. Uppdatera i18next (denna laddar nya JSON-filer)
+    i18n.changeLanguage(lang, (err) => {
         if (err) return console.error('i18n load failed', err);
         // 2. När i18next är klar, uppdatera Zustands state
         set({ currentLang: lang }); 
@@ -23,8 +23,9 @@ export const useLanguageStore = create<LanguageState>((set) => ({
   },
 }));
 
-// Lyssna på i18nexts egna event och synka till Zustand.
-// Detta är viktigt om språket ändras av webbläsaren/OS.
+// VIKTIGT: Lyssna på i18nexts egna event och synka till Zustand.
+// Detta säkerställer att Zustands state är korrekt även om något externt
+// skulle byta språk (t.ex. webbläsarens Language Detector).
 i18n.on('languageChanged', (lng) => {
     const newLang = (lng || 'sv').split('-')[0] as 'sv' | 'en';
     // Uppdatera storens state utanför Reacts cykel
