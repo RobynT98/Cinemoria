@@ -1,12 +1,19 @@
 import { NavLink } from "react-router-dom";
 import clsx from "classnames";
+import { useTranslation } from "react-i18next";
 
-export default function SectionNav({ base }: { base: "/movie" | "/book" | "/game" }) {
+export default function SectionNav({ base }: { base: "/movie" | "/book" | "/game" | "/album" | "/comic" }) {
+  const { t } = useTranslation();
+
   const items = [
-    { to: `${base}`, label: "Översikt" },
-    { to: `${base}/search`, label: "Sök" },
-    { to: `${base}/add`, label: "Lägg till" },
-    ...(base === "/movie" ? [{ to: `${base}/collections`, label: "Samlingar" }] : []),
+    { to: `${base}`, label: t("sectionNav.overview") },
+    { to: `${base}/search`, label: t("sectionNav.search") },
+    { to: `${base}/add`, label: t("sectionNav.add") },
+    ...(base === "/movie" ? [{ to: `${base}/collections`, label: t("sectionNav.collections") }] : []),
+    ...(base === "/book"  ? [{ to: `${base}/collections`, label: t("sectionNav.collections") }] : []),
+    ...(base === "/game"  ? [{ to: `${base}/collections`, label: t("sectionNav.collections") }] : []),
+    ...(base === "/album" ? [{ to: `${base}/collections`, label: t("sectionNav.collections") }] : []),
+    ...(base === "/comic" ? [{ to: `${base}/collections`, label: t("sectionNav.collections") }] : []),
   ];
 
   return (
