@@ -316,4 +316,3 @@ function StatCard({ t, labelKey, value }: { t: (key: string, options?: any) => s
 function EmptyLine({ label }: { label: string }) {
   return <div className="text-sand-300 text-sm">{label}</div>;
 }
-Ge hel
