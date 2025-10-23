@@ -145,6 +145,7 @@ export default function App() {
         </Suspense>
       </main>
 
+      
       {/* Bottennavigation */}
       <nav
         className={clsx(
