@@ -1,19 +1,20 @@
+// src/components/SectionNav.tsx
 import { NavLink } from "react-router-dom";
 import clsx from "classnames";
-import { useTranslation } from "react-i18next";
 
-export default function SectionNav({ base }: { base: "/movie" | "/book" | "/game" | "/album" | "/comic" }) {
-  const { t } = useTranslation();
+type BasePath = "/movie" | "/book" | "/game" | "/album" | "/comic";
 
+export default function SectionNav({ base }: { base: BasePath }) {
   const items = [
-    { to: `${base}`, label: t("sectionNav.overview") },
-    { to: `${base}/search`, label: t("sectionNav.search") },
-    { to: `${base}/add`, label: t("sectionNav.add") },
-    ...(base === "/movie" ? [{ to: `${base}/collections`, label: t("sectionNav.collections") }] : []),
-    ...(base === "/book"  ? [{ to: `${base}/collections`, label: t("sectionNav.collections") }] : []),
-    ...(base === "/game"  ? [{ to: `${base}/collections`, label: t("sectionNav.collections") }] : []),
-    ...(base === "/album" ? [{ to: `${base}/collections`, label: t("sectionNav.collections") }] : []),
-    ...(base === "/comic" ? [{ to: `${base}/collections`, label: t("sectionNav.collections") }] : []),
+    { to: `${base}`, label: "Översikt" },
+    { to: `${base}/search`, label: "Sök" },
+    { to: `${base}/add`, label: "Lägg till" },
+    // Visa "Samlingar" för alla sektioner som har den sidan
+    ...(base === "/movie" ? [{ to: `${base}/collections`, label: "Samlingar" }] : []),
+    ...(base === "/book"  ? [{ to: `${base}/collections`, label: "Samlingar" }] : []),
+    ...(base === "/game"  ? [{ to: `${base}/collections`, label: "Samlingar" }] : []),
+    ...(base === "/album" ? [{ to: `${base}/collections`, label: "Samlingar" }] : []),
+    ...(base === "/comic" ? [{ to: `${base}/collections`, label: "Samlingar" }] : []),
   ];
 
   return (
