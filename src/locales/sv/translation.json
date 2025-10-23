@@ -1,7 +1,7 @@
 {
   "loading": "Laddar…", 
 
-  /* --- NAVIGATION --- */
+  
   "nav.home": "Hem",
   "nav.movies": "Film",
   "nav.games": "Spel",
@@ -10,13 +10,12 @@
   "nav.comics": "Serier",
   "nav.profile": "Profil",
 
-  /* --- SECTION NAV --- */
+  
   "sectionNav.overview": "Översikt",    
   "sectionNav.search": "Sök",    
   "sectionNav.add": "Lägg till",    
   "sectionNav.collections": "Samlingar",    
 
-  /* --- PROFILE --- */
   "profile.title": "Profil & Inställningar",    
   "profile.install.title": "Installera som app",    
   "profile.install.subtitle": "Fungerar offline och startar helskärm.",    
