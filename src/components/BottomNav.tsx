@@ -6,10 +6,21 @@ import {
 import clsx from "classnames";
 import { useTranslation } from "react-i18next";
 
-// Liten helper-komponent
+// Helper-komponent för navigering
 function NavItem({ to, k, icon }: { to: string; k: string; icon: React.ReactNode; }) {
   const { t } = useTranslation();
-  const label = t(k);
+  
+  // FIX: Hämta nyckeln, men om den returnerar nyckeln (t ex "nav.home")
+  // använder vi en läsbar, hårdkodad fallback-text istället.
+  const rawLabel = t(k);
+  const fallbackText = k.split('.')[1] || 'Error';
+  
+  // Om t(k) returnerar det exakta nyckelnamnet (som är längre än 5 tecken)
+  // vet vi att översättningen misslyckades.
+  // Vi tvingar då till den läsbara fallbacken ('home', 'movies', etc.)
+  const label = (rawLabel.length > 5 && rawLabel === k) 
+      ? fallbackText
+      : rawLabel;
 
   return (
     <NavLink
