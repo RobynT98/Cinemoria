@@ -1,14 +1,15 @@
 {
   "loading": "Loading…", 
 
-  "nav.home": "Home",
-  "nav.movies": "Movies",
-  "nav.games": "Games",
-  "nav.books": "Books",
-  "nav.music": "Music",
-  "nav.comics": "Comics",
-  "nav.profile": "Profile",
-
+  "nav": {
+    "home": "Home",
+    "movies": "Movie",
+    "games": "Game",
+    "books": "Book",
+    "music": "Music",
+    "comics": "Comic",
+    "profile": "Profile"
+  },
   
   "sectionNav": {    
     "overview": "Overview",    
