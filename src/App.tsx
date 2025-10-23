@@ -155,7 +155,7 @@ export default function App() {
         )}
       >
         <div className="max-w-3xl mx-auto grid grid-cols-7">
-          {/* Tar bort def="..." då nycklarna (k="...") garanterat finns i translation.json */}
+          {/* Nycklarna måste existera i din translation.json (under "nav") */}
           <NavItem to="/"        k="nav.home"    icon={<Home size={22} />} />
           <NavItem to="/movie"   k="nav.movies"  icon={<Library size={22} />} />
           <NavItem to="/game"    k="nav.games"   icon={<Gamepad2 size={22} />} />
@@ -179,7 +179,8 @@ function NavItem({
   icon: React.ReactNode;
 }) {
   const { t } = useTranslation();
-  // Använder t(k) direkt utan fallback eftersom nav-nycklarna är kritiska och garanterat finns
+  // t(k) returnerar nyckeln (t.ex. "nav.home") om översättningen inte hittas.
+  // Detta är anledningen till att du ser nycklarna i UI.
   const label = t(k);
 
   return (
