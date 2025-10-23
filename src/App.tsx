@@ -1,3 +1,5 @@
+
+import "./i18n";
 import { NavLink, Route, Routes } from "react-router-dom";
 import {
   Home,
