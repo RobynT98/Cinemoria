@@ -1,3 +1,4 @@
+// src/pages/profile/ProfilePage.tsx
 import { exportJson, importJson, wipeAll } from "@/lib/backup";
 import { useEffect, useRef, useState } from "react";
 import { useThemeStore } from "@/store/themeStore";
@@ -15,32 +16,7 @@ export default function ProfilePage() {
 
   // i18n
   const { i18n, t } = useTranslation();
-  
-  // ✅ FIX: Säkrare initialisering: Börja med "sv" och synka i useEffect.
-  const [currentLang, setCurrentLang] = useState("sv" as "sv" | "en");
-  const baseLng = currentLang;
-
-  // ✅ FIX: useEffect för BÅDE initial synkronisering OCH lyssning på framtida ändringar.
-  useEffect(() => {
-    // Hjälpfunktion för att extrahera "sv" eller "en" från språksträngen
-    const getLang = (lng: string | undefined) => (lng || "sv").split("-")[0] as "sv" | "en";
-
-    const handleLangChange = (lng: string) => {
-      setCurrentLang(getLang(lng));
-    };
-
-    // 1. Sätt initialt språk efter mount (synkroniserar med vad i18n har bestämt)
-    setCurrentLang(getLang(i18n.resolvedLanguage || i18n.language));
-
-    // 2. Lyssna på framtida språkändringar
-    i18n.on("languageChanged", handleLangChange);
-    
-    // Rensa lyssnaren vid unmount
-    return () => {
-      i18n.off("languageChanged", handleLangChange);
-    };
-  }, [i18n]); // Lyssna på i18n-instansen
-
+  const baseLng = (i18n.language || "sv").split("-")[0] as "sv" | "en";
   const switchLang = (lng: "sv" | "en") => {
     if (lng !== baseLng) i18n.changeLanguage(lng);
   };
