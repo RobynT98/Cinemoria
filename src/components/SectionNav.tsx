@@ -1,20 +1,34 @@
 // src/components/SectionNav.tsx
 import { NavLink } from "react-router-dom";
 import clsx from "classnames";
+import { useTranslation } from "react-i18next"; // <-- Ny import
 
 type BasePath = "/movie" | "/book" | "/game" | "/album" | "/comic";
 
 export default function SectionNav({ base }: { base: BasePath }) {
+  const { t } = useTranslation(); // <-- Använd useTranslation
+
+  // Definiera nav-länkarna med i18n-nycklar
+  const mainItems = [
+    { to: `${base}`, key: "sectionNav.overview", default: "Översikt" },
+    { to: `${base}/search`, key: "sectionNav.search", default: "Sök" },
+    { to: `${base}/add`, key: "sectionNav.add", default: "Lägg till" },
+  ];
+
+  // Skapa "Samlingar" länken villkorligt
+  const collectionsItem = { 
+      to: `${base}/collections`, 
+      key: "sectionNav.collections", 
+      default: "Samlingar" 
+  };
+  
+  // Lista över alla sektioner som har en "CollectionsPage"
+  const sectionsWithCollections = ["/movie", "/book", "/game", "/album", "/comic"];
+  
+  // Kombinera huvudlänkar med Samlingar-länken, om basvägen matchar
   const items = [
-    { to: `${base}`, label: "Översikt" },
-    { to: `${base}/search`, label: "Sök" },
-    { to: `${base}/add`, label: "Lägg till" },
-    // Visa "Samlingar" för alla sektioner som har den sidan
-    ...(base === "/movie" ? [{ to: `${base}/collections`, label: "Samlingar" }] : []),
-    ...(base === "/book"  ? [{ to: `${base}/collections`, label: "Samlingar" }] : []),
-    ...(base === "/game"  ? [{ to: `${base}/collections`, label: "Samlingar" }] : []),
-    ...(base === "/album" ? [{ to: `${base}/collections`, label: "Samlingar" }] : []),
-    ...(base === "/comic" ? [{ to: `${base}/collections`, label: "Samlingar" }] : []),
+      ...mainItems,
+      ...(sectionsWithCollections.includes(base) ? [collectionsItem] : [])
   ];
 
   return (
@@ -23,7 +37,8 @@ export default function SectionNav({ base }: { base: BasePath }) {
         <NavLink
           key={i.to}
           to={i.to}
-          end
+          // Viktigt: 'end' behövs på Overview för att inte markera Search/Add/etc. som aktiva
+          end={i.key === "sectionNav.overview"} 
           className={({ isActive }) =>
             clsx(
               "chip no-underline",
@@ -31,7 +46,7 @@ export default function SectionNav({ base }: { base: BasePath }) {
             )
           }
         >
-          {i.label}
+          {t(i.key, i.default)}
         </NavLink>
       ))}
     </div>
