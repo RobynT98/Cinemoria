@@ -1,14 +1,13 @@
-{    
-  "loading": "Loading…",    
-    
-  "nav": {    
-    "home": "Home",    
-    "movies": "Movies",    
-    "games": "Games",    
-    "books": "Books",    
-    "music": "Music",    
-    "comics": "Comics",    
-    "profile": "Profile"    
+{
+  "loading": "Loading…", 
+
+  "nav.home": "Home",
+  "nav.movies": "Movies",
+  "nav.games": "Games",
+  "nav.books": "Books",
+  "nav.music": "Music",
+  "nav.comics": "Comics",
+  "nav.profile": "Profile"
   },    
     
   "sectionNav": {    
