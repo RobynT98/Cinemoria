@@ -1,6 +1,7 @@
 {
   "loading": "Loading…", 
 
+  /* --- NAVIGATION (Plattat format för enkel uppslagning) --- */
   "nav.home": "Home",
   "nav.movies": "Movies",
   "nav.games": "Games",
@@ -8,18 +9,19 @@
   "nav.music": "Music",
   "nav.comics": "Comics",
   "nav.profile": "Profile",
-  }    
-    
+
+  /* --- SECTION NAV --- */
   "sectionNav": {    
     "overview": "Overview",    
     "search": "Search",    
     "add": "Add",    
     "collections": "Collections"    
   },    
-    
+
+  /* --- PROFILE --- */
   "profile": {    
     "title": "Profile & Settings",    
-    
+
     "install": {    
       "title": "Install as app",    
       "subtitle": "Works offline and launches full-screen.",    
@@ -27,14 +29,14 @@
       "iosTitle": "Install on iPhone/iPad",    
       "iosHint": "Open the share menu and choose “Add to Home Screen”."    
     },    
-    
+
     "language": {    
       "title": "Language",    
       "hint": "Switch the app language. Your choice is saved locally.",    
       "sv": "Svenska",    
       "en": "English"    
     },    
-    
+
     "theme": {    
       "title": "Theme",    
       "hint": "Choose dark, light or sepia.",    
@@ -42,10 +44,10 @@
       "light": "Light",    
       "sepia": "Sepia"    
     },    
-    
+
     "datafill": {    
       "title": "Data sources & Autofill",    
-    
+
       "omdb": {    
         "use": "Use OMDb for movie autofill",    
         "placeholder": "OMDb API key",    
@@ -61,13 +63,13 @@
         "msg_error_prefix": "OMDb:",    
         "msg_network": "Could not reach OMDb."    
       },    
-    
+
       "barcode": {    
         "title": "Barcode scanning",    
         "hint": "Test camera permission so the scanner can start directly in forms.",    
         "tip": "Tip: If the test succeeds you can scan EAN, ISBN or other codes when adding movies, books, music, comics or games.",    
         "test": "Test camera",    
-        "ok": "Camera OK",    
+        "ok": "Camera OK",
         "denied": "Denied",    
         "error": "Error",    
         "busy": "Testing…",    
@@ -77,7 +79,7 @@
         "msg_error": "Could not open the camera."    
       }    
     },    
-    
+
     "backup": {    
       "title": "Backup",    
       "export": "Export JSON",    
@@ -90,19 +92,19 @@
       "copied": "Link copied ✓",    
       "copy": "Copy app link"    
     },    
-    
+
     "feedback": {    
       "title": "Feedback & sharing",    
       "hint": "Send optional feedback or share the app link. No data is sent automatically.",    
       "send": "Send feedback"    
     },    
-    
+
     "help": {    
       "title": "Need help?",    
       "hint": "Read a short guide with tips on how to use the app.",    
       "cta": "Instructions"    
     },    
-    
+
     "about": {    
       "app": "App: Cinemoria v{{version}}",    
       "license": "© 2025 Conri Turesson — License: GNU GPL v3.0",    
@@ -111,11 +113,12 @@
       "more": "more info"    
     }    
   },    
-    
+
+  /* --- INSTRUCTIONS --- */
   "instructions": {    
     "title": "Instructions",    
     "intro": "A quick guide to Cinemoria. All data is stored locally in your browser (IndexedDB). After the first load the app works offline.",    
-    
+
     "getStarted": {    
       "title": "Get started",    
       "movie": "Movies: go to Add movie and save your first title.",    
@@ -131,7 +134,7 @@
       "cta_comic": "+ New comic",    
       "cta_profile": "Backup"    
     },    
-    
+
     "barcode": {    
       "title": "Barcode (camera)",    
       "where": "Where to scan: in forms you’ll find the field Barcode (EAN/UPC) (movies/games) and ISBN (books) with a Scan button. Press Scan — not just the field.",    
@@ -140,7 +143,7 @@
       "perm": "Camera test & permission: go to Profile → Barcode scanning → Test camera and allow camera. Best in Chrome/Edge/Android. Good light helps.",    
       "troubleshoot": "Troubleshooting: if camera won’t start, close the tab and reopen, try in browser first (not PWA), and check site camera permissions."    
     },    
-    
+
     "movies": {    
       "title": "Movies: add & edit",    
       "steps": [    
@@ -152,7 +155,7 @@
       "cta_search": "Search movies",    
       "cta_lists": "Movie collections"    
     },    
-    
+
     "omdb": {    
       "title": "Movie metadata (OMDb) — your own API key",    
       "lead": "Want to autofill title/year/poster/genres from OMDb? Use your own key. It’s stored only in your browser.",    
@@ -163,7 +166,7 @@
       ],    
       "note": "Note: OMDb Free has daily limits. If it fails, you’ll see an error — you can always fill manually."    
     },    
-    
+
     "books": {    
       "title": "Books: add & edit",    
       "steps": [    
@@ -175,7 +178,7 @@
       "cta_search": "Search books",    
       "cta_lists": "Book lists"    
     },    
-    
+
     "games": {    
       "title": "Games: add & edit",    
       "steps": [    
@@ -186,7 +189,7 @@
       "cta_search": "Search games",    
       "cta_lists": "Game lists"    
     },    
-    
+
     "comics": {    
       "title": "Comics: add & edit",    
       "steps": [    
@@ -198,7 +201,7 @@
       "cta_search": "Search comics",    
       "cta_lists": "Comic lists"    
     },    
-    
+
     "music": {    
       "title": "Music & albums: add & edit",    
       "steps": [    
@@ -210,7 +213,7 @@
       "cta_search": "Search albums",    
       "cta_lists": "Music lists"    
     },    
-    
+
     "collections": {    
       "title": "Collections (lists)",    
       "text": "Create any collections for movies, books, games, music and comics (e.g. “Shelf A”, “Favorites 2025”, “To buy”). Item counts show right away. Rename or delete lists without touching contents.",    
@@ -220,7 +223,7 @@
       "cta_albums": "Music lists",    
       "cta_comics": "Comic lists"    
     },    
-    
+
     "searchFilter": {    
       "title": "Search & filters",    
       "movies": "Free text on title, genres, location/service, year. Filter on Owned/Digital/Wishlist.",    
@@ -234,7 +237,7 @@
       "open_albums": "Open music search",    
       "open_comics": "Open comic search"    
     },    
-    
+
     "backup": {    
       "title": "Backup & move data",    
       "export": "Export creates a JSON with everything (movies/books/games/music/comics and lists/links).",    
@@ -242,14 +245,14 @@
       "wipe": "Wipe all removes all local data.",    
       "cta": "Open Profile & Backup"    
     },    
-    
+
     "pwa": {    
       "title": "Install as app (PWA)",    
       "android": "Android/Chrome: Menu → Install app.",    
       "ios": "iPhone/iPad (Safari): Share → Add to Home Screen.",    
       "desktop": "Desktop: Icon in the address bar or the browser menu."    
     },    
-    
+
     "privacy": {    
       "title": "Privacy, performance & troubleshooting",    
       "privacy": "Privacy: your data never leaves the device. No login, no server.",    
@@ -258,20 +261,21 @@
       "empty": "If something looks empty: reload, clear cache, or export → wipe all → import again.",    
       "themes": "Themes: switch between dark, light and sepia under Profile."    
     },    
-    
+
     "feedback": {    
       "title": "Feedback & sharing",    
       "text": "Under Profile you’ll find Send feedback (mailto with tech info) and Copy app link."    
     }    
   },    
-    
+
+  /* --- HOME --- */
   "home": {    
     "hero_lead": "A shelf for what you own and love — movies, books and games. Fast and offline.",    
     "get_started": "Get started",    
     "get_started_hint": "Jump to a section. Add new, search or build collections.",    
     "empty_title": "Your shelf awaits ✨",    
     "empty_hint": "Start where it’s most fun. You can always import a JSON backup via Profile.",    
-    
+
     "btn": {    
       "movie": "Movies",    
       "book": "Books",    
@@ -288,7 +292,7 @@
       "add": "Add",    
       "lists": "Lists"    
     },    
-    
+
     "stats": {    
       "total": "Total",    
       "owned": "Owned",    
@@ -296,13 +300,13 @@
       "wish": "Wishlist",    
       "lists": "Lists",    
       "latest": "Latest added",    
-    
+
       "movies": "Movies",    
       "books": "Books",    
       "games": "Games",    
       "albums": "Music",    
       "comics": "Comics",    
-    
+
       "empty_movies": "No movies yet.",    
       "empty_books": "No books yet.",    
       "empty_games": "No games yet.",    
