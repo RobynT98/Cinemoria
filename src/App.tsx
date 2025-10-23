@@ -80,7 +80,7 @@ export default function App() {
     >
       <main className="pb-20 max-w-3xl mx-auto px-3">
         <Suspense fallback={<div className="p-4">{t("loading", { defaultValue: "Laddar..." })}</div>}>
-          <Routes>
+                <Routes>
             {/* HEM */}
             <Route path="/" element={<HomeLayout />}>
               <Route index element={<HomePage />} />
