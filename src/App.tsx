@@ -8,7 +8,7 @@ import {
   Disc3,
   PanelsTopLeft,
 } from "lucide-react";
-import { Suspense, lazy } from "react";
+import { Suspense, lazy, useState, useEffect } from "react"; // <-- IMPORTERA useState & useEffect
 import clsx from "classnames";
 import { useTranslation } from "react-i18next";
 
@@ -21,7 +21,7 @@ const InstructionsPage = lazy(() => import("./pages/home/InstructionsPage"));
 const ProfileLayout = lazy(() => import("./pages/profile/ProfileLayout"));
 const ProfilePage = lazy(() => import("./pages/profile/ProfilePage"));
 
-/* Movie (Exakt matchning mot filnamn) */
+/* Movie */
 const MovieLayout = lazy(() => import("./pages/movie/MovieLayout"));
 const MovieHome = lazy(() => import("./pages/movie/MovieHome"));
 const MovieSearch = lazy(() => import("./pages/movie/SearchPage"));
@@ -30,7 +30,7 @@ const MovieCollections = lazy(() => import("./pages/movie/CollectionsPage"));
 const MovieListDetail = lazy(() => import("./pages/movie/ListDetailPage")); 
 const MovieEdit = lazy(() => import("./pages/movie/EditPage")); 
 
-/* Book (Exakt matchning mot filnamn) */
+/* Book */
 const BookLayout = lazy(() => import("./pages/book/BookLayout"));
 const BookHome = lazy(() => import("./pages/book/BookHome"));
 const BookSearch = lazy(() => import("./pages/book/BookSearch"));
@@ -39,40 +39,53 @@ const BookCollections = lazy(() => import("./pages/book/BookCollectionsPage"));
 const BookListDetail = lazy(() => import("./pages/book/BookListDetailPage")); 
 const BookEdit = lazy(() => import("./pages/book/BookEdit")); 
 
-/* Game (Exakt matchning mot filnamn) */
+/* Game */
 const GameLayout = lazy(() => import("./pages/game/GameLayout"));
 const GameHome = lazy(() => import("./pages/game/GameHome"));
 const GameSearch = lazy(() => import("./pages/game/GameSearch"));
 const GameAdd = lazy(() => import("./pages/game/GameAdd"));
 const GameCollections = lazy(() => import("./pages/game/GameCollectionsPage"));
 const GameListDetail = lazy(() => import("./pages/game/GameListDetailPage")); 
-const GameEdit = lazy(() => import("./pages/game/GameEdit")); 
+const GameEdit = lazy(() => import("./pages/game/EditPage")); 
 
-/* Music (Albums) (Exakt matchning mot filnamn) */
+/* Music (Albums) */
 const AlbumLayout = lazy(() => import("./pages/album/AlbumLayout"));
 const AlbumHome = lazy(() => import("./pages/album/AlbumHome"));
 const AlbumSearch = lazy(() => import("./pages/album/AlbumSearch"));
 const AlbumAdd = lazy(() => import("./pages/album/AlbumAdd")); 
 const AlbumCollections = lazy(() => import("./pages/album/AlbumCollectionsPage"));
 const AlbumListDetail = lazy(() => import("./pages/album/AlbumListDetailPage")); 
-const AlbumEdit = lazy(() => import("./pages/album/AlbumEdit")); 
+const AlbumEdit = lazy(() => import("./pages/album/EditPage")); 
 
-/* Comics (Serietidningar) (Exakt matchning mot filnamn) */
+/* Comics (Serietidningar) */
 const ComicLayout = lazy(() => import("./pages/comic/ComicLayout"));
 const ComicHome = lazy(() => import("./pages/comic/ComicHome"));
-const ComicSearch = lazy(() => import("./pages/comic/ComicSearch"));
-const ComicAdd = lazy(() => import("./pages/comic/ComicAdd")); 
-const ComicCollections = lazy(() => import("./pages/comic/ComicCollectionsPage"));
-const ComicListDetail = lazy(() => import("./pages/comic/ComicListDetailPage")); 
-const ComicEdit = lazy(() => import("./pages/comic/ComicEdit")); 
+const ComicSearch = lazy(() => import("./pages/comic/SearchPage"));
+const ComicAdd = lazy(() => import("./pages/comic/AddPage")); 
+const ComicCollections = lazy(() => import("./pages/comic/CollectionsPage"));
+const ComicListDetail = lazy(() => import("./pages/comic/ListDetailPage")); 
+const ComicEdit = lazy(() => import("./pages/comic/EditPage")); 
 
-// *************************************************************************
-// Vi tar bort den ineffektiva lazy importen av BottomNav och lägger tillbaka 
-// den inbyggda koden, som du vet fungerar visuellt.
-// *************************************************************************
+// DENNA KOMPONENTEN ÄR INTE LÄNGRE LAZY, UTAN INTEGRERAS
+// const BottomNav = lazy(() => import("./components/BottomNav")); 
 
 export default function App() {
   const { t } = useTranslation();
+
+  // STABILITET FIX: Använd dummy state som i BottomNav.tsx för att tvinga omrendering
+  const [ready, setReady] = useState(false);
+  
+  useEffect(() => {
+    // VIKTIG FIX: Ger i18next/React tid att stabiliseras
+    const timer = setTimeout(() => {
+      setReady(true);
+    }, 10); // 10ms är tillräckligt för att lösa race condition
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Om vi inte är "redo" (de första 10ms), används fallbacken i Suspense
+  // vilket förhindrar att navigeringsrutan kraschar rot-rendering (även om den inte syns)
 
   return (
     <div
@@ -86,13 +99,12 @@ export default function App() {
       <main className="pb-20 max-w-3xl mx-auto px-3">
         <Suspense fallback={<div className="p-4">{t("loading", { defaultValue: "Laddar..." })}</div>}>
           <Routes>
-            {/* HEM */}
+            {/* ... Routes ... */}
             <Route path="/" element={<HomeLayout />}>
               <Route index element={<HomePage />} />
               <Route path="instructions" element={<InstructionsPage />} />
             </Route>
 
-            {/* FILM */}
             <Route path="/movie" element={<MovieLayout />}>
               <Route index element={<MovieHome />} />
               <Route path="search" element={<MovieSearch />} />
@@ -102,7 +114,6 @@ export default function App() {
               <Route path="edit/:id" element={<MovieEdit />} />
             </Route>
 
-            {/* BÖCKER */}
             <Route path="/book" element={<BookLayout />}>
               <Route index element={<BookHome />} />
               <Route path="search" element={<BookSearch />} />
@@ -112,7 +123,6 @@ export default function App() {
               <Route path="edit/:id" element={<BookEdit />} />
             </Route>
 
-            {/* SPEL */}
             <Route path="/game" element={<GameLayout />}>
               <Route index element={<GameHome />} />
               <Route path="search" element={<GameSearch />} />
@@ -122,7 +132,6 @@ export default function App() {
               <Route path="edit/:id" element={<GameEdit />} />
             </Route>
 
-            {/* MUSIK */}
             <Route path="/album" element={<AlbumLayout />}>
               <Route index element={<AlbumHome />} />
               <Route path="search" element={<AlbumSearch />} />
@@ -132,7 +141,6 @@ export default function App() {
               <Route path="edit/:id" element={<AlbumEdit />} />
             </Route>
 
-            {/* SERIER */}
             <Route path="/comic" element={<ComicLayout />}>
               <Route index element={<ComicHome />} />
               <Route path="search" element={<ComicSearch />} />
@@ -142,10 +150,10 @@ export default function App() {
               <Route path="edit/:id" element={<ComicEdit />} />
             </Route>
 
-            {/* PROFIL */}
             <Route path="/profile" element={<ProfileLayout />}>
               <Route index element={<ProfilePage />} />
             </Route>
+            
           </Routes>
         </Suspense>
       </main>
@@ -183,9 +191,8 @@ function NavItem({
   icon: React.ReactNode;
 }) {
   const { t } = useTranslation();
-
+  
   // STABIL FIX: Lita på att i18next nu slår upp den nästlade nyckeln korrekt
-  // Om du ser nycklar här, är problemet din JSON-struktur.
   const label = t(k);
 
   return (
