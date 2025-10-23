@@ -4,6 +4,8 @@ import { useThemeStore } from "@/store/themeStore";
 import { Link } from "react-router-dom";
 import { usePWAInstall } from "@/hooks/usePWAInstall";
 import { useTranslation } from "react-i18next";
+// Importera din nya säkra hook (om du inte lade den direkt i den här filen)
+import { useSafeLangSwitch } from "@/hooks/useSafeLangSwitch"; 
 
 // Valfritt: kan ersättas med build-injektion senare
 const APP_VERSION = "1.0.0";
@@ -13,38 +15,11 @@ export default function ProfilePage() {
   const [msg, setMsg] = useState<string | null>(null);
   const { theme, setTheme } = useThemeStore();
 
-  // i18n
-  const { i18n, t } = useTranslation();
-  
-  // ✅ FIX 1: Använd React State, initialiserad med säkert defaultvärde ("sv")
-  const [currentLang, setCurrentLang] = useState("sv" as "sv" | "en");
-  const baseLng = currentLang; // Använd baseLng för render/className check
-
-  const switchLang = (lng: "sv" | "en") => {
-    // Triggers i18n.on("languageChanged"), som uppdaterar currentLang via useEffect
-    if (lng !== baseLng) i18n.changeLanguage(lng); 
-  };
-
-  // ✅ FIX 2: useEffect för initial synkronisering och lyssning
-  useEffect(() => {
-    // Hjälpfunktion för att extrahera "sv" eller "en"
-    const getLang = (lng: string | undefined) => (lng || "sv").split("-")[0] as "sv" | "en";
-
-    const handleLangChange = (lng: string) => {
-      setCurrentLang(getLang(lng));
-    };
-
-    // 1. Sätt initialt språk (synkronisera efter att komponenten har mountats)
-    setCurrentLang(getLang(i18n.resolvedLanguage || i18n.language));
-
-    // 2. Lyssna på framtida språkändringar
-    i18n.on("languageChanged", handleLangChange);
-    
-    // Rensa lyssnaren vid unmount
-    return () => {
-      i18n.off("languageChanged", handleLangChange);
-    };
-  }, [i18n]); // Lyssna på i18n-instansen
+  // i18n — Använder den säkra hooken härifrån.
+  // Notera: Vi behöver fortfarande useTranslation() för t, men vi använder 
+  // hookens state och funktioner för språkbytet.
+  const { i18n } = useTranslation();
+  const { currentLang: baseLng, switchLang, t } = useSafeLangSwitch(); 
 
   // ---- PWA Install state (via hook) ----
   const { isInstallable, installed, isIOS, install } = usePWAInstall();
