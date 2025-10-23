@@ -27,33 +27,37 @@ const MovieHome = lazy(() => import("./pages/movie/MovieHome"));
 const MovieSearch = lazy(() => import("./pages/movie/SearchPage"));
 const MovieAdd = lazy(() => import("./pages/movie/AddPage"));
 const MovieCollections = lazy(() => import("./pages/movie/CollectionsPage"));
-const MovieListDetail = lazy(() => import("./pages/movie/ListDetailPage"));
+// KONSISTENT: MovieListDetail -> ListDetailPage
+const MovieListDetail = lazy(() => import("./pages/movie/ListDetailPage")); 
 const MovieEdit = lazy(() => import("./pages/movie/EditPage"));
 
 /* Book */
 const BookLayout = lazy(() => import("./pages/book/BookLayout"));
 const BookHome = lazy(() => import("./pages/book/BookHome"));
-const BookSearch = lazy(() => import("./pages/book/BookSearch"));
-const BookAdd = lazy(() => import("./pages/book/BookAdd"));
-const BookCollections = lazy(() => import("./pages/book/BookCollectionsPage"));
+const BookSearch = lazy(() => import("./pages/book/SearchPage"));
+const BookAdd = lazy(() => import("./pages/book/AddPage"));
+const BookCollections = lazy(() => import("./pages/book/CollectionsPage"));
+// KONSISTENT: BookListDetail -> ListDetailPage
 const BookListDetail = lazy(() => import("./pages/book/ListDetailPage"));
 const BookEdit = lazy(() => import("./pages/book/EditPage"));
 
 /* Game */
 const GameLayout = lazy(() => import("./pages/game/GameLayout"));
 const GameHome = lazy(() => import("./pages/game/GameHome"));
-const GameSearch = lazy(() => import("./pages/game/GameSearch"));
-const GameAdd = lazy(() => import("./pages/game/GameAdd"));
-const GameCollections = lazy(() => import("./pages/game/GameCollectionsPage"));
+const GameSearch = lazy(() => import("./pages/game/SearchPage"));
+const GameAdd = lazy(() => import("./pages/game/AddPage"));
+const GameCollections = lazy(() => import("./pages/game/CollectionsPage"));
+// KONSISTENT: GameListDetail -> ListDetailPage
 const GameListDetail = lazy(() => import("./pages/game/ListDetailPage"));
 const GameEdit = lazy(() => import("./pages/game/EditPage"));
 
 /* Music (Albums) */
 const AlbumLayout = lazy(() => import("./pages/album/AlbumLayout"));
 const AlbumHome = lazy(() => import("./pages/album/AlbumHome"));
-const AlbumSearch = lazy(() => import("./pages/album/AlbumSearch"));
+const AlbumSearch = lazy(() => import("./pages/album/SearchPage"));
 const AlbumAdd = lazy(() => import("./pages/album/AddPage"));
 const AlbumCollections = lazy(() => import("./pages/album/CollectionsPage"));
+// KONSISTENT: AlbumListDetail -> ListDetailPage
 const AlbumListDetail = lazy(() => import("./pages/album/ListDetailPage"));
 const AlbumEdit = lazy(() => import("./pages/album/EditPage"));
 
@@ -63,6 +67,7 @@ const ComicHome = lazy(() => import("./pages/comic/ComicHome"));
 const ComicSearch = lazy(() => import("./pages/comic/SearchPage"));
 const ComicAdd = lazy(() => import("./pages/comic/AddPage"));
 const ComicCollections = lazy(() => import("./pages/comic/CollectionsPage"));
+// KONSISTENT: ComicListDetail -> ListDetailPage
 const ComicListDetail = lazy(() => import("./pages/comic/ListDetailPage"));
 const ComicEdit = lazy(() => import("./pages/comic/EditPage"));
 
@@ -155,7 +160,6 @@ export default function App() {
         )}
       >
         <div className="max-w-3xl mx-auto grid grid-cols-7">
-          {/* Tar bort def="..." då nycklarna (k="...") garanterat finns i translation.json */}
           <NavItem to="/"        k="nav.home"    icon={<Home size={22} />} />
           <NavItem to="/movie"   k="nav.movies"  icon={<Library size={22} />} />
           <NavItem to="/game"    k="nav.games"   icon={<Gamepad2 size={22} />} />
@@ -179,7 +183,6 @@ function NavItem({
   icon: React.ReactNode;
 }) {
   const { t } = useTranslation();
-  // Använder t(k) direkt utan fallback eftersom nav-nycklarna är kritiska och garanterat finns
   const label = t(k);
 
   return (
