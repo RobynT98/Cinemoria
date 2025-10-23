@@ -19,9 +19,8 @@
   "profile.install.subtitle": "Fungerar offline och startar helskärm.",
   "profile.install.cta": "Installera",
   "profile.install.iosTitle": "Installera på iPhone/iPad",
-  "profile.install.iosHint": "Öppna delnings-menyn och välj “Lägg till på hemskärmen”.")
+  "profile.install.iosHint": "Öppna delnings-menyn och välj “Lägg till på hemskärmen”.",
 
-,
   "profile.language.title": "Språk",
   "profile.language.hint": "Byt appens språk. Valet sparas lokalt.",
   "profile.language.help": "Byt appens språk. Valet sparas lokalt.",
