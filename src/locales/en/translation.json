@@ -113,7 +113,6 @@
     }    
   },    
 
-  /* --- INSTRUCTIONS --- */
   "instructions": {    
     "title": "Instructions",    
     "intro": "A quick guide to Cinemoria. All data is stored locally in your browser (IndexedDB). After the first load the app works offline.",    
@@ -267,7 +266,7 @@
     }    
   },    
 
-  /* --- HOME --- */
+  
   "home": {    
     "hero_lead": "A shelf for what you own and love — movies, books and games. Fast and offline.",    
     "get_started": "Get started",    
