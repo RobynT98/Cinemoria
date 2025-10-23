@@ -2,13 +2,13 @@
   "loading": "Loading…", 
 
   "nav": {
-    "home": "Home",
-    "movies": "Movie",
-    "games": "Game",
-    "books": "Book",
-    "music": "Music",
-    "comics": "Comic",
-    "profile": "Profile"
+    "home": "Hem",
+    "movies": "Film",
+    "games": "Spel",
+    "books": "Böcker",
+    "music": "Musik",
+    "comics": "Serier",
+    "profile": "Profil"
   },
   
   "sectionNav": {    
