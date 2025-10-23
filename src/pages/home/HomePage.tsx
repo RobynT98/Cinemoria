@@ -12,7 +12,8 @@ type Stats = { total: number; owned: number; digital: number; wish: number; list
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const { t } = useTranslation(); 
+  // Använd ready flaggan för att hantera renderingstiming
+  const { t, ready } = useTranslation(); 
 
   const [loading, setLoading] = useState(true);
 
@@ -73,6 +74,13 @@ export default function HomePage() {
 
     return () => { alive = false; };
   }, []);
+
+  // PAUSA RENDERINGEN OM ÖVERSÄTTNINGAR INTE ÄR KLARA
+  if (!ready) {
+    // Visa endast en minimal laddningsindikator (från Suspense i App.tsx)
+    return <section className="p-4 space-y-6"><EmptyLine label={t("loading", "Laddar...")} /></section>;
+  }
+
 
   const totallyEmpty =
     !loading &&
@@ -226,8 +234,8 @@ export default function HomePage() {
           </div>
         </div>
       )}
-      {/* Använder {t("loading", "Laddar...")} för att hålla fast i defaultvärdet */}
-      {loading && <EmptyLine label={t("loading", "Laddar...")} />} 
+      {/* Ladda klart visas inte när ready flaggan är på plats */}
+      {!loading && !totallyEmpty && <EmptyLine label={t("loading", "Laddar...")} />} 
     </section>
   );
 }
@@ -263,7 +271,7 @@ function Section({
   return (
     <section className="space-y-3">
       <div className="flex items-center justify-between">
-        {/* FIX 1: Använd t(titleKey) ELLER t(titleKey, { defaultValue: fallback }) */}
+        {/* FIX 1: Tvingar uppslagning med enkel t(key) */}
         <h2 className="text-xl font-semibold">{t(titleKey)}</h2>
         <div className="flex gap-2">
           <button className="btn" onClick={onSearch}>{t("home.btn.search", "Sök")}</button>
@@ -285,7 +293,7 @@ function Section({
         {loading ? (
           <EmptyLine label={t("loading", "Laddar...")} />
         ) : showEmpty ? (
-          // FIX 2: Använd bara t(emptyKey)
+          // FIX 2: Tvingar uppslagning med enkel t(key)
           <EmptyLine label={t(emptyKey)} />
         ) : (
           recent
@@ -299,7 +307,7 @@ function StatCard({ t, labelKey, value }: { t: (key: string, options?: any) => s
   return (
     <div className="card p-3 text-center">
       <div className="text-2xl font-semibold">{value}</div>
-      {/* FIX 3: Använd bara t(labelKey) */}
+      {/* FIX 3: Tvingar uppslagning med enkel t(key) */}
       <div className="text-sand-300 text-xs">{t(labelKey)}</div>
     </div>
   );
