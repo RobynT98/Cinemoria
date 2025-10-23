@@ -1,7 +1,6 @@
 {
   "loading": "Loading…", 
 
-  /* --- NAVIGATION (Plattat format för enkel uppslagning) --- */
   "nav.home": "Home",
   "nav.movies": "Movies",
   "nav.games": "Games",
@@ -10,7 +9,7 @@
   "nav.comics": "Comics",
   "nav.profile": "Profile",
 
-  /* --- SECTION NAV --- */
+  
   "sectionNav": {    
     "overview": "Overview",    
     "search": "Search",    
@@ -18,7 +17,7 @@
     "collections": "Collections"    
   },    
 
-  /* --- PROFILE --- */
+  
   "profile": {    
     "title": "Profile & Settings",    
 
