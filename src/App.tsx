@@ -12,6 +12,9 @@ import { Suspense, lazy } from "react";
 import clsx from "classnames";
 import { useTranslation } from "react-i18next";
 
+/* Navigation */
+const BottomNav = lazy(() => import("./components/BottomNav")); // <-- Isolerad navigering
+
 /* Home */
 const HomeLayout = lazy(() => import("./pages/home/HomeLayout"));
 const HomePage = lazy(() => import("./pages/home/HomePage"));
@@ -52,19 +55,19 @@ const GameEdit = lazy(() => import("./pages/game/GameEdit")); // GameEdit.tsx
 const AlbumLayout = lazy(() => import("./pages/album/AlbumLayout"));
 const AlbumHome = lazy(() => import("./pages/album/AlbumHome"));
 const AlbumSearch = lazy(() => import("./pages/album/AlbumSearch"));
-const AlbumAdd = lazy(() => import("./pages/album/AlbumAdd")); 
+const AlbumAdd = lazy(() => import("./pages/album/AlbumAdd")); // AlbumAdd.tsx
 const AlbumCollections = lazy(() => import("./pages/album/AlbumCollectionsPage"));
-const AlbumListDetail = lazy(() => import("./pages/album/AlbumListDetailPage")); 
-const AlbumEdit = lazy(() => import("./pages/album/AlbumEdit")); 
+const AlbumListDetail = lazy(() => import("./pages/album/AlbumListDetailPage")); // AlbumListDetailPage.tsx
+const AlbumEdit = lazy(() => import("./pages/album/AlbumEdit")); // AlbumEdit.tsx
 
 /* Comics (Serietidningar) (Exakt matchning mot filnamn) */
 const ComicLayout = lazy(() => import("./pages/comic/ComicLayout"));
 const ComicHome = lazy(() => import("./pages/comic/ComicHome"));
 const ComicSearch = lazy(() => import("./pages/comic/ComicSearch"));
-const ComicAdd = lazy(() => import("./pages/comic/ComicAdd")); 
+const ComicAdd = lazy(() => import("./pages/comic/ComicAdd")); // ComicAdd.tsx
 const ComicCollections = lazy(() => import("./pages/comic/ComicCollectionsPage"));
-const ComicListDetail = lazy(() => import("./pages/comic/ComicListDetailPage")); 
-const ComicEdit = lazy(() => import("./pages/comic/ComicEdit")); 
+const ComicListDetail = lazy(() => import("./pages/comic/ComicListDetailPage")); // ComicListDetailPage.tsx
+const ComicEdit = lazy(() => import("./pages/comic/ComicEdit")); // ComicEdit.tsx
 
 export default function App() {
   const { t } = useTranslation();
@@ -145,59 +148,11 @@ export default function App() {
         </Suspense>
       </main>
 
-      {/* Bottennavigation - INBYGGD */}
-      <nav
-        className={clsx(
-          "fixed bottom-0 inset-x-0 border-t backdrop-blur",
-          "bg-white/90 border-sand-200",
-          "dark:bg-ink-800/80 dark:border-ink-700",
-          "sepia:bg-[#f3e8c7]/90 sepia:border-[#e7d3a8]"
-        )}
-      >
-        <div className="max-w-3xl mx-auto grid grid-cols-7">
-          <NavItem to="/"        k="nav.home"    icon={<Home size={22} />} />
-          <NavItem to="/movie"   k="nav.movies"  icon={<Library size={22} />} />
-          <NavItem to="/game"    k="nav.games"   icon={<Gamepad2 size={22} />} />
-          <NavItem to="/book"    k="nav.books"   icon={<BookOpen size={22} />} />
-          <NavItem to="/album"   k="nav.music"   icon={<Disc3 size={22} />} />
-          <NavItem to="/comic"   k="nav.comics"  icon={<PanelsTopLeft size={22} />} />
-          <NavItem to="/profile" k="nav.profile" icon={<User size={22} />} />
-        </div>
-      </nav>
+      {/* Bottennavigation - Isolerad och Lazy-laddad */}
+      <Suspense fallback={null}> 
+        <BottomNav />
+      </Suspense>
     </div>
   );
 }
 
-function NavItem({
-  to,
-  k,
-  icon,
-}: {
-  to: string;
-  k: string;
-  icon: React.ReactNode;
-}) {
-  const { t } = useTranslation();
-
-  // STABIL FIX: Lita på att i18next nu slår upp den nästlade nyckeln korrekt
-  const label = t(k);
-
-  return (
-    <NavLink
-      to={to}
-      aria-label={label}
-      className={({ isActive }) =>
-        clsx(
-          "flex flex-col items-center justify-center py-2 text-[10px] gap-1 transition-colors",
-          isActive
-            ? "text-ink-900 dark:text-sand-200 sepia:text-[#3c2f1b]"
-            : "text-ink-600 hover:text-ink-900 dark:text-sand-400 dark:hover:text-sand-200 sepia:text-[#6b5637] sepia:hover:text-[#3c2f1b]"
-        )
-      }
-      end={to === "/"}
-    >
-      {icon}
-      <span>{label}</span>
-    </NavLink>
-  );
-}
