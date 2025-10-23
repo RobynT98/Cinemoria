@@ -84,18 +84,22 @@
       "export": "Export JSON",
       "import": "Import JSON",
       "import_done": "Import complete:",
+      "import_fail": "Import failed",
       "wipe_title": "Data management",
       "wipe_hint": "Need a clean slate? You can wipe all local data.",
       "wipe_btn": "Wipe all",
       "wipe_confirm": "Delete all your data? (Movies, lists, links, books, book lists, games, game lists, albums, album lists, comics and comic lists will be removed. The app stays.)",
+      "wipe_done": "All data cleared.",
       "copied": "Link copied ✓",
-      "copy": "Copy app link"
+      "copy": "Copy app link",
+      "copy_fail": "Could not copy the link."
     },
 
     "feedback": {
       "title": "Feedback & sharing",
       "hint": "Send optional feedback or share the app link. No data is sent automatically.",
-      "send": "Send feedback"
+      "send": "Send feedback",
+      "placeholder": "Describe your feedback here..."
     },
 
     "help": {
@@ -310,5 +314,7 @@
       "empty_albums": "No albums yet.",
       "empty_comics": "No comics yet."
     }
-  }
+  },
+
+  "unknown_error": "unknown error"
 }
