@@ -5,6 +5,7 @@ import { useThemeStore } from "@/store/themeStore";
 import { Link } from "react-router-dom";
 import { usePWAInstall } from "@/hooks/usePWAInstall";
 import { useTranslation } from "react-i18next";
+import { useLanguageStore } from "@/store/languageStore"; // <--- NY IMPORT
 
 // Valfritt: kan ersättas med build-injektion senare
 const APP_VERSION = "1.0.0";
@@ -15,11 +16,10 @@ export default function ProfilePage() {
   const { theme, setTheme } = useThemeStore();
 
   // i18n
-  const { i18n, t } = useTranslation();
-  const baseLng = (i18n.language || "sv").split("-")[0] as "sv" | "en";
-  const switchLang = (lng: "sv" | "en") => {
-    if (lng !== baseLng) i18n.changeLanguage(lng);
-  };
+  const { t } = useTranslation(); // Behåll t för översättning
+  
+  // DRIVS AV ZUSTAND: Hämtar språket och setLang-funktionen
+  const { currentLang: baseLng, setLang: switchLang } = useLanguageStore(); 
 
   // ---- PWA Install state (via hook) ----
   const { isInstallable, installed, isIOS, install } = usePWAInstall();
@@ -453,7 +453,7 @@ export default function ProfilePage() {
         <div className="flex gap-2 flex-wrap">
           <a href={buildFeedbackMailto()} className="btn">
             {t("profile.feedback.send", "Skicka feedback")}
-          </a>
+          </button>
           <button className="btn" onClick={copyLink}>
             {copied ? t("profile.backup.copied", "Länk kopierad ✓") : t("profile.backup.copy", "Kopiera app-länk")}
           </button>
