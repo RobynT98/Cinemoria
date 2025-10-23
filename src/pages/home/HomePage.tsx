@@ -12,10 +12,25 @@ type Stats = { total: number; owned: number; digital: number; wish: number; list
 
 export default function HomePage() {
   const navigate = useNavigate();
-  // Använd ready flaggan för att hantera renderingstiming
-  const { t, ready } = useTranslation(); 
+  // Använd ready flaggan FÖR ATT UNDVIKA DUBBEL Suspense
+  const { t, ready: i18nReady } = useTranslation(); 
+  
+  // 🏆 DEN SLUTGILTIGA FIXEN: Manuell state för att lösa timing-kraschen
+  const [initialRenderFixed, setInitialRenderFixed] = useState(false);
+
+  useEffect(() => {
+    // VIKTIG FIX: Tvinga fram en omrendering efter 10ms. 
+    // Detta löser den sista racen som gör att nycklarna syns.
+    const timer = setTimeout(() => {
+      setInitialRenderFixed(true);
+    }, 10); 
+
+    return () => clearTimeout(timer);
+  }, []);
+  // SLUT FIX
 
   const [loading, setLoading] = useState(true);
+  // ... (resten av useState) ...
 
   const [movieStats, setMovieStats]   = useState<Stats>({ total: 0, owned: 0, digital: 0, wish: 0, lists: 0 });
   const [bookStats, setBookStats]     = useState<Stats>({ total: 0, owned: 0, digital: 0, wish: 0, lists: 0 });
@@ -76,7 +91,8 @@ export default function HomePage() {
   }, []);
 
   // PAUSA RENDERINGEN OM ÖVERSÄTTNINGAR INTE ÄR KLARA
-  if (!ready) {
+  // Kontrollera både i18n.ready och den manuella fixen
+  if (!i18nReady || !initialRenderFixed) {
     // Visa endast en minimal laddningsindikator
     return <section className="p-4 space-y-6"><EmptyLine label={t("loading", "Laddar...")} /></section>;
   }
@@ -316,4 +332,3 @@ function StatCard({ t, labelKey, value }: { t: (key: string, options?: any) => s
 function EmptyLine({ label }: { label: string }) {
   return <div className="text-sand-300 text-sm">{label}</div>;
 }
-
