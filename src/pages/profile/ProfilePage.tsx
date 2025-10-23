@@ -5,7 +5,7 @@ import { useThemeStore } from "@/store/themeStore";
 import { Link } from "react-router-dom";
 import { usePWAInstall } from "@/hooks/usePWAInstall";
 import { useTranslation } from "react-i18next";
-import { useLanguageStore } from "@/store/languageStore"; // <--- NY IMPORT
+import { useLanguageStore } from "@/store/languageStore"; // <--- NY OCH KORREKT IMPORT
 
 // Valfritt: kan ersättas med build-injektion senare
 const APP_VERSION = "1.0.0";
@@ -16,9 +16,8 @@ export default function ProfilePage() {
   const { theme, setTheme } = useThemeStore();
 
   // i18n
-  const { t } = useTranslation(); // Behåll t för översättning
-  
-  // DRIVS AV ZUSTAND: Hämtar språket och setLang-funktionen
+  const { t } = useTranslation(); 
+  // Använd Zustand för att hämta språket och funktionen att byta.
   const { currentLang: baseLng, setLang: switchLang } = useLanguageStore(); 
 
   // ---- PWA Install state (via hook) ----
@@ -333,7 +332,7 @@ export default function ProfilePage() {
                 ? t("profile.datafill.omdb.status_fail", "Fel")
                 : omdbCheck === "busy"
                 ? t("profile.datafill.omdb.status_busy", "Testar…")
-                : t("profile.datafill.omdb.status_idle", "—")}
+                : t("profile.datafill.omdb.idle", "—")}
             </span>
           </div>
 
@@ -453,7 +452,7 @@ export default function ProfilePage() {
         <div className="flex gap-2 flex-wrap">
           <a href={buildFeedbackMailto()} className="btn">
             {t("profile.feedback.send", "Skicka feedback")}
-          </button>
+          </a>
           <button className="btn" onClick={copyLink}>
             {copied ? t("profile.backup.copied", "Länk kopierad ✓") : t("profile.backup.copy", "Kopiera app-länk")}
           </button>
