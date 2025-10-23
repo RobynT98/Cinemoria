@@ -155,6 +155,7 @@ export default function App() {
         )}
       >
         <div className="max-w-3xl mx-auto grid grid-cols-7">
+          {/* Nycklarna måste existera i din translation.json (under "nav") */}
           <NavItem to="/"        k="nav.home"    icon={<Home size={22} />} />
           <NavItem to="/movie"   k="nav.movies"  icon={<Library size={22} />} />
           <NavItem to="/game"    k="nav.games"   icon={<Gamepad2 size={22} />} />
@@ -180,7 +181,9 @@ function NavItem({
   const { t } = useTranslation();
   
   // FIX: Vi använder en fallback som plockar bort "nav." prefixet.
-  // Detta garanterar att en läsbar sträng visas även om i18next misslyckas med lookup.
+  // Detta garanterar att en läsbar sträng ("home", "movies") visas
+  // om i18next misslyckas med att hitta den nästlade nyckeln,
+  // men förhindrar att den fulla nyckeln visas.
   const fallbackText = k.split('.')[1] || 'Error'; 
   const label = t(k, { defaultValue: fallbackText }); 
 
