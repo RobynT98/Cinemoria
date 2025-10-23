@@ -22,6 +22,14 @@ i18n
     fallbackLng: "sv",
     interpolation: { escapeValue: false },
     returnEmptyString: false,
+    
+    // ✅ FIX FÖR TIMING/RACE CONDITION (Hänvisar till Suspense i App.tsx)
+    react: {
+        useSuspense: true, 
+    },
+    // Säkerställ att vi använder standard-namespace korrekt
+    ns: ['translation'],
+    defaultNS: 'translation',
   });
 
 // Spara språkbyte lokalt
