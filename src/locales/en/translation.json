@@ -1,320 +1,314 @@
-{
-  "loading": "Loading…",
-
-  "nav": {
-    "home": "Home",
-    "movies": "Movies",
-    "games": "Games",
-    "books": "Books",
-    "music": "Music",
-    "comics": "Comics",
-    "profile": "Profile"
-  },
-
-  "sectionNav": {
-    "overview": "Overview",
-    "search": "Search",
-    "add": "Add",
-    "collections": "Collections"
-  },
-
-  "profile": {
-    "title": "Profile & Settings",
-
-    "install": {
-      "title": "Install as app",
-      "subtitle": "Works offline and launches full-screen.",
-      "cta": "Install",
-      "iosTitle": "Install on iPhone/iPad",
-      "iosHint": "Open the share menu and choose “Add to Home Screen”."
-    },
-
-    "language": {
-      "title": "Language",
-      "hint": "Switch the app language. Your choice is saved locally.",
-      "sv": "Svenska",
-      "en": "English"
-    },
-
-    "theme": {
-      "title": "Theme",
-      "hint": "Choose dark, light or sepia.",
-      "dark": "Dark",
-      "light": "Light",
-      "sepia": "Sepia"
-    },
-
-    "datafill": {
-      "title": "Data sources & Autofill",
-
-      "omdb": {
-        "use": "Use OMDb for movie autofill",
-        "placeholder": "OMDb API key",
-        "test": "Test OMDb",
-        "status_ok": "OK",
-        "status_fail": "Error",
-        "status_busy": "Testing…",
-        "status_idle": "—",
-        "note": "Your OMDb key is stored only in this browser. When adding or editing a movie, the app can fetch title, poster and genres via the Fetch from OMDb button.",
-        "tip": "Tip: Click Test OMDb to verify your key works.",
-        "msg_need_key": "Enter an OMDb key first.",
-        "msg_ok": "OMDb OK — connection and key look fine.",
-        "msg_error_prefix": "OMDb:",
-        "msg_network": "Could not reach OMDb."
-      },
-
-      "barcode": {
-        "title": "Barcode scanning",
-        "hint": "Test camera permission so the scanner can start directly in forms.",
-        "tip": "Tip: If the test succeeds you can scan EAN, ISBN or other codes when adding movies, books, music, comics or games.",
-        "test": "Test camera",
-        "ok": "Camera OK",
-        "denied": "Denied",
-        "error": "Error",
-        "busy": "Testing…",
-        "idle": "—",
-        "msg_ok": "Camera OK — barcode scanner can be used.",
-        "msg_denied": "Camera denied. Allow camera in your browser settings.",
-        "msg_error": "Could not open the camera."
-      }
-    },
-
-    "backup": {
-      "title": "Backup",
-      "export": "Export JSON",
-      "import": "Import JSON",
-      "import_done": "Import complete:",
-      "import_fail": "Import failed",
-      "wipe_title": "Data management",
-      "wipe_hint": "Need a clean slate? You can wipe all local data.",
-      "wipe_btn": "Wipe all",
-      "wipe_confirm": "Delete all your data? (Movies, lists, links, books, book lists, games, game lists, albums, album lists, comics and comic lists will be removed. The app stays.)",
-      "wipe_done": "All data cleared.",
-      "copied": "Link copied ✓",
-      "copy": "Copy app link",
-      "copy_fail": "Could not copy the link."
-    },
-
-    "feedback": {
-      "title": "Feedback & sharing",
-      "hint": "Send optional feedback or share the app link. No data is sent automatically.",
-      "send": "Send feedback",
-      "placeholder": "Describe your feedback here..."
-    },
-
-    "help": {
-      "title": "Need help?",
-      "hint": "Read a short guide with tips on how to use the app.",
-      "cta": "Instructions"
-    },
-
-    "about": {
-      "app": "App: Cinemoria v{{version}}",
-      "license": "© 2025 Conri Turesson — License: GNU GPL v3.0",
-      "storage": "Storage: Offline (IndexedDB). No server required.",
-      "platform": "Platform: GitHub Pages.",
-      "more": "more info"
-    }
-  },
-
-  "instructions": {
-    "title": "Instructions",
-    "intro": "A quick guide to Cinemoria. All data is stored locally in your browser (IndexedDB). After the first load the app works offline.",
-
-    "getStarted": {
-      "title": "Get started",
-      "movie": "Movies: go to Add movie and save your first title.",
-      "book": "Books: go to Add book and fill author, ISBN etc.",
-      "game": "Games: go to Add game and set title, platform and status.",
-      "music": "Music: go to Add music and fill title, EAN etc.",
-      "comic": "Comics: go to Add comic and fill volume, issue etc.",
-      "profile": "Under Profile you’ll find Backup (export/import), theme and camera test.",
-      "cta_movie": "+ New movie",
-      "cta_book": "+ New book",
-      "cta_game": "+ New game",
-      "cta_album": "+ New record",
-      "cta_comic": "+ New comic",
-      "cta_profile": "Backup"
-    },
-
-    "barcode": {
-      "title": "Barcode (camera)",
-      "where": "Where to scan: in forms you’ll find the field Barcode (EAN/UPC) (movies/games) and ISBN (books) with a Scan button. Press Scan — not just the field.",
-      "note": "Movies & games & comics & music: the app stores EAN/UPC locally (for recognition/notes). No external lookup yet.",
-      "books": "Books: when entering ISBN the app tries to fetch metadata from Open Library (title, cover, pages etc). If it fails, fields are left untouched.",
-      "perm": "Camera test & permission: go to Profile → Barcode scanning → Test camera and allow camera. Best in Chrome/Edge/Android. Good light helps.",
-      "troubleshoot": "Troubleshooting: if camera won’t start, close the tab and reopen, try in browser first (not PWA), and check site camera permissions."
-    },
-
-    "movies": {
-      "title": "Movies: add & edit",
-      "steps": [
-        "Fill Title, optional Year and Genres (comma separated).",
-        "Ownership: mark Owned, Digital and Wishlist.",
-        "Edition & Tech: format (UHD/Blu-ray/DVD/VHS/Digital/Other), region, video standard, barcode (EAN/UPC), release year, cut, audio variant and notes.",
-        "Press Save. Latest titles appear on the movies page."
-      ],
-      "cta_search": "Search movies",
-      "cta_lists": "Movie collections"
-    },
-
-    "omdb": {
-      "title": "Movie metadata (OMDb) — your own API key",
-      "lead": "Want to autofill title/year/poster/genres from OMDb? Use your own key. It’s stored only in your browser.",
-      "steps": [
-        "Get a free key at omdbapi.com/apikey.aspx (Free plan is enough).",
-        "Open Profile → Data sources & Autofill: tick Use OMDb. Paste your key, press Test OMDb — status should be “OK”.",
-        "Go to the movie form, type a title (optionally year) and click Fetch from OMDb."
-      ],
-      "note": "Note: OMDb Free has daily limits. If it fails, you’ll see an error — you can always fill manually."
-    },
-
-    "books": {
-      "title": "Books: add & edit",
-      "steps": [
-        "Fill Title, Author, optional Year and Genres.",
-        "Mark Owned / Digital / Wishlist and choose Format (hardcover/paperback/ebook/audiobook/other).",
-        "Extra fields: ISBN, Language, Pages, Publisher, cover and notes.",
-        "Press Save."
-      ],
-      "cta_search": "Search books",
-      "cta_lists": "Book lists"
-    },
-
-    "games": {
-      "title": "Games: add & edit",
-      "steps": [
-        "Fill Title, optional Year, Platform (PS5, Switch, PC …), cover and Notes (edition/DLC/where it lives).",
-        "Mark Owned, Digital and/or Wishlist.",
-        "Press Save. Latest games show under Games → Overview."
-      ],
-      "cta_search": "Search games",
-      "cta_lists": "Game lists"
-    },
-
-    "comics": {
-      "title": "Comics: add & edit",
-      "steps": [
-        "Fill Title, Series, Volume/Issue and optional Year.",
-        "Mark Owned / Digital / Wishlist and choose Format (e.g. staple/hardcover/other).",
-        "Add cover URL and notes (variant, condition, publisher, price etc).",
-        "Press Save."
-      ],
-      "cta_search": "Search comics",
-      "cta_lists": "Comic lists"
-    },
-
-    "music": {
-      "title": "Music & albums: add & edit",
-      "steps": [
-        "Fill Album title, Artist, optional Year and Genre.",
-        "Mark Owned, Digital and/or Wishlist.",
-        "Pick Format (vinyl, CD, cassette, digital, Blu-ray Audio, SACD, other) and Notes (edition, color vinyl, press/matrix, condition).",
-        "Press Save. Latest albums show under Music → Overview."
-      ],
-      "cta_search": "Search albums",
-      "cta_lists": "Music lists"
-    },
-
-    "collections": {
-      "title": "Collections (lists)",
-      "text": "Create any collections for movies, books, games, music and comics (e.g. “Shelf A”, “Favorites 2025”, “To buy”). Item counts show right away. Rename or delete lists without touching contents.",
-      "cta_movies": "Movie collections",
-      "cta_books": "Book lists",
-      "cta_games": "Game lists",
-      "cta_albums": "Music lists",
-      "cta_comics": "Comic lists"
-    },
-
-    "searchFilter": {
-      "title": "Search & filters",
-      "movies": "Free text on title, genres, location/service, year. Filter on Owned/Digital/Wishlist.",
-      "books": "Search by title, author, language, format, ISBN, year. Same status filters as movies.",
-      "games": "Search by title, platform, year and notes. Filter on Owned/Digital/Wishlist.",
-      "music": "Search by album title, artist, year, genre and format. Filter on Owned/Digital/Wishlist.",
-      "comics": "Search by title, volume, issue, year and notes. Filter on Owned/Digital/Wishlist.",
-      "open_movies": "Open movie search",
-      "open_books": "Open book search",
-      "open_games": "Open game search",
-      "open_albums": "Open music search",
-      "open_comics": "Open comic search"
-    },
-
-    "backup": {
-      "title": "Backup & move data",
-      "export": "Export creates a JSON with everything (movies/books/games/music/comics and lists/links).",
-      "import": "Import adds content from a previous export (duplicates may occur).",
-      "wipe": "Wipe all removes all local data.",
-      "cta": "Open Profile & Backup"
-    },
-
-    "pwa": {
-      "title": "Install as app (PWA)",
-      "android": "Android/Chrome: Menu → Install app.",
-      "ios": "iPhone/iPad (Safari): Share → Add to Home Screen.",
-      "desktop": "Desktop: Icon in the address bar or the browser menu."
-    },
-
-    "privacy": {
-      "title": "Privacy, performance & troubleshooting",
-      "privacy": "Privacy: your data never leaves the device. No login, no server.",
-      "sync": "Sync: use export/import to move between devices.",
-      "omdb": "OMDb issues? Check Profile → Data sources & Autofill: enabled, key entered, and Test OMDb shows “OK”.",
-      "empty": "If something looks empty: reload, clear cache, or export → wipe all → import again.",
-      "themes": "Themes: switch between dark, light and sepia under Profile."
-    },
-
-    "feedback": {
-      "title": "Feedback & sharing",
-      "text": "Under Profile you’ll find Send feedback (mailto with tech info) and Copy app link."
-    }
-  },
-
-  "home": {
-    "hero_lead": "A shelf for what you own and love — movies, books and games. Fast and offline.",
-    "get_started": "Get started",
-    "get_started_hint": "Jump to a section. Add new, search or build collections.",
-    "empty_title": "Your shelf awaits ✨",
-    "empty_hint": "Start where it’s most fun. You can always import a JSON backup via Profile.",
-
-    "btn": {
-      "movie": "Movies",
-      "book": "Books",
-      "game": "Games",
-      "album": "Music",
-      "comic": "Comics",
-      "add_movie": "Add movie",
-      "add_book": "Add book",
-      "add_game": "Add game",
-      "add_album": "Add album",
-      "add_comic": "Add comic",
-      "import_backup": "Import backup",
-      "search": "Search",
-      "add": "Add",
-      "lists": "Lists"
-    },
-
-    "stats": {
-      "total": "Total",
-      "owned": "Owned",
-      "digital": "Digital",
-      "wish": "Wishlist",
-      "lists": "Lists",
-      "latest": "Latest added",
-
-      "movies": "Movies",
-      "books": "Books",
-      "games": "Games",
-      "albums": "Music",
-      "comics": "Comics",
-
-      "empty_movies": "No movies yet.",
-      "empty_books": "No books yet.",
-      "empty_games": "No games yet.",
-      "empty_albums": "No albums yet.",
-      "empty_comics": "No comics yet."
-    }
-  },
-
-  "unknown_error": "unknown error"
+{    
+  "loading": "Loading…",    
+    
+  "nav": {    
+    "home": "Home",    
+    "movies": "Movies",    
+    "games": "Games",    
+    "books": "Books",    
+    "music": "Music",    
+    "comics": "Comics",    
+    "profile": "Profile"    
+  },    
+    
+  "sectionNav": {    
+    "overview": "Overview",    
+    "search": "Search",    
+    "add": "Add",    
+    "collections": "Collections"    
+  },    
+    
+  "profile": {    
+    "title": "Profile & Settings",    
+    
+    "install": {    
+      "title": "Install as app",    
+      "subtitle": "Works offline and launches full-screen.",    
+      "cta": "Install",    
+      "iosTitle": "Install on iPhone/iPad",    
+      "iosHint": "Open the share menu and choose “Add to Home Screen”."    
+    },    
+    
+    "language": {    
+      "title": "Language",    
+      "hint": "Switch the app language. Your choice is saved locally.",    
+      "sv": "Svenska",    
+      "en": "English"    
+    },    
+    
+    "theme": {    
+      "title": "Theme",    
+      "hint": "Choose dark, light or sepia.",    
+      "dark": "Dark",    
+      "light": "Light",    
+      "sepia": "Sepia"    
+    },    
+    
+    "datafill": {    
+      "title": "Data sources & Autofill",    
+    
+      "omdb": {    
+        "use": "Use OMDb for movie autofill",    
+        "placeholder": "OMDb API key",    
+        "test": "Test OMDb",    
+        "status_ok": "OK",    
+        "status_fail": "Error",    
+        "status_busy": "Testing…",    
+        "status_idle": "—",    
+        "note": "Your OMDb key is stored only in this browser. When adding or editing a movie, the app can fetch title, poster and genres via the Fetch from OMDb button.",    
+        "tip": "Tip: Click Test OMDb to verify your key works.",    
+        "msg_need_key": "Enter an OMDb key first.",    
+        "msg_ok": "OMDb OK — connection and key look fine.",    
+        "msg_error_prefix": "OMDb:",    
+        "msg_network": "Could not reach OMDb."    
+      },    
+    
+      "barcode": {    
+        "title": "Barcode scanning",    
+        "hint": "Test camera permission so the scanner can start directly in forms.",    
+        "tip": "Tip: If the test succeeds you can scan EAN, ISBN or other codes when adding movies, books, music, comics or games.",    
+        "test": "Test camera",    
+        "ok": "Camera OK",    
+        "denied": "Denied",    
+        "error": "Error",    
+        "busy": "Testing…",    
+        "idle": "—",    
+        "msg_ok": "Camera OK — barcode scanner can be used.",    
+        "msg_denied": "Camera denied. Allow camera in your browser settings.",    
+        "msg_error": "Could not open the camera."    
+      }    
+    },    
+    
+    "backup": {    
+      "title": "Backup",    
+      "export": "Export JSON",    
+      "import": "Import JSON",    
+      "import_done": "Import complete:",    
+      "wipe_title": "Data management",    
+      "wipe_hint": "Need a clean slate? You can wipe all local data.",    
+      "wipe_btn": "Wipe all",    
+      "wipe_confirm": "Delete all your data? (Movies, lists, links, books, book lists, games, game lists, albums, album lists, comics and comic lists will be removed. The app stays.)",    
+      "copied": "Link copied ✓",    
+      "copy": "Copy app link"    
+    },    
+    
+    "feedback": {    
+      "title": "Feedback & sharing",    
+      "hint": "Send optional feedback or share the app link. No data is sent automatically.",    
+      "send": "Send feedback"    
+    },    
+    
+    "help": {    
+      "title": "Need help?",    
+      "hint": "Read a short guide with tips on how to use the app.",    
+      "cta": "Instructions"    
+    },    
+    
+    "about": {    
+      "app": "App: Cinemoria v{{version}}",    
+      "license": "© 2025 Conri Turesson — License: GNU GPL v3.0",    
+      "storage": "Storage: Offline (IndexedDB). No server required.",    
+      "platform": "Platform: GitHub Pages.",    
+      "more": "more info"    
+    }    
+  },    
+    
+  "instructions": {    
+    "title": "Instructions",    
+    "intro": "A quick guide to Cinemoria. All data is stored locally in your browser (IndexedDB). After the first load the app works offline.",    
+    
+    "getStarted": {    
+      "title": "Get started",    
+      "movie": "Movies: go to Add movie and save your first title.",    
+      "book": "Books: go to Add book and fill author, ISBN etc.",    
+      "game": "Games: go to Add game and set title, platform and status.",    
+      "music": "Music: go to Add music and fill title, EAN etc.",    
+      "comic": "Comics: go to Add comic and fill volume, issue etc.",    
+      "profile": "Under Profile you’ll find Backup (export/import), theme and camera test.",    
+      "cta_movie": "+ New movie",    
+      "cta_book": "+ New book",    
+      "cta_game": "+ New game",    
+      "cta_album": "+ New record",    
+      "cta_comic": "+ New comic",    
+      "cta_profile": "Backup"    
+    },    
+    
+    "barcode": {    
+      "title": "Barcode (camera)",    
+      "where": "Where to scan: in forms you’ll find the field Barcode (EAN/UPC) (movies/games) and ISBN (books) with a Scan button. Press Scan — not just the field.",    
+      "note": "Movies & games & comics & music: the app stores EAN/UPC locally (for recognition/notes). No external lookup yet.",    
+      "books": "Books: when entering ISBN the app tries to fetch metadata from Open Library (title, cover, pages etc). If it fails, fields are left untouched.",    
+      "perm": "Camera test & permission: go to Profile → Barcode scanning → Test camera and allow camera. Best in Chrome/Edge/Android. Good light helps.",    
+      "troubleshoot": "Troubleshooting: if camera won’t start, close the tab and reopen, try in browser first (not PWA), and check site camera permissions."    
+    },    
+    
+    "movies": {    
+      "title": "Movies: add & edit",    
+      "steps": [    
+        "Fill Title, optional Year and Genres (comma separated).",    
+        "Ownership: mark Owned, Digital and Wishlist.",    
+        "Edition & Tech: format (UHD/Blu-ray/DVD/VHS/Digital/Other), region, video standard, barcode (EAN/UPC), release year, cut, audio variant and notes.",    
+        "Press Save. Latest titles appear on the movies page."    
+      ],    
+      "cta_search": "Search movies",    
+      "cta_lists": "Movie collections"    
+    },    
+    
+    "omdb": {    
+      "title": "Movie metadata (OMDb) — your own API key",    
+      "lead": "Want to autofill title/year/poster/genres from OMDb? Use your own key. It’s stored only in your browser.",    
+      "steps": [    
+        "Get a free key at omdbapi.com/apikey.aspx (Free plan is enough).",    
+        "Open Profile → Data sources & Autofill: tick Use OMDb. Paste your key, press Test OMDb — status should be “OK”.",    
+        "Go to the movie form, type a title (optionally year) and click Fetch from OMDb."    
+      ],    
+      "note": "Note: OMDb Free has daily limits. If it fails, you’ll see an error — you can always fill manually."    
+    },    
+    
+    "books": {    
+      "title": "Books: add & edit",    
+      "steps": [    
+        "Fill Title, Author, optional Year and Genres.",    
+        "Mark Owned / Digital / Wishlist and choose Format (hardcover/paperback/ebook/audiobook/other).",    
+        "Extra fields: ISBN, Language, Pages, Publisher, cover and notes.",    
+        "Press Save."    
+      ],    
+      "cta_search": "Search books",    
+      "cta_lists": "Book lists"    
+    },    
+    
+    "games": {    
+      "title": "Games: add & edit",    
+      "steps": [    
+        "Fill Title, optional Year, Platform (PS5, Switch, PC …), cover and Notes (edition/DLC/where it lives).",    
+        "Mark Owned, Digital and/or Wishlist.",    
+        "Press Save. Latest games show under Games → Overview."    
+      ],    
+      "cta_search": "Search games",    
+      "cta_lists": "Game lists"    
+    },    
+    
+    "comics": {    
+      "title": "Comics: add & edit",    
+      "steps": [    
+        "Fill Title, Series, Volume/Issue and optional Year.",    
+        "Mark Owned / Digital / Wishlist and choose Format (e.g. staple/hardcover/other).",    
+        "Add cover URL and notes (variant, condition, publisher, price etc).",    
+        "Press Save."    
+      ],    
+      "cta_search": "Search comics",    
+      "cta_lists": "Comic lists"    
+    },    
+    
+    "music": {    
+      "title": "Music & albums: add & edit",    
+      "steps": [    
+        "Fill Album title, Artist, optional Year and Genre.",    
+        "Mark Owned, Digital and/or Wishlist.",    
+        "Pick Format (vinyl, CD, cassette, digital, Blu-ray Audio, SACD, other) and Notes (edition, color vinyl, press/matrix, condition).",    
+        "Press Save. Latest albums show under Music → Overview."    
+      ],    
+      "cta_search": "Search albums",    
+      "cta_lists": "Music lists"    
+    },    
+    
+    "collections": {    
+      "title": "Collections (lists)",    
+      "text": "Create any collections for movies, books, games, music and comics (e.g. “Shelf A”, “Favorites 2025”, “To buy”). Item counts show right away. Rename or delete lists without touching contents.",    
+      "cta_movies": "Movie collections",    
+      "cta_books": "Book lists",    
+      "cta_games": "Game lists",    
+      "cta_albums": "Music lists",    
+      "cta_comics": "Comic lists"    
+    },    
+    
+    "searchFilter": {    
+      "title": "Search & filters",    
+      "movies": "Free text on title, genres, location/service, year. Filter on Owned/Digital/Wishlist.",    
+      "books": "Search by title, author, language, format, ISBN, year. Same status filters as movies.",    
+      "games": "Search by title, platform, year and notes. Filter on Owned/Digital/Wishlist.",    
+      "music": "Search by album title, artist, year, genre and format. Filter on Owned/Digital/Wishlist.",    
+      "comics": "Search by title, volume, issue, year and notes. Filter on Owned/Digital/Wishlist.",    
+      "open_movies": "Open movie search",    
+      "open_books": "Open book search",    
+      "open_games": "Open game search",    
+      "open_albums": "Open music search",    
+      "open_comics": "Open comic search"    
+    },    
+    
+    "backup": {    
+      "title": "Backup & move data",    
+      "export": "Export creates a JSON with everything (movies/books/games/music/comics and lists/links).",    
+      "import": "Import adds content from a previous export (duplicates may occur).",    
+      "wipe": "Wipe all removes all local data.",    
+      "cta": "Open Profile & Backup"    
+    },    
+    
+    "pwa": {    
+      "title": "Install as app (PWA)",    
+      "android": "Android/Chrome: Menu → Install app.",    
+      "ios": "iPhone/iPad (Safari): Share → Add to Home Screen.",    
+      "desktop": "Desktop: Icon in the address bar or the browser menu."    
+    },    
+    
+    "privacy": {    
+      "title": "Privacy, performance & troubleshooting",    
+      "privacy": "Privacy: your data never leaves the device. No login, no server.",    
+      "sync": "Sync: use export/import to move between devices.",    
+      "omdb": "OMDb issues? Check Profile → Data sources & Autofill: enabled, key entered, and Test OMDb shows “OK”.",    
+      "empty": "If something looks empty: reload, clear cache, or export → wipe all → import again.",    
+      "themes": "Themes: switch between dark, light and sepia under Profile."    
+    },    
+    
+    "feedback": {    
+      "title": "Feedback & sharing",    
+      "text": "Under Profile you’ll find Send feedback (mailto with tech info) and Copy app link."    
+    }    
+  },    
+    
+  "home": {    
+    "hero_lead": "A shelf for what you own and love — movies, books and games. Fast and offline.",    
+    "get_started": "Get started",    
+    "get_started_hint": "Jump to a section. Add new, search or build collections.",    
+    "empty_title": "Your shelf awaits ✨",    
+    "empty_hint": "Start where it’s most fun. You can always import a JSON backup via Profile.",    
+    
+    "btn": {    
+      "movie": "Movies",    
+      "book": "Books",    
+      "game": "Games",    
+      "album": "Music",    
+      "comic": "Comics",    
+      "add_movie": "Add movie",    
+      "add_book": "Add book",    
+      "add_game": "Add game",    
+      "add_album": "Add album",    
+      "add_comic": "Add comic",    
+      "import_backup": "Import backup",    
+      "search": "Search",    
+      "add": "Add",    
+      "lists": "Lists"    
+    },    
+    
+    "stats": {    
+      "total": "Total",    
+      "owned": "Owned",    
+      "digital": "Digital",    
+      "wish": "Wishlist",    
+      "lists": "Lists",    
+      "latest": "Latest added",    
+    
+      "movies": "Movies",    
+      "books": "Books",    
+      "games": "Games",    
+      "albums": "Music",    
+      "comics": "Comics",    
+    
+      "empty_movies": "No movies yet.",    
+      "empty_books": "No books yet.",    
+      "empty_games": "No games yet.",    
+      "empty_albums": "No albums yet.",    
+      "empty_comics": "No comics yet."    
+    }    
+  }    
 }
