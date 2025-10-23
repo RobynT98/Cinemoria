@@ -1,4 +1,3 @@
-// src/pages/home/HomePage.tsx
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { db, type Movie, type Book, type Game, type Album, type Comic } from "@/db";
@@ -7,11 +6,13 @@ import BookCard from "@/components/BookCard";
 import GameCard from "@/components/game/GameCard";
 import AlbumCard from "@/components/AlbumCard";
 import ComicCard from "@/components/ComicCard";
+import { useTranslation } from "react-i18next"; // <-- Ny import
 
 type Stats = { total: number; owned: number; digital: number; wish: number; lists: number };
 
 export default function HomePage() {
   const navigate = useNavigate();
+  const { t } = useTranslation(); // <-- Använd useTranslation
 
   const [loading, setLoading] = useState(true);
 
@@ -30,59 +31,26 @@ export default function HomePage() {
   useEffect(() => {
     let alive = true;
 
+    // Datahämtning via Dexie/IndexedDB (behöver inte triggas av språkbyte)
     (async () => {
       try {
         const [
-          // ----- FILM -----
           mvTotal, mvOwned, mvDigital, mvWish, mvLists, mvRecent,
-          // ----- BÖCKER -----
           bkTotal, bkOwned, bkDigital, bkWish, bkLists, bkRecent,
-          // ----- SPEL -----
           gmTotal, gmOwned, gmDigital, gmWish, gmLists, gmRecent,
-          // ----- ALBUM -----
           alTotal, alOwned, alDigital, alWish, alLists, alRecent,
-          // ----- SERIER -----
           ccTotal, ccOwned, ccDigital, ccWish, ccLists, ccRecent,
         ] = await Promise.all([
           // FILM
-          db.movies.count(),
-          db.movies.filter((m) => !!m.owned).count(),
-          db.movies.filter((m) => !!m.digital).count(),
-          db.movies.filter((m) => !!m.wishlisted).count(),
-          db.lists.count(),
-          db.movies.orderBy("createdAt").reverse().limit(4).toArray(),
-
+          db.movies.count(), db.movies.filter((m) => !!m.owned).count(), db.movies.filter((m) => !!m.digital).count(), db.movies.filter((m) => !!m.wishlisted).count(), db.lists.count(), db.movies.orderBy("createdAt").reverse().limit(4).toArray(),
           // BÖCKER
-          db.books.count(),
-          db.books.filter((b) => !!b.owned).count(),
-          db.books.filter((b) => !!b.digital).count(),
-          db.books.filter((b) => !!b.wishlisted).count(),
-          db.bookLists.count(),
-          db.books.orderBy("createdAt").reverse().limit(4).toArray(),
-
+          db.books.count(), db.books.filter((b) => !!b.owned).count(), db.books.filter((b) => !!b.digital).count(), db.books.filter((b) => !!b.wishlisted).count(), db.bookLists.count(), db.books.orderBy("createdAt").reverse().limit(4).toArray(),
           // SPEL
-          db.games.count(),
-          db.games.filter((g) => !!g.owned).count(),
-          db.games.filter((g) => !!g.digital).count(),
-          db.games.filter((g) => !!g.wishlisted).count(),
-          db.gameLists.count(),
-          db.games.orderBy("createdAt").reverse().limit(4).toArray(),
-
+          db.games.count(), db.games.filter((g) => !!g.owned).count(), db.games.filter((g) => !!g.digital).count(), db.games.filter((g) => !!g.wishlisted).count(), db.gameLists.count(), db.games.orderBy("createdAt").reverse().limit(4).toArray(),
           // ALBUM (musik)
-          db.albums.count(),
-          db.albums.filter((a) => !!a.owned).count(),
-          db.albums.filter((a) => !!a.digital).count(),
-          db.albums.filter((a) => !!a.wishlisted).count(),
-          db.albumLists.count(),
-          db.albums.orderBy("createdAt").reverse().limit(4).toArray(),
-
+          db.albums.count(), db.albums.filter((a) => !!a.owned).count(), db.albums.filter((a) => !!a.digital).count(), db.albums.filter((a) => !!a.wishlisted).count(), db.albumLists.count(), db.albums.orderBy("createdAt").reverse().limit(4).toArray(),
           // SERIER (comics)
-          db.comics.count(),
-          db.comics.filter((c) => !!c.owned).count(),
-          db.comics.filter((c) => !!c.digital).count(),
-          db.comics.filter((c) => !!c.wishlisted).count(),
-          db.comicLists.count(),
-          db.comics.orderBy("createdAt").reverse().limit(4).toArray(),
+          db.comics.count(), db.comics.filter((c) => !!c.owned).count(), db.comics.filter((c) => !!c.digital).count(), db.comics.filter((c) => !!c.wishlisted).count(), db.comicLists.count(), db.comics.orderBy("createdAt").reverse().limit(4).toArray(),
         ]);
 
         if (!alive) return;
@@ -120,7 +88,7 @@ export default function HomePage() {
       <header>
         <h1 className="text-2xl font-semibold">Cinemoria</h1>
         <p className="text-sand-300">
-          En hylla för allt du äger och älskar — film, böcker och spel. Offline och snabbt.
+          {t("home.hero_lead", "En hylla för allt du äger och älskar — film, böcker och spel. Offline och snabbt.")}
         </p>
       </header>
 
@@ -128,55 +96,62 @@ export default function HomePage() {
       <div className="card p-4">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
-            <h2 className="font-semibold">Kom igång</h2>
+            <h2 className="font-semibold">{t("home.get_started", "Kom igång")}</h2>
             <p className="text-sand-300 text-sm">
-              Hoppa in i rätt sektion. Lägg till nytt, sök eller bygg samlingar.
+              {t("home.get_started_hint", "Hoppa in i rätt sektion. Lägg till nytt, sök eller bygg samlingar.")}
             </p>
           </div>
           <div className="flex gap-2 flex-wrap">
-            <Link to="/movie" className="btn btn-primary">Film</Link>
-            <Link to="/book" className="btn">Böcker</Link>
-            <Link to="/game" className="btn">Spel</Link>
-            <Link to="/album" className="btn">Musik</Link>
-            <Link to="/comic" className="btn">Serier</Link>
+            <Link to="/movie" className="btn btn-primary">{t("home.btn.movie", "Film")}</Link>
+            <Link to="/book" className="btn">{t("home.btn.book", "Böcker")}</Link>
+            <Link to="/game" className="btn">{t("home.btn.game", "Spel")}</Link>
+            <Link to="/album" className="btn">{t("home.btn.album", "Musik")}</Link>
+            <Link to="/comic" className="btn">{t("home.btn.comic", "Serier")}</Link>
           </div>
         </div>
       </div>
 
       {/* FILM */}
       <Section
-        title="Filmer"
+        t={t} // Skicka t-funktionen till Section
+        titleKey="home.stats.movies"
+        emptyKey="home.stats.empty_movies"
         stats={movieStats}
+        loading={loading}
         onAdd={() => navigate("/movie/add")}
         onSearch={() => navigate("/movie/search")}
         onLists={() => navigate("/movie/collections")}
         recent={
           <div className="space-y-3">
             {recentMovies.map((m) => <MovieCard key={m.id} movie={m} />)}
-            {!loading && recentMovies.length === 0 && <EmptyLine label="Inga filmer ännu." />}
           </div>
         }
       />
 
       {/* BÖCKER */}
       <Section
-        title="Böcker"
+        t={t}
+        titleKey="home.stats.books"
+        emptyKey="home.stats.empty_books"
         stats={bookStats}
+        loading={loading}
         onAdd={() => navigate("/book/add")}
         onSearch={() => navigate("/book/search")}
         onLists={() => navigate("/book/collections")}
         recent={
           <div className="space-y-3">
             {recentBooks.map((b) => <BookCard key={b.id} book={b} />)}
-            {!loading && recentBooks.length === 0 && <EmptyLine label="Inga böcker ännu." />}
           </div>
         }
       />
 
       {/* SPEL */}
       <Section
-        title="Spel"
+        t={t}
+        titleKey="home.stats.games"
+        emptyKey="home.stats.empty_games"
         stats={gameStats}
+        loading={loading}
         onAdd={() => navigate("/game/add")}
         onSearch={() => navigate("/game/search")}
         onLists={() => navigate("/game/collections")}
@@ -196,37 +171,40 @@ export default function HomePage() {
                 to={`/game/edit/${g.id}`}
               />
             ))}
-            {!loading && recentGames.length === 0 && <EmptyLine label="Inga spel ännu." />}
           </div>
         }
       />
 
       {/* MUSIK (Album) */}
       <Section
-        title="Musik"
+        t={t}
+        titleKey="home.stats.albums"
+        emptyKey="home.stats.empty_albums"
         stats={albumStats}
+        loading={loading}
         onAdd={() => navigate("/album/add")}
         onSearch={() => navigate("/album/search")}
         onLists={() => navigate("/album/collections")}
         recent={
           <div className="space-y-3">
             {recentAlbums.map((a) => <AlbumCard key={a.id} album={a} />)}
-            {!loading && recentAlbums.length === 0 && <EmptyLine label="Inga album ännu." />}
           </div>
         }
       />
 
       {/* SERIER (Comics) */}
       <Section
-        title="Serier"
+        t={t}
+        titleKey="home.stats.comics"
+        emptyKey="home.stats.empty_comics"
         stats={comicStats}
+        loading={loading}
         onAdd={() => navigate("/comic/add")}
         onSearch={() => navigate("/comic/search")}
         onLists={() => navigate("/comic/collections")}
         recent={
           <div className="space-y-3">
             {recentComics.map((c) => <ComicCard key={c.id} comic={c} />)}
-            {!loading && recentComics.length === 0 && <EmptyLine label="Inga serier ännu." />}
           </div>
         }
       />
@@ -234,73 +212,94 @@ export default function HomePage() {
       {/* Tomt heltläge */}
       {totallyEmpty && (
         <div className="card p-4">
-          <h3 className="font-semibold mb-1">Din hylla väntar ✨</h3>
+          <h3 className="font-semibold mb-1">{t("home.empty_title", "Din hylla väntar ✨")}</h3>
           <p className="text-sand-300 text-sm mb-3">
-            Börja i den sektion som känns roligast. Du kan alltid importera en JSON-backup via Profil.
+            {t("home.empty_hint", "Börja i den sektion som känns roligast. Du kan alltid importera en JSON-backup via Profil.")}
           </p>
           <div className="flex gap-2 flex-wrap">
-            <button className="btn btn-primary" onClick={() => navigate("/movie/add")}>Lägg till film</button>
-            <button className="btn" onClick={() => navigate("/book/add")}>Lägg till bok</button>
-            <button className="btn" onClick={() => navigate("/game/add")}>Lägg till spel</button>
-            <button className="btn" onClick={() => navigate("/album/add")}>Lägg till album</button>
-            <button className="btn" onClick={() => navigate("/comic/add")}>Lägg till serie</button>
-            <Link to="/profile" className="btn">Importera backup</Link>
+            <button className="btn btn-primary" onClick={() => navigate("/movie/add")}>{t("home.btn.add_movie", "Lägg till film")}</button>
+            <button className="btn" onClick={() => navigate("/book/add")}>{t("home.btn.add_book", "Lägg till bok")}</button>
+            <button className="btn" onClick={() => navigate("/game/add")}>{t("home.btn.add_game", "Lägg till spel")}</button>
+            <button className="btn" onClick={() => navigate("/album/add")}>{t("home.btn.add_album", "Lägg till album")}</button>
+            <button className="btn" onClick={() => navigate("/comic/add")}>{t("home.btn.add_comic", "Lägg till serie")}</button>
+            <Link to="/profile" className="btn">{t("home.btn.import_backup", "Importera backup")}</Link>
           </div>
         </div>
       )}
+      {loading && <EmptyLine label={t("loading", "Laddar...")} />} {/* Fallback för laddning */}
     </section>
   );
 }
 
-/* ====== Små helpers ====== */
+/* * ====== Små helpers ====== 
+ * Flyttad till HomePage.tsx för att använda t-funktionen, 
+ * eller så skickar vi med den (görs nedan)
+ */
 
-function Section({
-  title,
-  stats,
-  onAdd,
-  onSearch,
-  onLists,
-  recent,
-}: {
-  title: string;
-  stats: { total: number; owned: number; digital: number; wish: number; lists: number };
+interface SectionProps {
+  t: (key: string, options?: any) => string;
+  titleKey: string;
+  emptyKey: string;
+  stats: Stats;
+  loading: boolean;
   onAdd(): void;
   onSearch(): void;
   onLists(): void;
   recent: React.ReactNode;
-}) {
+}
+
+function Section({
+  t,
+  titleKey,
+  emptyKey,
+  stats,
+  loading,
+  onAdd,
+  onSearch,
+  onLists,
+  recent,
+}: SectionProps) {
+  // Visa bara tomt meddelande om vi är klara med laddningen och inga totala finns
+  const showEmpty = !loading && stats.total === 0;
+
   return (
     <section className="space-y-3">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold">{title}</h2>
+        <h2 className="text-xl font-semibold">{t(titleKey, titleKey)}</h2>
         <div className="flex gap-2">
-          <button className="btn" onClick={onSearch}>Sök</button>
-          <button className="btn" onClick={onAdd}>Lägg till</button>
-          <button className="btn" onClick={onLists}>Listor</button>
+          <button className="btn" onClick={onSearch}>{t("home.btn.search", "Sök")}</button>
+          <button className="btn" onClick={onAdd}>{t("home.btn.add", "Lägg till")}</button>
+          <button className="btn" onClick={onLists}>{t("home.btn.lists", "Listor")}</button>
         </div>
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-        <StatCard label="Totalt" value={stats.total} />
-        <StatCard label="Ägda" value={stats.owned} />
-        <StatCard label="Digitalt" value={stats.digital} />
-        <StatCard label="Önskelista" value={stats.wish} />
-        <StatCard label="Listor" value={stats.lists} />
+        <StatCard t={t} labelKey="home.stats.total" value={stats.total} />
+        <StatCard t={t} labelKey="home.stats.owned" value={stats.owned} />
+        <StatCard t={t} labelKey="home.stats.digital" value={stats.digital} />
+        <StatCard t={t} labelKey="home.stats.wish" value={stats.wish} />
+        <StatCard t={t} labelKey="home.stats.lists" value={stats.lists} />
       </div>
 
       <div>
-        <h3 className="font-semibold mb-2">Senast tillagda</h3>
-        {recent}
+        <h3 className="font-semibold mb-2">{t("home.stats.latest", "Senast tillagda")}</h3>
+        {loading ? (
+          <EmptyLine label={t("loading", "Laddar...")} />
+        ) : showEmpty ? (
+          <EmptyLine label={t(emptyKey, emptyKey)} />
+        ) : (
+          recent
+        )}
       </div>
     </section>
   );
 }
 
-function StatCard({ label, value }: { label: string; value: number }) {
+function StatCard({ t, labelKey, value }: { t: (key: string) => string; labelKey: string; value: number }) {
   return (
     <div className="card p-3 text-center">
       <div className="text-2xl font-semibold">{value}</div>
-      <div className="text-sand-300 text-xs">{label}</div>
+      <div className="text-sand-300 text-xs">{t(labelKey, labelKey)}</div>
     </div>
   );
 }
