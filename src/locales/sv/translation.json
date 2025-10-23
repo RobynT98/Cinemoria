@@ -1,12 +1,17 @@
 {
   "loading": "Laddar…",
-  "nav.home": "Hem",
-  "nav.movies": "Film",
-  "nav.games": "Spel",
-  "nav.books": "Böcker",
-  "nav.music": "Musik",
-  "nav.comics": "Serier",
-  "nav.profile": "Profil",
+ 
+ "nav": {
+  "home": "Hem",
+  "movies": "Film",
+  "games": "Spel",
+  "books": "Böcker",
+  "music": "Musik",
+  "comics": "Serier",
+  "profile": "Profil"
+}
+
+
   "sectionNav": {
     "overview": "Översikt",
     "search": "Sök",
