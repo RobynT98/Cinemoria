@@ -1,6 +1,7 @@
 {
   "loading": "Laddar…", 
 
+  /* --- NAVIGATION (Plattat format) --- */
   "nav.home": "Hem",
   "nav.movies": "Film",
   "nav.games": "Spel",
@@ -9,7 +10,7 @@
   "nav.comics": "Serier",
   "nav.profile": "Profil",
 
-  
+  /* --- SECTION NAV --- */
   "sectionNav": {    
     "overview": "Översikt",    
     "search": "Sök",    
@@ -17,6 +18,7 @@
     "collections": "Samlingar"    
   },    
 
+  /* --- PROFILE --- */
   "profile": {    
     "title": "Profil & Inställningar",    
 
@@ -112,6 +114,7 @@
     }    
   },    
 
+  /* --- INSTRUCTIONS --- */
   "instructions": {    
     "title": "Instruktioner",    
     "intro": "En snabbguide till Cinemoria. All data sparas lokalt i din webbläsare (IndexedDB). Efter första laddningen fungerar appen offline.",    
@@ -190,9 +193,9 @@
     "comics": {    
       "title": "Serier (comics): lägga till & redigera",    
       "steps": [    
-        "Fill Title, Series, Volume/Issue and optional Year.",    
-        "Mark Owned / Digital / Wishlist and choose Format (e.g. staple/hardcover/other).",    
-        "Add cover URL and notes (variant, condition, publisher, price etc).",    
+        "Fyll i Titel, Serie, Volym/Nummer och valfritt År.",    
+        "Markera Ägd / Digital / Önskelista och välj Format (t.ex. häftad/inbunden/övrigt).",    
+        "Lägg till omslags-URL och anteckningar (variant, skick, förlag, pris m.m.).",    
         "Press Save."    
       ],    
       "cta_search": "Search comics",    
@@ -200,114 +203,114 @@
     },    
 
     "music": {    
-      "title": "Music & albums: add & edit",    
+      "title": "Musik & album: lägga till & redigera",    
       "steps": [    
-        "Fill Album title, Artist, optional Year and Genre.",    
-        "Mark Owned, Digital and/or Wishlist.",    
-        "Pick Format (vinyl, CD, cassette, digital, Blu-ray Audio, SACD, other) and Notes (edition, color vinyl, press/matrix, condition).",    
-        "Press Save. Latest albums show under Music → Overview."    
+        "Fyll i Albumtitel, Artist, valfritt År och Genre.",    
+        "Markera Ägd, Digital och/eller Önskelista.",    
+        "Ange Format (vinyl, CD, kassett, digitalt, Blu-ray Audio, SACD, övrigt) och Anteckningar (utgåva, färgvinyl, press/matrix, skick).",    
+        "Tryck Spara. Senaste album visas under Musik → Översikt."    
       ],    
-      "cta_search": "Search albums",    
-      "cta_lists": "Music lists"    
+      "cta_search": "Sök album",    
+      "cta_lists": "Musiklistor"    
     },    
 
     "collections": {    
-      "title": "Collections (lists)",    
-      "text": "Create any collections for movies, books, games, music and comics (e.g. “Shelf A”, “Favorites 2025”, “To buy”). Item counts show right away. Rename or delete lists without touching contents.",    
-      "cta_movies": "Movie collections",    
-      "cta_books": "Book lists",    
-      "cta_games": "Game lists",    
-      "cta_albums": "Music lists",    
-      "cta_comics": "Comic lists"    
+      "title": "Samlingar (listor)",    
+      "text": "Skapa valfria samlingar för film, böcker, spel, musik och serier (t.ex. “Hylla A”, “Favoriter 2025”, “Att köpa”). Antal objekt visas direkt. Byter du namn eller tar bort listan ligger innehållet kvar.",    
+      "cta_movies": "Filmsamlingar",    
+      "cta_books": "Boklistor",    
+      "cta_games": "Spellistor",    
+      "cta_albums": "Musiklistor",    
+      "cta_comics": "Serielistor"    
     },    
 
     "searchFilter": {    
-      "title": "Search & filters",    
-      "movies": "Free text on title, genres, location/service, year. Filter on Owned/Digital/Wishlist.",    
-      "books": "Search by title, author, language, format, ISBN, year. Same status filters as movies.",    
-      "games": "Search by title, platform, year and notes. Filter on Owned/Digital/Wishlist.",    
-      "music": "Search by album title, artist, year, genre and format. Filter on Owned/Digital/Wishlist.",    
-      "comics": "Search by title, volume, issue, year and notes. Filter on Owned/Digital/Wishlist.",    
-      "open_movies": "Open movie search",    
-      "open_books": "Open book search",    
-      "open_games": "Open game search",    
-      "open_albums": "Open music search",    
-      "open_comics": "Open comic search"    
+      "title": "Sök & filter",    
+      "movies": "Fritext på titel, genrer, plats/tjänst, år. Filtrera på Ägd/Digital/Önskelista.",    
+      "books": "Sök på titel, författare, språk, format, ISBN, år. Samma statusfilter som film.",    
+      "games": "Sök på titel, plattform, år och anteckningar. Filtrera på Ägd/Digital/Önskelista.",    
+      "music": "Sök på albumtitel, artist, år, genre och format. Filtrera på Ägd/Digital/Önskelista.",    
+      "comics": "Sök på titel, volym, nummer, år och anteckningar. Filtrera på Ägd/Digital/Önskelista.",    
+      "open_movies": "Öppna filmsök",    
+      "open_books": "Öppna boksök",    
+      "open_games": "Öppna spelsök",    
+      "open_albums": "Öppna musiksök",    
+      "open_comics": "Öppna seriesök"    
     },    
 
     "backup": {    
-      "title": "Backup & move data",    
-      "export": "Export creates a JSON with everything (movies/books/games/music/comics and lists/links).",    
-      "import": "Import adds content from a previous export (duplicates may occur).",    
-      "wipe": "Wipe all removes all local data.",    
-      "cta": "Open Profile & Backup"    
+      "title": "Backup & flytta data",    
+      "export": "Exportera skapar en JSON med allt (film/bok/spel/musik/serier och listor/kopplingar).",    
+      "import": "Importera lägger till innehåll från en tidigare export (dubbletter kan uppstå).",    
+      "wipe": "Rensa allt tar bort all lokal data.",    
+      "cta": "Öppna Profil & Backup"    
     },    
 
     "pwa": {    
-      "title": "Install as app (PWA)",    
-      "android": "Android/Chrome: Menu → Install app.",    
-      "ios": "iPhone/iPad (Safari): Share → Add to Home Screen.",    
-      "desktop": "Desktop: Icon in the address bar or the browser menu."    
+      "title": "Installera som app (PWA)",    
+      "android": "Android/Chrome: Meny → Installera app.",    
+      "ios": "iPhone/iPad (Safari): Dela → Lägg till på hemskärmen.",    
+      "desktop": "Desktop: Ikonen i adressfältet eller webbläsarens meny."    
     },    
 
     "privacy": {    
-      "title": "Privacy, performance & troubleshooting",    
-      "privacy": "Privacy: your data never leaves the device. No login, no server.",    
-      "sync": "Sync: use export/import to move between devices.",    
-      "omdb": "OMDb issues? Check Profile → Data sources & Autofill: enabled, key entered, and Test OMDb shows “OK”.",    
-      "empty": "If something looks empty: reload, clear cache, or export → wipe all → import again.",    
-      "themes": "Themes: switch between dark, light and sepia under Profile."    
+      "title": "Sekretess, prestanda & felsökning",    
+      "privacy": "Sekretess: Din data lämnar inte enheten. Ingen inloggning, ingen server.",    
+      "sync": "Synk: Använd export/import för att flytta mellan enheter.",    
+      "omdb": "OMDb fel? Kolla Profil → “Datakällor & Autofyll”: att det är ibockat, att nyckeln finns och att Testa OMDb visar “OK”.",    
+      "empty": "Om något ser tomt ut: ladda om sidan, rensa cache, eller exportera → rensa allt → importera igen.",    
+      "themes": "Teman: Byt mellan mörkt, ljust och sepia under Profil."    
     },    
 
     "feedback": {    
-      "title": "Feedback & sharing",    
-      "text": "Under Profile you’ll find Send feedback (mailto with tech info) and Copy app link."    
+      "title": "Feedback & delning",    
+      "text": "Under Profil finns Skicka feedback (mailto med teknisk info) och Kopiera app-länk."    
     }    
   },    
 
   "home": {    
-    "hero_lead": "A shelf for what you own and love — movies, books and games. Fast and offline.",    
-    "get_started": "Get started",    
-    "get_started_hint": "Jump to a section. Add new, search or build collections.",    
-    "empty_title": "Your shelf awaits ✨",    
-    "empty_hint": "Start where it’s most fun. You can always import a JSON backup via Profile.",    
+    "hero_lead": "En hylla för allt du äger och älskar — film, böcker och spel. Offline och snabbt.",    
+    "get_started": "Kom igång",    
+    "get_started_hint": "Hoppa in i rätt sektion. Lägg till nytt, sök eller bygg samlingar.",    
+    "empty_title": "Din hylla väntar ✨",    
+    "empty_hint": "Börja i den sektion som känns roligast. Du kan alltid importera en JSON-backup via Profil.",    
 
     "btn": {    
-      "movie": "Movies",    
-      "book": "Books",    
-      "game": "Games",    
-      "album": "Music",    
-      "comic": "Comics",    
-      "add_movie": "Add movie",    
-      "add_book": "Add book",    
-      "add_game": "Add game",    
-      "add_album": "Add album",    
-      "add_comic": "Add comic",    
-      "import_backup": "Import backup",    
-      "search": "Search",    
-      "add": "Add",    
-      "lists": "Lists"    
+      "movie": "Film",    
+      "book": "Böcker",    
+      "game": "Spel",    
+      "album": "Musik",    
+      "comic": "Serier",    
+      "add_movie": "Lägg till film",    
+      "add_book": "Lägg till bok",    
+      "add_game": "Lägg till spel",    
+      "add_album": "Lägg till album",    
+      "add_comic": "Lägg till serie",    
+      "import_backup": "Importera backup",    
+      "search": "Sök",    
+      "add": "Lägg till",    
+      "lists": "Listor"    
     },    
 
     "stats": {    
-      "total": "Total",    
-      "owned": "Owned",    
-      "digital": "Digital",    
-      "wish": "Wishlist",    
-      "lists": "Lists",    
-      "latest": "Latest added",    
+      "total": "Totalt",    
+      "owned": "Ägda",    
+      "digital": "Digitalt",    
+      "wish": "Önskelista",    
+      "lists": "Listor",    
+      "latest": "Senast tillagda",    
 
-      "movies": "Movies",    
-      "books": "Books",    
-      "games": "Games",    
-      "albums": "Music",    
-      "comics": "Comics",    
+      "movies": "Filmer",    
+      "books": "Böcker",    
+      "games": "Spel",    
+      "albums": "Musik",    
+      "comics": "Serier",    
 
-      "empty_movies": "No movies yet.",    
-      "empty_books": "No books yet.",    
-      "empty_games": "No games yet.",    
-      "empty_albums": "No albums yet.",    
-      "empty_comics": "No comics yet."    
+      "empty_movies": "Inga filmer ännu.",    
+      "empty_books": "Inga böcker ännu.",    
+      "empty_games": "Inga spel ännu.",    
+      "empty_albums": "Inga album ännu.",    
+      "empty_comics": "Inga serier ännu."    
     }    
   }    
 }
