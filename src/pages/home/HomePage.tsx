@@ -1,4 +1,3 @@
-// src/pages/home/HomePage.tsx
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { db, type Movie, type Book, type Game, type Album, type Comic } from "@/db";
@@ -7,13 +6,13 @@ import BookCard from "@/components/BookCard";
 import GameCard from "@/components/game/GameCard";
 import AlbumCard from "@/components/AlbumCard";
 import ComicCard from "@/components/ComicCard";
-import { useTranslation } from "react-i18next"; // <-- Ny import
+import { useTranslation } from "react-i18next"; 
 
 type Stats = { total: number; owned: number; digital: number; wish: number; lists: number };
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const { t } = useTranslation(); // <-- Använd useTranslation
+  const { t } = useTranslation(); 
 
   const [loading, setLoading] = useState(true);
 
@@ -227,7 +226,8 @@ export default function HomePage() {
           </div>
         </div>
       )}
-      {loading && <EmptyLine label={t("loading", "Laddar...")} />} {/* Fallback för laddning */}
+      {/* Använder {t("loading", "Laddar...")} för att hålla fast i defaultvärdet */}
+      {loading && <EmptyLine label={t("loading", "Laddar...")} />} 
     </section>
   );
 }
@@ -263,6 +263,7 @@ function Section({
   return (
     <section className="space-y-3">
       <div className="flex items-center justify-between">
+        {/* FIX: Använd t(titleKey) för att slå upp nyckeln, t(titleKey, titleKey) för att visa nyckeln som fallback */}
         <h2 className="text-xl font-semibold">{t(titleKey, titleKey)}</h2>
         <div className="flex gap-2">
           <button className="btn" onClick={onSearch}>{t("home.btn.search", "Sök")}</button>
@@ -297,6 +298,7 @@ function StatCard({ t, labelKey, value }: { t: (key: string, options?: any) => s
   return (
     <div className="card p-3 text-center">
       <div className="text-2xl font-semibold">{value}</div>
+      {/* FIX: ÄNDRA TILL t(labelKey) ELLER t(labelKey, { defaultValue: 'Fallback' }) */}
       <div className="text-sand-300 text-xs">{t(labelKey, labelKey)}</div>
     </div>
   );
@@ -305,3 +307,5 @@ function StatCard({ t, labelKey, value }: { t: (key: string, options?: any) => s
 function EmptyLine({ label }: { label: string }) {
   return <div className="text-sand-300 text-sm">{label}</div>;
 }
+
+Ge hel!
