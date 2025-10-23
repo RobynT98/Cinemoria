@@ -19,8 +19,9 @@
   "profile.install.subtitle": "Fungerar offline och startar helskärm.",
   "profile.install.cta": "Installera",
   "profile.install.iosTitle": "Installera på iPhone/iPad",
-  "profile.install.iosHint": "Öppna delnings-menyn och välj “Lägg till på hemskärmen”.",
+  "profile.install.iosHint": "Öppna delnings-menyn och välj “Lägg till på hemskärmen”.")
 
+,
   "profile.language.title": "Språk",
   "profile.language.hint": "Byt appens språk. Valet sparas lokalt.",
   "profile.language.help": "Byt appens språk. Valet sparas lokalt.",
@@ -42,6 +43,7 @@
   "profile.datafill.omdb.status_fail": "Fel",
   "profile.datafill.omdb.status_busy": "Testar…",
   "profile.datafill.omdb.status_idle": "—",
+  "profile.datafill.omdb.idle": "—",
   "profile.datafill.omdb.note": "Din OMDb-nyckel sparas endast lokalt i webbläsaren. När du lägger till eller redigerar en film kan appen använda nyckeln för att automatiskt hämta titel, poster och genrer via knappen Hämta från OMDb.",
   "profile.datafill.omdb.tip": "Tips: Klicka Testa OMDb ovan för att kontrollera att din nyckel fungerar.",
   "profile.datafill.omdb.msg_need_key": "Ange en OMDb-nyckel först.",
@@ -57,6 +59,7 @@
   "profile.datafill.barcode.denied": "Nekad",
   "profile.datafill.barcode.error": "Fel",
   "profile.datafill.barcode.busy": "Testar…",
+  "profile.datafill.barcode.status_idle": "—",
   "profile.datafill.barcode.idle": "—",
   "profile.datafill.barcode.msg_ok": "Kamera OK – streckkodsskannern kan användas.",
   "profile.datafill.barcode.msg_denied": "Kamera nekad. Tillåt kamera i webbläsarens inställningar.",
