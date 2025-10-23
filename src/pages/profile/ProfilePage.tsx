@@ -1,3 +1,4 @@
+// src/pages/profile/ProfilePage.tsx
 import { exportJson, importJson, wipeAll } from "@/lib/backup";
 import { useEffect, useRef, useState } from "react";
 import { useThemeStore } from "@/store/themeStore";
@@ -10,33 +11,15 @@ const APP_VERSION = "1.0.0";
 
 export default function ProfilePage() {
   const fileRef = useRef<HTMLInputElement>(null);
-  const [msg, setMsg] = useState<string | null>(null); // Används även som dummy-state för omrendering
+  const [msg, setMsg] = useState<string | null>(null);
   const { theme, setTheme } = useThemeStore();
 
   // i18n
   const { i18n, t } = useTranslation();
-  // STABIL: Läser språket direkt. Inget useState vid initialisering för att undvika krasch.
-  const baseLng = (i18n.language || "sv").split("-")[0] as "sv" | "en"; 
-  
+  const baseLng = (i18n.language || "sv").split("-")[0] as "sv" | "en";
   const switchLang = (lng: "sv" | "en") => {
     if (lng !== baseLng) i18n.changeLanguage(lng);
   };
-
-  // ✅ FIX: Lägg till useEffect FÖR ATT TVINGA FRAM RENDERING
-  // Denna useEffect lyssnar på språkändringen och uppdaterar setMsg, vilket
-  // triggar en omrendering. baseLng uppdateras, och knapparna markeras korrekt.
-  useEffect(() => {
-    const forceUpdate = () => {
-      // Använd setMsg för att trigga en omritning av komponenten.
-      setMsg(m => (m === "update" ? "update " : "update")); 
-    };
-
-    i18n.on("languageChanged", forceUpdate);
-
-    return () => {
-      i18n.off("languageChanged", forceUpdate);
-    };
-  }, [i18n]); // Lyssna på i18n-instansen
 
   // ---- PWA Install state (via hook) ----
   const { isInstallable, installed, isIOS, install } = usePWAInstall();
