@@ -112,7 +112,6 @@
     }    
   },    
 
-  /* --- INSTRUCTIONS --- */
   "instructions": {    
     "title": "Instruktioner",    
     "intro": "En snabbguide till Cinemoria. All data sparas lokalt i din webbläsare (IndexedDB). Efter första laddningen fungerar appen offline.",    
