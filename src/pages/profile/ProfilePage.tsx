@@ -253,7 +253,7 @@ export default function ProfilePage() {
       <div className="card p-4 space-y-3">
         <h2 className="font-semibold">{t("profile.language.title", "Språk")}</h2>
         <p className="text-sand-300 text-sm">
-          {t("profile.language.hint", "Byt appens språk. Valet sparas lokalt.")}
+          {t("profile.language.hint", "Byt appens språk. Valet sparas lokalt - under utveckling.")}
         </p>
         <div className="flex gap-2 flex-wrap">
           <button
