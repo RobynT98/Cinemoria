@@ -1,4 +1,3 @@
-// src/pages/profile/ProfilePage.tsx
 import { exportJson, importJson, wipeAll } from "@/lib/backup";
 import { useEffect, useRef, useState } from "react";
 import { useThemeStore } from "@/store/themeStore";
@@ -16,7 +15,24 @@ export default function ProfilePage() {
 
   // i18n
   const { i18n, t } = useTranslation();
-  const baseLng = (i18n.language || "sv").split("-")[0] as "sv" | "en";
+  // 💡 FIX: Använd lokal state som uppdateras via i18n-event
+  const [currentLang, setCurrentLang] = useState(
+    (i18n.resolvedLanguage || "sv").split("-")[0] as "sv" | "en"
+  );
+  const baseLng = currentLang;
+
+  // 💡 FIX: useEffect för att lyssna på i18nexts event och tvinga omrendering
+  useEffect(() => {
+    const handleLangChange = (lng: string) => {
+      setCurrentLang(lng.split("-")[0] as "sv" | "en");
+    };
+    i18n.on("languageChanged", handleLangChange);
+    // Rensa lyssnaren vid unmount
+    return () => {
+      i18n.off("languageChanged", handleLangChange);
+    };
+  }, [i18n]);
+
   const switchLang = (lng: "sv" | "en") => {
     if (lng !== baseLng) i18n.changeLanguage(lng);
   };
