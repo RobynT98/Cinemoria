@@ -21,54 +21,49 @@ const InstructionsPage = lazy(() => import("./pages/home/InstructionsPage"));
 const ProfileLayout = lazy(() => import("./pages/profile/ProfileLayout"));
 const ProfilePage = lazy(() => import("./pages/profile/ProfilePage"));
 
-/* Movie */
+/* Movie (KORREKT) */
 const MovieLayout = lazy(() => import("./pages/movie/MovieLayout"));
 const MovieHome = lazy(() => import("./pages/movie/MovieHome"));
 const MovieSearch = lazy(() => import("./pages/movie/SearchPage"));
 const MovieAdd = lazy(() => import("./pages/movie/AddPage"));
 const MovieCollections = lazy(() => import("./pages/movie/CollectionsPage"));
-// KONSISTENT: MovieListDetail -> ListDetailPage
 const MovieListDetail = lazy(() => import("./pages/movie/ListDetailPage")); 
 const MovieEdit = lazy(() => import("./pages/movie/EditPage"));
 
-/* Book */
+/* Book (KORREKT ENLIGT BILD) */
 const BookLayout = lazy(() => import("./pages/book/BookLayout"));
 const BookHome = lazy(() => import("./pages/book/BookHome"));
-const BookSearch = lazy(() => import("./pages/book/SearchPage"));
-const BookAdd = lazy(() => import("./pages/book/AddPage"));
-const BookCollections = lazy(() => import("./pages/book/CollectionsPage"));
-// KONSISTENT: BookListDetail -> ListDetailPage
-const BookListDetail = lazy(() => import("./pages/book/ListDetailPage"));
-const BookEdit = lazy(() => import("./pages/book/EditPage"));
+const BookSearch = lazy(() => import("./pages/book/BookSearch"));
+const BookAdd = lazy(() => import("./pages/book/BookAdd"));
+const BookCollections = lazy(() => import("./pages/book/BookCollectionsPage"));
+const BookListDetail = lazy(() => import("./pages/book/BookListDetailPage")); // LÅNGT FILNAMN
+const BookEdit = lazy(() => import("./pages/book/BookEdit"));
 
-/* Game */
+/* Game (FIXAD) */
 const GameLayout = lazy(() => import("./pages/game/GameLayout"));
 const GameHome = lazy(() => import("./pages/game/GameHome"));
 const GameSearch = lazy(() => import("./pages/game/SearchPage"));
 const GameAdd = lazy(() => import("./pages/game/AddPage"));
-const GameCollections = lazy(() => import("./pages/game/CollectionsPage"));
-// KONSISTENT: GameListDetail -> ListDetailPage
-const GameListDetail = lazy(() => import("./pages/game/ListDetailPage"));
+const GameCollections = lazy(() => import("./pages/game/CollectionsPage")); // ANTAGER KORT NAMN
+const GameListDetail = lazy(() => import("./pages/game/ListDetailPage")); // ANTAGER KORT NAMN
 const GameEdit = lazy(() => import("./pages/game/EditPage"));
 
-/* Music (Albums) */
+/* Music (Albums) (FIXAD) */
 const AlbumLayout = lazy(() => import("./pages/album/AlbumLayout"));
 const AlbumHome = lazy(() => import("./pages/album/AlbumHome"));
 const AlbumSearch = lazy(() => import("./pages/album/SearchPage"));
 const AlbumAdd = lazy(() => import("./pages/album/AddPage"));
-const AlbumCollections = lazy(() => import("./pages/album/CollectionsPage"));
-// KONSISTENT: AlbumListDetail -> ListDetailPage
-const AlbumListDetail = lazy(() => import("./pages/album/ListDetailPage"));
+const AlbumCollections = lazy(() => import("./pages/album/CollectionsPage")); // ANTAGER KORT NAMN
+const AlbumListDetail = lazy(() => import("./pages/album/ListDetailPage")); // ANTAGER KORT NAMN
 const AlbumEdit = lazy(() => import("./pages/album/EditPage"));
 
-/* Comics (Serietidningar) */
+/* Comics (Serietidningar) (FIXAD) */
 const ComicLayout = lazy(() => import("./pages/comic/ComicLayout"));
 const ComicHome = lazy(() => import("./pages/comic/ComicHome"));
 const ComicSearch = lazy(() => import("./pages/comic/SearchPage"));
 const ComicAdd = lazy(() => import("./pages/comic/AddPage"));
-const ComicCollections = lazy(() => import("./pages/comic/CollectionsPage"));
-// KONSISTENT: ComicListDetail -> ListDetailPage
-const ComicListDetail = lazy(() => import("./pages/comic/ListDetailPage"));
+const ComicCollections = lazy(() => import("./pages/comic/CollectionsPage")); // ANTAGER KORT NAMN
+const ComicListDetail = lazy(() => import("./pages/comic/ListDetailPage")); // ANTAGER KORT NAMN
 const ComicEdit = lazy(() => import("./pages/comic/EditPage"));
 
 export default function App() {
