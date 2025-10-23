@@ -16,9 +16,9 @@ export default function ProfilePage() {
 
   // i18n
   const { i18n, t } = useTranslation();
-  const lang = (i18n.language || "sv").split("-")[0] as "sv" | "en";
+  const baseLng = (i18n.language || "sv").split("-")[0] as "sv" | "en";
   const switchLang = (lng: "sv" | "en") => {
-    if (lng !== i18n.language) i18n.changeLanguage(lng);
+    if (lng !== baseLng) i18n.changeLanguage(lng);
   };
 
   // ---- PWA Install state (via hook) ----
@@ -54,7 +54,7 @@ export default function ProfilePage() {
   async function testOmdb() {
     if (!omdbKey.trim()) {
       setOmdbCheck("fail");
-      setMsg("Ange en OMDb-nyckel först.");
+      setMsg(t("profile.datafill.omdb.msg_need_key", "Ange en OMDb-nyckel först."));
       return;
     }
     try {
@@ -66,14 +66,18 @@ export default function ProfilePage() {
       const json = await res.json();
       if (json?.Response === "True") {
         setOmdbCheck("ok");
-        setMsg("OMDb OK – anslutning och nyckel verkar fungera.");
+        setMsg(t("profile.datafill.omdb.msg_ok", "OMDb OK – anslutning och nyckel verkar fungera."));
       } else {
         setOmdbCheck("fail");
-        setMsg(`OMDb: ${json?.Error || "okänt fel"}`);
+        setMsg(
+          `${t("profile.datafill.omdb.msg_error_prefix", "OMDb:")} ${
+            json?.Error || t("unknown_error", "okänt fel")
+          }`
+        );
       }
     } catch (e: any) {
       setOmdbCheck("fail");
-      setMsg(e?.message || "Kunde inte nå OMDb.");
+      setMsg(e?.message || t("profile.datafill.omdb.msg_network", "Kunde inte nå OMDb."));
     }
   }
 
@@ -88,25 +92,30 @@ export default function ProfilePage() {
       stream.getTracks().forEach((t) => t.stop());
       setCameraStatus("ok");
       localStorage.setItem("cm_barcode_tested", "1");
-      setMsg("Kamera OK – streckkodsskannern kan användas.");
+      setMsg(t("profile.datafill.barcode.msg_ok", "Kamera OK – streckkodsskannern kan användas."));
     } catch (e: any) {
       try {
         const perm = await (navigator as any).permissions?.query({ name: "camera" });
         if (perm?.state === "denied") {
           setCameraStatus("denied");
-          setMsg("Kamera nekad. Tillåt kamera i webbläsarens inställningar.");
+          setMsg(
+            t(
+              "profile.datafill.barcode.msg_denied",
+              "Kamera nekad. Tillåt kamera i webbläsarens inställningar."
+            )
+          );
           return;
         }
       } catch {}
       setCameraStatus("error");
-      setMsg(e?.message || "Kunde inte öppna kameran.");
+      setMsg(e?.message || t("profile.datafill.barcode.msg_error", "Kunde inte öppna kameran."));
     }
   }
 
   // ---- Feedback helpers ----
   const buildFeedbackMailto = () => {
     const tech = [
-      "Beskriv din feedback här...",
+      t("profile.feedback.placeholder", "Beskriv din feedback här..."),
       "",
       "--- Tekniskt (frivilligt, hjälper felsökning) ---",
       `Version: v${APP_VERSION}`,
@@ -129,7 +138,7 @@ export default function ProfilePage() {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      setMsg("Kunde inte kopiera länken.");
+      setMsg(t("profile.backup.copy_fail", "Kunde inte kopiera länken."));
     }
   };
 
@@ -182,22 +191,25 @@ export default function ProfilePage() {
         `• Serier +${addedComics}, Serielistor +${addedComicLists}, Serie-kopplingar +${addedComicLinks}`,
       ].join("\n");
 
-      setMsg(`Import klar:\n\n${lines}`);
+      setMsg(`${t("profile.backup.import_done", "Import klar:")}\n\n${lines}`);
     } catch (e: any) {
-      setMsg(e?.message || "Import misslyckades");
+      setMsg(e?.message || t("profile.backup.import_fail", "Import misslyckades"));
     }
   }
 
   async function handleWipe() {
     if (
       !confirm(
-        "Rensa all din data? (Filmer, listor, kopplingar, böcker, boklistor, spel, spellistor, album, albumlistor, serier och serielistor tas bort. Appen ligger kvar.)"
+        t(
+          "profile.backup.wipe_confirm",
+          "Rensa all din data? (Filmer, listor, kopplingar, böcker, boklistor, spel, spellistor, album, albumlistor, serier och serielistor tas bort. Appen ligger kvar.)"
+        )
       )
     ) {
       return;
     }
     await wipeAll();
-    setMsg("All data rensad.");
+    setMsg(t("profile.backup.wipe_done", "All data rensad."));
   }
 
   return (
@@ -209,20 +221,28 @@ export default function ProfilePage() {
             <div className="card p-4">
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <h2 className="font-semibold">Installera som app</h2>
-                  <p className="text-sand-300 text-sm">Fungerar offline och startar helskärm.</p>
+                  <h2 className="font-semibold">
+                    {t("profile.install.title", "Installera som app")}
+                  </h2>
+                  <p className="text-sand-300 text-sm">
+                    {t("profile.install.subtitle", "Fungerar offline och startar helskärm.")}
+                  </p>
                 </div>
                 <button className="btn btn-primary" onClick={install}>
-                  Installera
+                  {t("profile.install.cta", "Installera")}
                 </button>
               </div>
             </div>
           ) : isIOS ? (
             <div className="card p-4">
-              <h2 className="font-semibold mb-1">Installera på iPhone/iPad</h2>
+              <h2 className="font-semibold mb-1">
+                {t("profile.install.iosTitle", "Installera på iPhone/iPad")}
+              </h2>
               <p className="text-sand-300 text-sm">
-                Öppna delnings-menyn och välj{" "}
-                <span className="font-semibold">“Lägg till på hemskärmen”</span>.
+                {t(
+                  "profile.install.iosHint",
+                  "Öppna delnings-menyn och välj “Lägg till på hemskärmen”."
+                )}
               </p>
             </div>
           ) : null}
@@ -237,16 +257,16 @@ export default function ProfilePage() {
         </p>
         <div className="flex gap-2 flex-wrap">
           <button
-            className={`btn ${lang === "sv" ? "btn-primary" : ""}`}
+            className={`btn ${baseLng === "sv" ? "btn-primary" : ""}`}
             onClick={() => switchLang("sv")}
-            aria-pressed={lang === "sv"}
+            aria-pressed={baseLng === "sv"}
           >
             {t("profile.language.sv", "Svenska")}
           </button>
           <button
-            className={`btn ${lang === "en" ? "btn-primary" : ""}`}
+            className={`btn ${baseLng === "en" ? "btn-primary" : ""}`}
             onClick={() => switchLang("en")}
-            aria-pressed={lang === "en"}
+            aria-pressed={baseLng === "en"}
           >
             {t("profile.language.en", "English")}
           </button>
@@ -255,33 +275,35 @@ export default function ProfilePage() {
 
       {/* Tema */}
       <div className="card p-4 space-y-3">
-        <h2 className="font-semibold">Tema</h2>
-        <p className="text-sand-300 text-sm">Välj mellan mörkt, ljust eller sepia.</p>
+        <h2 className="font-semibold">{t("profile.theme.title", "Tema")}</h2>
+        <p className="text-sand-300 text-sm">
+          {t("profile.theme.hint", "Välj mellan mörkt, ljust eller sepia.")}
+        </p>
         <div className="flex gap-2 flex-wrap">
           <button
             className={`btn ${theme === "dark" ? "btn-primary" : ""}`}
             onClick={() => setTheme("dark")}
           >
-            Mörkt
+            {t("profile.theme.dark", "Mörkt")}
           </button>
           <button
             className={`btn ${theme === "light" ? "btn-primary" : ""}`}
             onClick={() => setTheme("light")}
           >
-            Ljust
+            {t("profile.theme.light", "Ljust")}
           </button>
           <button
             className={`btn ${theme === "sepia" ? "btn-primary" : ""}`}
             onClick={() => setTheme("sepia")}
           >
-            Sepia
+            {t("profile.theme.sepia", "Sepia")}
           </button>
         </div>
       </div>
 
       {/* Datakällor & Autofyll */}
       <div className="card p-4 space-y-3">
-        <h2 className="font-semibold">Datakällor & Autofyll</h2>
+        <h2 className="font-semibold">{t("profile.datafill.title", "Datakällor & Autofyll")}</h2>
 
         {/* OMDb */}
         <div className="space-y-2">
@@ -292,7 +314,7 @@ export default function ProfilePage() {
                 checked={omdbEnabled}
                 onChange={(e) => setOmdbEnabled(e.target.checked)}
               />
-              Använd OMDb för film-autofyll
+              {t("profile.datafill.omdb.use", "Använd OMDb för film-autofyll")}
             </label>
             <span
               className={
@@ -306,12 +328,12 @@ export default function ProfilePage() {
               }
             >
               {omdbCheck === "ok"
-                ? "OK"
+                ? t("profile.datafill.omdb.status_ok", "OK")
                 : omdbCheck === "fail"
-                ? "Fel"
+                ? t("profile.datafill.omdb.status_fail", "Fel")
                 : omdbCheck === "busy"
-                ? "Testar…"
-                : "—"}
+                ? t("profile.datafill.omdb.status_busy", "Testar…")
+                : t("profile.datafill.omdb.status_idle", "—")}
             </span>
           </div>
 
@@ -320,22 +342,25 @@ export default function ProfilePage() {
               type="password"
               value={omdbKey}
               onChange={(e) => setOmdbKey(e.target.value)}
-              placeholder="OMDb API-nyckel"
-              aria-label="OMDb API-nyckel"
+              placeholder={t("profile.datafill.omdb.placeholder", "OMDb API-nyckel")}
+              aria-label={t("profile.datafill.omdb.placeholder", "OMDb API-nyckel")}
             />
             <button className="btn" onClick={testOmdb} disabled={!omdbEnabled || !omdbKey.trim()}>
-              Testa OMDb
+              {t("profile.datafill.omdb.test", "Testa OMDb")}
             </button>
           </div>
 
           <p className="text-sand-300 text-xs">
-            Din OMDb-nyckel sparas endast lokalt i webbläsaren. När du lägger till eller redigerar en
-            film kan appen använda nyckeln för att automatiskt hämta titel, poster och genrer via
-            knappen <em>Hämta från OMDb</em>.
+            {t(
+              "profile.datafill.omdb.note",
+              "Din OMDb-nyckel sparas endast lokalt i webbläsaren. När du lägger till eller redigerar en film kan appen använda nyckeln för att automatiskt hämta titel, poster och genrer via knappen Hämta från OMDb."
+            )}
             <br />
             <span className="text-sand-400">
-              Tips: Klicka <strong>Testa OMDb</strong> ovan för att kontrollera att din nyckel
-              fungerar.
+              {t(
+                "profile.datafill.omdb.tip",
+                "Tips: Klicka Testa OMDb ovan för att kontrollera att din nyckel fungerar."
+              )}
             </span>
           </p>
         </div>
@@ -346,13 +371,20 @@ export default function ProfilePage() {
         <div className="space-y-2">
           <div className="flex items-center justify-between gap-2">
             <div>
-              <div className="font-medium">Streckkodsskanning</div>
+              <div className="font-medium">
+                {t("profile.datafill.barcode.title", "Streckkodsskanning")}
+              </div>
               <div className="text-sand-300 text-xs">
-                Testa kameratillstånd så att streckkodsskannern kan starta direkt i formulären.
+                {t(
+                  "profile.datafill.barcode.hint",
+                  "Testa kameratillstånd så att streckkodsskannern kan starta direkt i formulären."
+                )}
                 <br />
                 <span className="text-sand-400">
-                  Tips: Om testet lyckas kan du skanna EAN, ISBN eller andra koder direkt när du
-                  lägger till film, bok, musik, serietidningar eller spel.
+                  {t(
+                    "profile.datafill.barcode.tip",
+                    "Tips: Om testet lyckas kan du skanna EAN, ISBN eller andra koder direkt när du lägger till film, bok, musik, serietidningar eller spel."
+                  )}
                 </span>
               </div>
             </div>
@@ -368,31 +400,31 @@ export default function ProfilePage() {
               }
             >
               {cameraStatus === "ok"
-                ? "Kamera OK"
+                ? t("profile.datafill.barcode.ok", "Kamera OK")
                 : cameraStatus === "denied"
-                ? "Nekad"
+                ? t("profile.datafill.barcode.denied", "Nekad")
                 : cameraStatus === "error"
-                ? "Fel"
+                ? t("profile.datafill.barcode.error", "Fel")
                 : cameraStatus === "busy"
-                ? "Testar…"
-                : "—"}
+                ? t("profile.datafill.barcode.busy", "Testar…")
+                : t("profile.datafill.barcode.idle", "—")}
             </span>
           </div>
           <button className="btn" onClick={testCamera}>
-            Testa kamera
+            {t("profile.datafill.barcode.test", "Testa kamera")}
           </button>
         </div>
       </div>
 
       {/* Backup */}
       <div className="card p-4 space-y-3">
-        <h2 className="font-semibold">Backup</h2>
+        <h2 className="font-semibold">{t("profile.backup.title", "Backup")}</h2>
         <div className="flex gap-2 flex-wrap">
           <button className="btn btn-primary" onClick={handleExport}>
-            Exportera JSON
+            {t("profile.backup.export", "Exportera JSON")}
           </button>
           <button className="btn" onClick={() => fileRef.current?.click()}>
-            Importera JSON
+            {t("profile.backup.import", "Importera JSON")}
           </button>
           <input
             ref={fileRef}
@@ -411,54 +443,57 @@ export default function ProfilePage() {
 
       {/* Feedback & delning */}
       <div className="card p-4 space-y-3">
-        <h2 className="font-semibold">Feedback & delning</h2>
+        <h2 className="font-semibold">{t("profile.feedback.title", "Feedback & delning")}</h2>
         <p className="text-sand-300 text-sm">
-          Skicka frivillig feedback eller dela appens länk. Ingen data skickas automatiskt.
+          {t(
+            "profile.feedback.hint",
+            "Skicka frivillig feedback eller dela appens länk. Ingen data skickas automatiskt."
+          )}
         </p>
         <div className="flex gap-2 flex-wrap">
           <a href={buildFeedbackMailto()} className="btn">
-            Skicka feedback
+            {t("profile.feedback.send", "Skicka feedback")}
           </a>
           <button className="btn" onClick={copyLink}>
-            {copied ? "Länk kopierad ✓" : "Kopiera app-länk"}
+            {copied ? t("profile.backup.copied", "Länk kopierad ✓") : t("profile.backup.copy", "Kopiera app-länk")}
           </button>
         </div>
       </div>
 
       {/* Hjälp */}
       <div className="card p-4">
-        <h2 className="font-semibold mb-2">Behöver du hjälp?</h2>
+        <h2 className="font-semibold mb-2">{t("profile.help.title", "Behöver du hjälp?")}</h2>
         <p className="text-sand-300 text-sm mb-2">
-          Läs en kort guide med tips om hur du använder appen.
+          {t("profile.help.hint", "Läs en kort guide med tips om hur du använder appen.")}
         </p>
         <Link to="/instructions" className="btn">
-          Instruktioner
+          {t("profile.help.cta", "Instruktioner")}
         </Link>
       </div>
 
       {/* Datahantering */}
       <div className="card p-4">
-        <h2 className="font-semibold">Datahantering</h2>
+        <h2 className="font-semibold">{t("profile.backup.wipe_title", "Datahantering")}</h2>
         <p className="text-sand-300 text-sm mb-2">
-          Behöver du börja om från noll? Du kan rensa all lokal data.
+          {t("profile.backup.wipe_hint", "Behöver du börja om från noll? Du kan rensa all lokal data.")}
         </p>
         <button className="btn" onClick={handleWipe}>
-          Rensa allt
+          {t("profile.backup.wipe_btn", "Rensa allt")}
         </button>
       </div>
 
       {/* Om-appen */}
       <div className="text-sand-300 text-sm">
         <ul className="list-disc pl-6 space-y-1">
-          <li>App: Cinemoria v{APP_VERSION}</li>
+          <li>{t("profile.about.app", { version: APP_VERSION })}</li>
           <li>
-            © 2025 Conri Turesson — Licens: <a href="/LICENSE.md">GNU GPL v3.0</a>{" "}
-            (<a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank" rel="noopener">
-              mer info
-            </a>).
+            {t("profile.about.license", "© 2025 Conri Turesson — Licens: GNU GPL v3.0")} —{" "}
+            <a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank" rel="noopener">
+              {t("profile.about.more", "mer info")}
+            </a>.
           </li>
-          <li>Lagring: Offline (IndexedDB). Ingen server krävs.</li>
-          <li>Plattform: GitHub Pages.</li>
+          <li>{t("profile.about.storage", "Lagring: Offline (IndexedDB). Ingen server krävs.")}</li>
+          <li>{t("profile.about.platform", "Plattform: GitHub Pages.")}</li>
         </ul>
       </div>
     </section>
