@@ -36,8 +36,8 @@ const BookHome = lazy(() => import("./pages/book/BookHome"));
 const BookSearch = lazy(() => import("./pages/book/BookSearch"));
 const BookAdd = lazy(() => import("./pages/book/BookAdd"));
 const BookCollections = lazy(() => import("./pages/book/BookCollectionsPage"));
-const BookListDetail = lazy(() => import("./pages/book/BookListDetailPage"));
-const BookEdit = lazy(() => import("./pages/book/BookEdit"));
+const BookListDetail = lazy(() => import("./pages/book/ListDetailPage"));
+const BookEdit = lazy(() => import("./pages/book/EditPage"));
 
 /* Game */
 const GameLayout = lazy(() => import("./pages/game/GameLayout"));
@@ -45,26 +45,26 @@ const GameHome = lazy(() => import("./pages/game/GameHome"));
 const GameSearch = lazy(() => import("./pages/game/GameSearch"));
 const GameAdd = lazy(() => import("./pages/game/GameAdd"));
 const GameCollections = lazy(() => import("./pages/game/GameCollectionsPage"));
-const GameListDetail = lazy(() => import("./pages/game/GameListDetailPage"));
-const GameEdit = lazy(() => import("./pages/game/GameEdit"));
+const GameListDetail = lazy(() => import("./pages/game/ListDetailPage"));
+const GameEdit = lazy(() => import("./pages/game/EditPage"));
 
 /* Music (Albums) */
 const AlbumLayout = lazy(() => import("./pages/album/AlbumLayout"));
 const AlbumHome = lazy(() => import("./pages/album/AlbumHome"));
 const AlbumSearch = lazy(() => import("./pages/album/AlbumSearch"));
-const AlbumAdd = lazy(() => import("./pages/album/AlbumAdd"));
-const AlbumCollections = lazy(() => import("./pages/album/AlbumCollectionsPage"));
-const AlbumListDetail = lazy(() => import("./pages/album/AlbumListDetailPage"));
-const AlbumEdit = lazy(() => import("./pages/album/AlbumEdit"));
+const AlbumAdd = lazy(() => import("./pages/album/AddPage"));
+const AlbumCollections = lazy(() => import("./pages/album/CollectionsPage"));
+const AlbumListDetail = lazy(() => import("./pages/album/ListDetailPage"));
+const AlbumEdit = lazy(() => import("./pages/album/EditPage"));
 
 /* Comics (Serietidningar) */
 const ComicLayout = lazy(() => import("./pages/comic/ComicLayout"));
 const ComicHome = lazy(() => import("./pages/comic/ComicHome"));
-const ComicSearch = lazy(() => import("./pages/comic/ComicSearch"));
-const ComicAdd = lazy(() => import("./pages/comic/ComicAdd"));
-const ComicCollections = lazy(() => import("./pages/comic/ComicCollectionsPage"));
-const ComicListDetail = lazy(() => import("./pages/comic/ComicListDetailPage"));
-const ComicEdit = lazy(() => import("./pages/comic/ComicEdit"));
+const ComicSearch = lazy(() => import("./pages/comic/SearchPage"));
+const ComicAdd = lazy(() => import("./pages/comic/AddPage"));
+const ComicCollections = lazy(() => import("./pages/comic/CollectionsPage"));
+const ComicListDetail = lazy(() => import("./pages/comic/ListDetailPage"));
+const ComicEdit = lazy(() => import("./pages/comic/EditPage"));
 
 export default function App() {
   const { t } = useTranslation();
@@ -155,13 +155,14 @@ export default function App() {
         )}
       >
         <div className="max-w-3xl mx-auto grid grid-cols-7">
-          <NavItem to="/"        k="nav.home"    def="Hem"      icon={<Home size={22} />} />
-          <NavItem to="/movie"   k="nav.movies"  def="Film"     icon={<Library size={22} />} />
-          <NavItem to="/game"    k="nav.games"   def="Spel"     icon={<Gamepad2 size={22} />} />
-          <NavItem to="/book"    k="nav.books"   def="Böcker"   icon={<BookOpen size={22} />} />
-          <NavItem to="/album"   k="nav.music"   def="Musik"    icon={<Disc3 size={22} />} />
-          <NavItem to="/comic"   k="nav.comics"  def="Serier"   icon={<PanelsTopLeft size={22} />} />
-          <NavItem to="/profile" k="nav.profile" def="Profil"   icon={<User size={22} />} />
+          {/* Tar bort def="..." då nycklarna (k="...") garanterat finns i translation.json */}
+          <NavItem to="/"        k="nav.home"    icon={<Home size={22} />} />
+          <NavItem to="/movie"   k="nav.movies"  icon={<Library size={22} />} />
+          <NavItem to="/game"    k="nav.games"   icon={<Gamepad2 size={22} />} />
+          <NavItem to="/book"    k="nav.books"   icon={<BookOpen size={22} />} />
+          <NavItem to="/album"   k="nav.music"   icon={<Disc3 size={22} />} />
+          <NavItem to="/comic"   k="nav.comics"  icon={<PanelsTopLeft size={22} />} />
+          <NavItem to="/profile" k="nav.profile" icon={<User size={22} />} />
         </div>
       </nav>
     </div>
@@ -171,16 +172,15 @@ export default function App() {
 function NavItem({
   to,
   k,
-  def,
   icon,
 }: {
   to: string;
   k: string;
-  def: string;
   icon: React.ReactNode;
 }) {
   const { t } = useTranslation();
-  const label = t(k, { defaultValue: def });
+  // Använder t(k) direkt utan fallback eftersom nav-nycklarna är kritiska och garanterat finns
+  const label = t(k);
 
   return (
     <NavLink
