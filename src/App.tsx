@@ -145,28 +145,26 @@ export default function App() {
         </Suspense>
       </main>
 
-      {/* Bottennavigation – egen Suspense så i18n hinner initiera innan NavItem renderas */}
-      <Suspense fallback={null}>
-        <nav
-          className={clsx(
-            "fixed bottom-0 inset-x-0 border-t backdrop-blur",
-            "bg-white/90 border-sand-200",
-            "dark:bg-ink-800/80 dark:border-ink-700",
-            "sepia:bg-[#f3e8c7]/90 sepia:border-[#e7d3a8]"
-          )}
-        >
-          <div className="max-w-3xl mx-auto grid grid-cols-7">
-            {/* Nycklarna måste finnas under "nav" i translation.json */}
-            <NavItem to="/"        k="nav.home"    icon={<Home size={22} />} />
-            <NavItem to="/movie"   k="nav.movies"  icon={<Library size={22} />} />
-            <NavItem to="/game"    k="nav.games"   icon={<Gamepad2 size={22} />} />
-            <NavItem to="/book"    k="nav.books"   icon={<BookOpen size={22} />} />
-            <NavItem to="/album"   k="nav.music"   icon={<Disc3 size={22} />} />
-            <NavItem to="/comic"   k="nav.comics"  icon={<PanelsTopLeft size={22} />} />
-            <NavItem to="/profile" k="nav.profile" icon={<User size={22} />} />
-          </div>
-        </nav>
-      </Suspense>
+      {/* Bottennavigation */}
+      <nav
+        className={clsx(
+          "fixed bottom-0 inset-x-0 border-t backdrop-blur",
+          "bg-white/90 border-sand-200",
+          "dark:bg-ink-800/80 dark:border-ink-700",
+          "sepia:bg-[#f3e8c7]/90 sepia:border-[#e7d3a8]"
+        )}
+      >
+        <div className="max-w-3xl mx-auto grid grid-cols-7">
+          {/* ANVÄND ENKEL k="nav.home" OCH LIT PÅ ATT SUSPENSE/ZUSTAND FIXAR DET */}
+          <NavItem to="/"        k="nav.home"    icon={<Home size={22} />} />
+          <NavItem to="/movie"   k="nav.movies"  icon={<Library size={22} />} />
+          <NavItem to="/game"    k="nav.games"   icon={<Gamepad2 size={22} />} />
+          <NavItem to="/book"    k="nav.books"   icon={<BookOpen size={22} />} />
+          <NavItem to="/album"   k="nav.music"   icon={<Disc3 size={22} />} />
+          <NavItem to="/comic"   k="nav.comics"  icon={<PanelsTopLeft size={22} />} />
+          <NavItem to="/profile" k="nav.profile" icon={<User size={22} />} />
+        </div>
+      </nav>
     </div>
   );
 }
@@ -182,9 +180,8 @@ function NavItem({
 }) {
   const { t } = useTranslation();
 
-  // Läsbar fallback om key inte laddats ännu
-  const fallbackText = k.split(".")[1] || "Error";
-  const label = t(k, { defaultValue: fallbackText });
+  // STABIL FIX: Lita på att i18next nu slår upp den nästlade nyckeln korrekt
+  const label = t(k);
 
   return (
     <NavLink
