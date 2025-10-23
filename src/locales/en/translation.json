@@ -1,15 +1,15 @@
 {
   "loading": "Loading…", 
 
-  "nav": {
-    "home": "Hem",
-    "movies": "Film",
-    "games": "Spel",
-    "books": "Böcker",
-    "music": "Musik",
-    "comics": "Serier",
-    "profile": "Profil"
-  },
+"nav": {
+  "home": "Home",
+  "movies": "Movies",
+  "games": "Games",
+  "books": "Books",
+  "music": "Music",
+  "comics": "Comics",
+  "profile": "Profile"
+}
   
   "sectionNav": {    
     "overview": "Overview",    
