@@ -27,25 +27,28 @@ const MovieHome = lazy(() => import("./pages/movie/MovieHome"));
 const MovieSearch = lazy(() => import("./pages/movie/SearchPage"));
 const MovieAdd = lazy(() => import("./pages/movie/AddPage"));
 const MovieCollections = lazy(() => import("./pages/movie/CollectionsPage"));
-const MovieListDetail = lazy(() => import("./pages/movie/ListDetailPage")); // KORREKT ENLIGT DITT REPO
+// KONSISTENT: MovieListDetail -> ListDetailPage
+const MovieListDetail = lazy(() => import("./pages/movie/ListDetailPage")); 
 const MovieEdit = lazy(() => import("./pages/movie/EditPage"));
 
 /* Book */
 const BookLayout = lazy(() => import("./pages/book/BookLayout"));
 const BookHome = lazy(() => import("./pages/book/BookHome"));
-const BookSearch = lazy(() => import("./pages/book/BookSearch"));
-const BookAdd = lazy(() => import("./pages/book/BookAdd"));
-const BookCollections = lazy(() => import("./pages/book/BookCollectionsPage"));
-const BookListDetail = lazy(() => import("./pages/book/BookListDetailPage")); // KORREKT ENLIGT DITT REPO
-const BookEdit = lazy(() => import("./pages/book/BookEdit"));
+const BookSearch = lazy(() => import("./pages/book/SearchPage"));
+const BookAdd = lazy(() => import("./pages/book/AddPage"));
+const BookCollections = lazy(() => import("./pages/book/CollectionsPage"));
+// KONSISTENT: BookListDetail -> ListDetailPage
+const BookListDetail = lazy(() => import("./pages/book/ListDetailPage"));
+const BookEdit = lazy(() => import("./pages/book/EditPage"));
 
 /* Game */
 const GameLayout = lazy(() => import("./pages/game/GameLayout"));
 const GameHome = lazy(() => import("./pages/game/GameHome"));
-const GameSearch = lazy(() => import("./pages/game/GameSearch"));
+const GameSearch = lazy(() => import("./pages/game/SearchPage"));
 const GameAdd = lazy(() => import("./pages/game/AddPage"));
 const GameCollections = lazy(() => import("./pages/game/CollectionsPage"));
-const GameListDetail = lazy(() => import("./pages/game/ListDetailPage")); // KORREKT ENLIGT DITT REPO
+// KONSISTENT: GameListDetail -> ListDetailPage
+const GameListDetail = lazy(() => import("./pages/game/ListDetailPage"));
 const GameEdit = lazy(() => import("./pages/game/EditPage"));
 
 /* Music (Albums) */
@@ -54,7 +57,8 @@ const AlbumHome = lazy(() => import("./pages/album/AlbumHome"));
 const AlbumSearch = lazy(() => import("./pages/album/SearchPage"));
 const AlbumAdd = lazy(() => import("./pages/album/AddPage"));
 const AlbumCollections = lazy(() => import("./pages/album/CollectionsPage"));
-const AlbumListDetail = lazy(() => import("./pages/album/ListDetailPage")); // KORREKT ENLIGT DITT REPO
+// KONSISTENT: AlbumListDetail -> ListDetailPage
+const AlbumListDetail = lazy(() => import("./pages/album/ListDetailPage"));
 const AlbumEdit = lazy(() => import("./pages/album/EditPage"));
 
 /* Comics (Serietidningar) */
@@ -63,7 +67,8 @@ const ComicHome = lazy(() => import("./pages/comic/ComicHome"));
 const ComicSearch = lazy(() => import("./pages/comic/SearchPage"));
 const ComicAdd = lazy(() => import("./pages/comic/AddPage"));
 const ComicCollections = lazy(() => import("./pages/comic/CollectionsPage"));
-const ComicListDetail = lazy(() => import("./pages/comic/ListDetailPage")); // KORREKT ENLIGT DITT REPO
+// KONSISTENT: ComicListDetail -> ListDetailPage
+const ComicListDetail = lazy(() => import("./pages/comic/ListDetailPage"));
 const ComicEdit = lazy(() => import("./pages/comic/EditPage"));
 
 export default function App() {
@@ -145,7 +150,7 @@ export default function App() {
         </Suspense>
       </main>
 
-      {/* Bottennavigation */}
+            {/* Bottennavigation */}
       <nav
         className={clsx(
           "fixed bottom-0 inset-x-0 border-t backdrop-blur",
