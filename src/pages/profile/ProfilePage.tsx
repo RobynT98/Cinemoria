@@ -485,7 +485,9 @@ export default function ProfilePage() {
       {/* Om-appen */}
       <div className="text-sand-300 text-sm">
         <ul className="list-disc pl-6 space-y-1">
-          <li>{t("profile.about.app", { version: APP_VERSION })}</li>
+          <li>
+          Cinemoria V 2
+          </li>
           <li>
             {t("profile.about.license", "© 2025 Conri Turesson — Licens: GNU GPL v3.0")} —{" "}
             <a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank" rel="noopener">
