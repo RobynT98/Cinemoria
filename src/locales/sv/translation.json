@@ -1,284 +1,314 @@
 {
-  "loading": "Laddar…",
- 
- "nav": {
-  "home": "Hem",
-  "movies": "Film",
-  "games": "Spel",
-  "books": "Böcker",
-  "music": "Musik",
-  "comics": "Serier",
-  "profile": "Profil"
-},
+  "loading": "Laddar…", 
 
+  "nav": {    
+    "home": "Hem",    
+    "movies": "Film",    
+    "games": "Spel",    
+    "books": "Böcker",    
+    "music": "Musik",    
+    "comics": "Serier",    
+    "profile": "Profil"    
+  },    
 
-  "sectionNav": {
-    "overview": "Översikt",
-    "search": "Sök",
-    "add": "Lägg till",
-    "collections": "Samlingar"
-  },
-  "profile": {
-    "title": "Profil & Inställningar",
-    "install": {
-      "title": "Installera som app",
-      "subtitle": "Fungerar offline och startar helskärm.",
-      "cta": "Installera",
-      "iosTitle": "Installera på iPhone/iPad",
-      "iosHint": "Öppna delnings-menyn och välj “Lägg till på hemskärmen”."
-    },
-    "language": {
-      "title": "Språk",
-      "hint": "Byt appens språk. Valet sparas lokalt.",
-      "sv": "Svenska",
-      "en": "English"
-    },
-    "theme": {
-      "title": "Tema",
-      "hint": "Välj mellan mörkt, ljust eller sepia.",
-      "dark": "Mörkt",
-      "light": "Ljust",
-      "sepia": "Sepia"
-    },
-    "datafill": {
-      "title": "Datakällor & Autofyll",
-      "omdb": {
-        "use": "Använd OMDb för film-autofyll",
-        "placeholder": "OMDb API-nyckel",
-        "test": "Testa OMDb",
-        "status_ok": "OK",
-        "status_fail": "Fel",
-        "status_busy": "Testar…",
-        "status_idle": "—",
-        "note": "Din OMDb-nyckel sparas endast lokalt i webbläsaren. När du lägger till eller redigerar en film kan appen använda nyckeln för att automatiskt hämta titel, poster och genrer via knappen Hämta från OMDb.",
-        "tip": "Tips: Klicka Testa OMDb ovan för att kontrollera att din nyckel fungerar.",
-        "msg_need_key": "Ange en OMDb-nyckel först.",
-        "msg_ok": "OMDb OK – anslutning och nyckel verkar fungera.",
-        "msg_error_prefix": "OMDb:",
-        "msg_network": "Kunde inte nå OMDb."
-      },
-      "barcode": {
-        "title": "Streckkodsskanning",
-        "hint": "Testa kameratillstånd så att streckkodsskannern kan starta direkt i formulären.",
-        "tip": "Tips: Om testet lyckas kan du skanna EAN, ISBN eller andra koder direkt när du lägger till film, bok, musik, serietidningar eller spel.",
-        "test": "Testa kamera",
+  "sectionNav": {    
+    "overview": "Översikt",    
+    "search": "Sök",    
+    "add": "Lägg till",    
+    "collections": "Samlingar"    
+  },    
+
+  "profile": {    
+    "title": "Profil & Inställningar",    
+
+    "install": {    
+      "title": "Installera som app",    
+      "subtitle": "Fungerar offline och startar helskärm.",    
+      "cta": "Installera",    
+      "iosTitle": "Installera på iPhone/iPad",    
+      "iosHint": "Öppna delnings-menyn och välj “Lägg till på hemskärmen”."    
+    },    
+
+    "language": {    
+      "title": "Språk",    
+      "hint": "Byt appens språk. Valet sparas lokalt.",    
+      "sv": "Svenska",    
+      "en": "English"    
+    },    
+
+    "theme": {    
+      "title": "Tema",    
+      "hint": "Välj mellan mörkt, ljust eller sepia.",    
+      "dark": "Mörkt",    
+      "light": "Ljust",    
+      "sepia": "Sepia"    
+    },    
+
+    "datafill": {    
+      "title": "Datakällor & Autofyll",    
+
+      "omdb": {    
+        "use": "Använd OMDb för film-autofyll",    
+        "placeholder": "OMDb API-nyckel",    
+        "test": "Testa OMDb",    
+        "status_ok": "OK",    
+        "status_fail": "Fel",    
+        "status_busy": "Testar…",    
+        "status_idle": "—",    
+        "note": "Din OMDb-nyckel sparas endast lokalt i webbläsaren. När du lägger till eller redigerar en film kan appen använda nyckeln för att automatiskt hämta titel, poster och genrer via knappen Hämta från OMDb.",    
+        "tip": "Tips: Klicka Testa OMDb ovan för att kontrollera att din nyckel fungerar.",    
+        "msg_need_key": "Ange en OMDb-nyckel först.",    
+        "msg_ok": "OMDb OK – anslutning och nyckel verkar fungera.",    
+        "msg_error_prefix": "OMDb:",    
+        "msg_network": "Kunde inte nå OMDb."    
+      },    
+
+      "barcode": {    
+        "title": "Streckkodsskanning",    
+        "hint": "Testa kameratillstånd så att streckkodsskannern kan starta direkt i formulären.",    
+        "tip": "Tips: Om testet lyckas kan du skanna EAN, ISBN eller andra koder direkt när du lägger till film, bok, musik, serietidningar eller spel.",    
+        "test": "Testa kamera",    
         "ok": "Kamera OK",
-        "denied": "Nekad",
-        "error": "Fel",
-        "busy": "Testar…",
-        "idle": "—",
-        "msg_ok": "Kamera OK – streckkodsskannern kan användas.",
-        "msg_denied": "Kamera nekad. Tillåt kamera i webbläsarens inställningar.",
-        "msg_error": "Kunde inte öppna kameran."
-      }
-    },
-    "backup": {
-      "title": "Backup",
-      "export": "Exportera JSON",
-      "import": "Importera JSON",
-      "import_done": "Import klar:",
-      "wipe_title": "Datahantering",
-      "wipe_hint": "Behöver du börja om från noll? Du kan rensa all lokal data.",
-      "wipe_btn": "Rensa allt",
-      "wipe_confirm": "Rensa all din data? (Filmer, listor, kopplingar, böcker, boklistor, spel, spellistor, album, albumlistor, serier och serielistor tas bort. Appen ligger kvar.)",
-      "copied": "Länk kopierad ✓",
-      "copy": "Kopiera app-länk"
-    },
-    "feedback": {
-      "title": "Feedback & delning",
-      "hint": "Skicka frivillig feedback eller dela appens länk. Ingen data skickas automatiskt.",
-      "send": "Skicka feedback"
-    },
-    "help": {
-      "title": "Behöver du hjälp?",
-      "hint": "Läs en kort guide med tips om hur du använder appen.",
-      "cta": "Instruktioner"
-    },
-    "about": {
-      "app": "App: Cinemoria v{{version}}",
-      "license": "© 2025 Conri Turesson — Licens: GNU GPL v3.0",
-      "storage": "Lagring: Offline (IndexedDB). Ingen server krävs.",
-      "platform": "Plattform: GitHub Pages.",
-      "more": "mer info"
-    }
-  },
-  "instructions": {
-    "title": "Instruktioner",
-    "intro": "En snabbguide till Cinemoria. All data sparas lokalt i din webbläsare (IndexedDB). Efter första laddningen fungerar appen offline.",
-    "getStarted": {
-      "title": "Kom igång",
-      "movie": "Film: gå till Lägg till film och spara din första titel.",
-      "book": "Böcker: gå till Lägg till bok och fyll i författare, ISBN m.m.",
-      "game": "Spel: gå till Lägg till spel och ange titel, plattform och status.",
-      "music": "Musik: gå till Lägg till musik och fyll i titel, EAN m.m.",
-      "comic": "Serier: gå till Lägg till en serietidning och fyll i volym, nummer m.m.",
-      "profile": "Under Profil hittar du Backup (export/import), tema och kameratest.",
-      "cta_movie": "+ Ny film",
-      "cta_book": "+ Ny bok",
-      "cta_game": "+ Nytt spel",
-      "cta_album": "+ Ny skiva",
-      "cta_comic": "+ Ny serietidning",
-      "cta_profile": "Backup"
-    },
-    "barcode": {
-      "title": "Streckkod (kamera)",
-      "where": "Var du hittar skanning: I formulären finns fältet Streckkod (EAN/UPC) (film/spel) och ISBN (bok) med knappen Skanna. Tryck Skanna – inte bara på fältet.",
-      "note": "Film & spel & Serier & Musik: appen sparar EAN/UPC lokalt (för igenkänning/anteckning). Ingen extern uppslagning i nuläget.",
-      "books": "Böcker: vid ISBN försöker appen hämta metadata från Open Library (titel, omslag, sidor m.m.). Lyckas det inte lämnas fält orörda.",
-      "perm": "Kameratest & behörighet: gå till Profil → Streckkodsskanning → Testa kamera och tillåt kamera. Fungerar bäst i Chrome/Edge/Android. Bra ljus hjälper.",
-      "troubleshoot": "Felsök: Om kameran inte startar, stäng fliken och öppna igen, testa först i webbläsare (inte PWA), och kontrollera sajtens kamerabehörigheter."
-    },
-    "movies": {
-      "title": "Filmer: lägga till & redigera",
-      "steps": [
-        "Fyll i Titel, valfritt År och Genrer (kommaseparerat).",
-        "Under Ägande kan du markera Ägd, Digital och Önskelista.",
-        "Utgåva & Teknik: format (UHD/Blu-ray/DVD/VHS/Digital/Övrigt), region, videostandard, streckkod (EAN/UPC), utgåveår, cut, ljudvariant och anteckningar.",
-        "Tryck Spara. Senaste titlar visas på filmsidan."
-      ],
-      "cta_search": "Sök film",
-      "cta_lists": "Filmsamlingar"
-    },
-    "omdb": {
-      "title": "Film-metadata (OMDb) – egen API-nyckel",
-      "lead": "Vill du auto-fylla titel/år/affisch/genre från OMDb? Använd din egen OMDb-nyckel. Den lagras bara i din webbläsare.",
-      "steps": [
-        "Skaffa gratis nyckel på omdbapi.com/apikey.aspx (Free plan räcker).",
-        "Öppna Profil → Datakällor & Autofyll: Bocka i Använd OMDb. Klistra in din nyckel i OMDb API-nyckel. Tryck Testa OMDb – status ska bli “OK”.",
-        "Gå till filmformuläret, skriv en titel (ev. år) och tryck Hämta från OMDb."
-      ],
-      "note": "Obs: OMDb Free har dagliga begränsningar. Misslyckas hämtning visas ett felmeddelande – du kan alltid fylla i själv."
-    },
-    "books": {
-      "title": "Böcker: lägga till & redigera",
-      "steps": [
-        "Fyll i Titel, Författare, valfritt År och Genrer.",
-        "Markera Ägd / Digital / Önskelista och välj Format (inbunden/pocket/e-bok/ljudbok/övrigt).",
-        "Extra fält: ISBN, Språk, Sidor, Förlag, omslag och anteckningar.",
-        "Tryck Spara."
-      ],
-      "cta_search": "Sök böcker",
-      "cta_lists": "Boklistor"
-    },
-    "games": {
-      "title": "Spel: lägga till & redigera",
-      "steps": [
-        "Fyll i Titel, valfritt År, Plattform (PS5, Switch, PC …), omslag och Anteckningar (edition/DLC/var spelet ligger).",
-        "Markera Ägd, Digital och/eller Önskelista.",
-        "Tryck Spara. Senaste spel visas under Spel → Översikt."
-      ],
-      "cta_search": "Sök spel",
-      "cta_lists": "Game lists"
-    },
-    "comics": {
-      "title": "Serier (comics): lägga till & redigera",
-      "steps": [
-        "Fyll i Titel, Serie, Volym/Nummer och valfritt År.",
-        "Markera Ägd / Digital / Önskelista och välj Format (t.ex. häftad/inbunden/övrigt).",
-        "Lägg till omslags-URL och anteckningar (variant, skick, förlag, pris m.m.).",
-        "Press Save."
-      ],
-      "cta_search": "Search comics",
-      "cta_lists": "Comic lists"
-    },
-    "music": {
-      "title": "Musik & album: lägga till & redigera",
-      "steps": [
-        "Fyll i Albumtitel, Artist, valfritt År och Genre.",
-        "Markera Ägd, Digital och/eller Önskelista.",
-        "Ange Format (vinyl, CD, kassett, digitalt, Blu-ray Audio, SACD, övrigt) och Anteckningar (utgåva, färgvinyl, press/matrix, skick).",
-        "Tryck Spara. Senaste album visas under Musik → Översikt."
-      ],
-      "cta_search": "Search albums",
-      "cta_lists": "Music lists"
-    },
-    "collections": {
-      "title": "Samlingar (listor)",
-      "text": "Skapa valfria samlingar för film, böcker, spel, musik och serier (t.ex. “Hylla A”, “Favoriter 2025”, “Att köpa”). Antal objekt visas direkt. Byter du namn eller tar bort listan ligger innehållet kvar.",
-      "cta_movies": "Filmsamlingar",
-      "cta_books": "Boklistor",
-      "cta_games": "Spellistor",
-      "cta_albums": "Musiklistor",
-      "cta_comics": "Serielistor"
-    },
-    "searchFilter": {
-      "title": "Sök & filter",
-      "movies": "Fritext på titel, genrer, plats/tjänst, år. Filtrera på Ägd/Digital/Önskelista.",
-      "books": "Sök på titel, författare, språk, format, ISBN, år. Samma statusfilter som film.",
-      "games": "Sök på titel, plattform, år och anteckningar. Filtrera på Ägd/Digital/Önskelista.",
-      "music": "Sök på albumtitel, artist, år, genre och format. Filtrera på Ägd/Digital/Önskelista.",
-      "comics": "Sök på titel, volym, nummer, år och anteckningar. Filtrera på Ägd/Digital/Önskelista.",
-      "open_movies": "Öppna filmsök",
-      "open_books": "Öppna boksök",
-      "open_games": "Öppna spelsök",
-      "open_albums": "Öppna musiksök",
-      "open_comics": "Öppna seriesök"
-    },
-    "backup": {
-      "title": "Backup & flytta data",
-      "export": "Exportera skapar en JSON med allt (film/bok/spel/musik/serier och listor/kopplingar).",
-      "import": "Importera lägger till innehåll från en tidigare export (dubbletter kan uppstå).",
-      "wipe": "Rensa allt tar bort all lokal data.",
-      "cta": "Öppna Profil & Backup"
-    },
-    "pwa": {
-      "title": "Installera som app (PWA)",
-      "android": "Android/Chrome: Meny → Installera app.",
-      "ios": "iPhone/iPad (Safari): Dela → Lägg till på hemskärmen.",
-      "desktop": "Desktop: Ikonen i adressfältet eller webbläsarens meny."
-    },
-    "privacy": {
-      "title": "Sekretess, prestanda & felsökning",
-      "privacy": "Sekretess: Din data lämnar inte enheten. Ingen inloggning, ingen server.",
-      "sync": "Synk: Använd export/import för att flytta mellan enheter.",
-      "omdb": "OMDb fel? Kolla Profil → “Datakällor & Autofyll”: att det är ibockat, att nyckeln finns och att Testa OMDb visar “OK”.",
-      "empty": "Om något ser tomt ut: ladda om sidan, rensa cache, eller exportera → rensa allt → importera igen.",
-      "themes": "Teman: Byt mellan mörkt, ljust och sepia under Profil."
-    },
-    "feedback": {
-      "title": "Feedback & delning",
-      "text": "Under Profil finns Skicka feedback (mailto med teknisk info) och Kopiera app-länk."
-    }
-  },
-  "home": {
-    "hero_lead": "En hylla för allt du äger och älskar — film, böcker och spel. Offline och snabbt.",
-    "get_started": "Kom igång",
-    "get_started_hint": "Hoppa in i rätt sektion. Lägg till nytt, sök eller bygg samlingar.",
-    "empty_title": "Din hylla väntar ✨",
-    "empty_hint": "Börja i den sektion som känns roligast. Du kan alltid importera en JSON-backup via Profil.",
-    "btn": {
-      "movie": "Film",
-      "book": "Böcker",
-      "game": "Spel",
-      "album": "Musik",
-      "comic": "Serier",
-      "add_movie": "Lägg till film",
-      "add_book": "Lägg till bok",
-      "add_game": "Lägg till spel",
-      "add_album": "Lägg till album",
-      "add_comic": "Lägg till serie",
-      "import_backup": "Importera backup",
-      "search": "Sök",
-      "add": "Lägg till",
-      "lists": "Listor"
-    },
-    "stats": {
-      "total": "Totalt",
-      "owned": "Ägda",
-      "digital": "Digitalt",
-      "wish": "Önskelista",
-      "lists": "Listor",
-      "latest": "Senast tillagda",
-      "movies": "Filmer",
-      "books": "Böcker",
-      "games": "Spel",
-      "albums": "Musik",
-      "comics": "Serier",
-      "empty_movies": "Inga filmer ännu.",
-      "empty_books": "Inga böcker ännu.",
-      "empty_games": "Inga spel ännu.",
-      "empty_albums": "Inga album ännu.",
-      "empty_comics": "Inga serier ännu."
-    }
-  }
+        "denied": "Nekad",    
+        "error": "Fel",    
+        "busy": "Testar…",    
+        "idle": "—",    
+        "msg_ok": "Kamera OK – streckkodsskannern kan användas.",    
+        "msg_denied": "Kamera nekad. Tillåt kamera i webbläsarens inställningar.",    
+        "msg_error": "Kunde inte öppna kameran."    
+      }    
+    },    
+
+    "backup": {    
+      "title": "Backup",    
+      "export": "Exportera JSON",    
+      "import": "Importera JSON",    
+      "import_done": "Import klar:",    
+      "wipe_title": "Datahantering",    
+      "wipe_hint": "Behöver du börja om från noll? Du kan rensa all lokal data.",    
+      "wipe_btn": "Rensa allt",    
+      "wipe_confirm": "Rensa all din data? (Filmer, listor, kopplingar, böcker, boklistor, spel, spellistor, album, albumlistor, serier och serielistor tas bort. Appen ligger kvar.)",    
+      "copied": "Länk kopierad ✓",    
+      "copy": "Kopiera app-länk"    
+    },    
+
+    "feedback": {    
+      "title": "Feedback & delning",    
+      "hint": "Skicka frivillig feedback eller dela appens länk. Ingen data skickas automatiskt.",    
+      "send": "Skicka feedback"    
+    },    
+
+    "help": {    
+      "title": "Behöver du hjälp?",    
+      "hint": "Läs en kort guide med tips om hur du använder appen.",    
+      "cta": "Instruktioner"    
+    },    
+
+    "about": {    
+      "app": "App: Cinemoria v{{version}}",    
+      "license": "© 2025 Conri Turesson — Licens: GNU GPL v3.0",    
+      "storage": "Lagring: Offline (IndexedDB). Ingen server krävs.",    
+      "platform": "Plattform: GitHub Pages.",    
+      "more": "mer info"    
+    }    
+  },    
+
+  "instructions": {    
+    "title": "Instruktioner",    
+    "intro": "En snabbguide till Cinemoria. All data sparas lokalt i din webbläsare (IndexedDB). Efter första laddningen fungerar appen offline.",    
+
+    "getStarted": {    
+      "title": "Kom igång",    
+      "movie": "Film: gå till Lägg till film och spara din första titel.",    
+      "book": "Böcker: gå till Lägg till bok och fyll i författare, ISBN m.m.",    
+      "game": "Spel: gå till Lägg till spel och ange titel, plattform och status.",    
+      "music": "Musik: gå till Lägg till musik och fyll i titel, EAN m.m.",    
+      "comic": "Serier: gå till Lägg till en serietidning och fyll i volym, nummer m.m.",    
+      "profile": "Under Profil hittar du Backup (export/import), tema och kameratest.",    
+      "cta_movie": "+ Ny film",    
+      "cta_book": "+ Ny bok",    
+      "cta_game": "+ Nytt spel",    
+      "cta_album": "+ Ny skiva",    
+      "cta_comic": "+ Ny serietidning",    
+      "cta_profile": "Backup"    
+    },    
+
+    "barcode": {    
+      "title": "Streckkod (kamera)",    
+      "where": "Var du hittar skanning: I formulären finns fältet Streckkod (EAN/UPC) (film/spel) och ISBN (bok) med knappen Skanna. Tryck Skanna – inte bara på fältet.",    
+      "note": "Film & spel & Serier & Musik: appen sparar EAN/UPC lokalt (för igenkänning/anteckning). Ingen extern uppslagning i nuläget.",    
+      "books": "Böcker: vid ISBN försöker appen hämta metadata från Open Library (titel, omslag, sidor m.m.). Lyckas det inte lämnas fält orörda.",    
+      "perm": "Kameratest & behörighet: gå till Profil → Streckkodsskanning → Testa kamera och tillåt kamera. Fungerar bäst i Chrome/Edge/Android. Bra ljus hjälper.",    
+      "troubleshoot": "Felsök: Om kameran inte startar, stäng fliken och öppna igen, testa först i webbläsare (inte PWA), och kontrollera sajtens kamerabehörigheter."    
+    },    
+
+    "movies": {    
+      "title": "Filmer: lägga till & redigera",    
+      "steps": [    
+        "Fyll i Titel, valfritt År och Genrer (kommaseparerat).",    
+        "Under Ägande kan du markera Ägd, Digital och Önskelista.",    
+        "Utgåva & Teknik: format (UHD/Blu-ray/DVD/VHS/Digital/Övrigt), region, videostandard, streckkod (EAN/UPC), utgåveår, cut, ljudvariant och anteckningar.",    
+        "Tryck Spara. Senaste titlar visas på filmsidan."    
+      ],    
+      "cta_search": "Sök film",    
+      "cta_lists": "Filmsamlingar"    
+    },    
+
+    "omdb": {    
+      "title": "Film-metadata (OMDb) – egen API-nyckel",    
+      "lead": "Vill du auto-fylla titel/år/affisch/genre från OMDb? Använd din egen OMDb-nyckel. Den lagras bara i din webbläsare.",    
+      "steps": [    
+        "Skaffa gratis nyckel på omdbapi.com/apikey.aspx (Free plan räcker).",    
+        "Öppna Profil → Datakällor & Autofyll: Bocka i Använd OMDb. Klistra in din nyckel i OMDb API-nyckel. Tryck Testa OMDb – status ska bli “OK”.",    
+        "Gå till filmformuläret, skriv en titel (ev. år) och tryck Hämta från OMDb."    
+      ],    
+      "note": "Obs: OMDb Free har dagliga begränsningar. Misslyckas hämtning visas ett felmeddelande – du kan alltid fylla i själv."    
+    },    
+
+    "books": {    
+      "title": "Böcker: lägga till & redigera",    
+      "steps": [    
+        "Fyll i Titel, Författare, valfritt År och Genrer.",    
+        "Markera Ägd / Digital / Önskelista och välj Format (inbunden/pocket/e-bok/ljudbok/övrigt).",    
+        "Extra fält: ISBN, Språk, Sidor, Förlag, omslag och anteckningar.",    
+        "Tryck Spara."    
+      ],    
+      "cta_search": "Sök böcker",    
+      "cta_lists": "Boklistor"    
+    },    
+
+    "games": {    
+      "title": "Spel: lägga till & redigera",    
+      "steps": [    
+        "Fyll i Titel, valfritt År, Plattform (PS5, Switch, PC …), omslag och Anteckningar (edition/DLC/var spelet ligger).",    
+        "Markera Ägd, Digital och/eller Önskelista.",    
+        "Tryck Spara. Senaste spel visas under Spel → Översikt."    
+      ],    
+      "cta_search": "Sök spel",    
+      "cta_lists": "Game lists"    
+    },    
+
+    "comics": {    
+      "title": "Serier (comics): lägga till & redigera",    
+      "steps": [    
+        "Fyll i Titel, Serie, Volym/Nummer och valfritt År.",    
+        "Markera Ägd / Digital / Önskelista och välj Format (t.ex. häftad/inbunden/övrigt).",    
+        "Lägg till omslags-URL och anteckningar (variant, skick, förlag, pris m.m.).",    
+        "Press Save."    
+      ],    
+      "cta_search": "Search comics",    
+      "cta_lists": "Comic lists"    
+    },    
+
+    "music": {    
+      "title": "Musik & album: lägga till & redigera",    
+      "steps": [    
+        "Fyll i Albumtitel, Artist, valfritt År och Genre.",    
+        "Markera Ägd, Digital och/eller Önskelista.",    
+        "Ange Format (vinyl, CD, kassett, digitalt, Blu-ray Audio, SACD, övrigt) och Anteckningar (utgåva, färgvinyl, press/matrix, skick).",    
+        "Tryck Spara. Senaste album visas under Musik → Översikt."    
+      ],    
+      "cta_search": "Search albums",    
+      "cta_lists": "Music lists"    
+    },    
+
+    "collections": {    
+      "title": "Samlingar (listor)",    
+      "text": "Skapa valfria samlingar för film, böcker, spel, musik och serier (t.ex. “Hylla A”, “Favoriter 2025”, “Att köpa”). Antal objekt visas direkt. Byter du namn eller tar bort listan ligger innehållet kvar.",    
+      "cta_movies": "Filmsamlingar",    
+      "cta_books": "Boklistor",    
+      "cta_games": "Spellistor",    
+      "cta_albums": "Musiklistor",    
+      "cta_comics": "Serielistor"    
+    },    
+
+    "searchFilter": {    
+      "title": "Sök & filter",    
+      "movies": "Fritext på titel, genrer, plats/tjänst, år. Filtrera på Ägd/Digital/Önskelista.",    
+      "books": "Sök på titel, författare, språk, format, ISBN, år. Samma statusfilter som film.",    
+      "games": "Sök på titel, plattform, år och anteckningar. Filtrera på Ägd/Digital/Önskelista.",    
+      "music": "Sök på albumtitel, artist, år, genre och format. Filtrera på Ägd/Digital/Önskelista.",    
+      "comics": "Sök på titel, volym, nummer, år och anteckningar. Filtrera på Ägd/Digital/Önskelista.",    
+      "open_movies": "Öppna filmsök",    
+      "open_books": "Öppna boksök",    
+      "open_games": "Öppna spelsök",    
+      "open_albums": "Öppna musiksök",    
+      "open_comics": "Öppna seriesök"    
+    },    
+
+    "backup": {    
+      "title": "Backup & flytta data",    
+      "export": "Exportera skapar en JSON med allt (film/bok/spel/musik/serier och listor/kopplingar).",    
+      "import": "Importera lägger till innehåll från en tidigare export (dubbletter kan uppstå).",    
+      "wipe": "Rensa allt tar bort all lokal data.",    
+      "cta": "Öppna Profil & Backup"    
+    },    
+
+    "pwa": {    
+      "title": "Installera som app (PWA)",    
+      "android": "Android/Chrome: Meny → Installera app.",    
+      "ios": "iPhone/iPad (Safari): Dela → Lägg till på hemskärmen.",    
+      "desktop": "Desktop: Ikonen i adressfältet eller webbläsarens meny."    
+    },    
+
+    "privacy": {    
+      "title": "Sekretess, prestanda & felsökning",    
+      "privacy": "Sekretess: Din data lämnar inte enheten. Ingen inloggning, ingen server.",    
+      "sync": "Synk: Använd export/import för att flytta mellan enheter.",    
+      "omdb": "OMDb fel? Kolla Profil → “Datakällor & Autofyll”: att det är ibockat, att nyckeln finns och att Testa OMDb visar “OK”.",    
+      "empty": "Om något ser tomt ut: ladda om sidan, rensa cache, eller exportera → rensa allt → importera igen.",    
+      "themes": "Teman: Byt mellan mörkt, ljust och sepia under Profil."    
+    },    
+
+    "feedback": {    
+      "title": "Feedback & delning",    
+      "text": "Under Profil finns Skicka feedback (mailto med teknisk info) och Kopiera app-länk."    
+    }    
+  },    
+
+  "home": {    
+    "hero_lead": "En hylla för allt du äger och älskar — film, böcker och spel. Offline och snabbt.",    
+    "get_started": "Kom igång",    
+    "get_started_hint": "Hoppa in i rätt sektion. Lägg till nytt, sök eller bygg samlingar.",    
+    "empty_title": "Din hylla väntar ✨",    
+    "empty_hint": "Börja i den sektion som känns roligast. Du kan alltid importera en JSON-backup via Profil.",    
+
+    "btn": {    
+      "movie": "Film",    
+      "book": "Böcker",    
+      "game": "Spel",    
+      "album": "Musik",    
+      "comic": "Serier",    
+      "add_movie": "Lägg till film",    
+      "add_book": "Lägg till bok",    
+      "add_game": "Lägg till spel",    
+      "add_album": "Lägg till album",    
+      "add_comic": "Lägg till serie",    
+      "import_backup": "Importera backup",    
+      "search": "Sök",    
+      "add": "Lägg till",    
+      "lists": "Listor"    
+    },    
+
+    "stats": {    
+      "total": "Totalt",    
+      "owned": "Ägda",    
+      "digital": "Digitalt",    
+      "wish": "Önskelista",    
+      "lists": "Listor",    
+      "latest": "Senast tillagda",    
+
+      "movies": "Filmer",    
+      "books": "Böcker",    
+      "games": "Spel",    
+      "albums": "Musik",    
+      "comics": "Serier",    
+
+      "empty_movies": "Inga filmer ännu.",    
+      "empty_books": "Inga böcker ännu.",    
+      "empty_games": "Inga spel ännu.",    
+      "empty_albums": "Inga album ännu.",    
+      "empty_comics": "Inga serier ännu."    
+    }    
+  }    
 }
