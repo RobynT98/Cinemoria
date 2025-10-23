@@ -263,8 +263,8 @@ function Section({
   return (
     <section className="space-y-3">
       <div className="flex items-center justify-between">
-        {/* FIX: Använd t(titleKey) för att slå upp nyckeln, t(titleKey, titleKey) för att visa nyckeln som fallback */}
-        <h2 className="text-xl font-semibold">{t(titleKey, titleKey)}</h2>
+        {/* FIX 1: Använd t(titleKey) ELLER t(titleKey, { defaultValue: fallback }) */}
+        <h2 className="text-xl font-semibold">{t(titleKey)}</h2>
         <div className="flex gap-2">
           <button className="btn" onClick={onSearch}>{t("home.btn.search", "Sök")}</button>
           <button className="btn" onClick={onAdd}>{t("home.btn.add", "Lägg till")}</button>
@@ -285,7 +285,8 @@ function Section({
         {loading ? (
           <EmptyLine label={t("loading", "Laddar...")} />
         ) : showEmpty ? (
-          <EmptyLine label={t(emptyKey, emptyKey)} />
+          // FIX 2: Använd bara t(emptyKey)
+          <EmptyLine label={t(emptyKey)} />
         ) : (
           recent
         )}
@@ -298,8 +299,8 @@ function StatCard({ t, labelKey, value }: { t: (key: string, options?: any) => s
   return (
     <div className="card p-3 text-center">
       <div className="text-2xl font-semibold">{value}</div>
-      {/* FIX: ÄNDRA TILL t(labelKey) ELLER t(labelKey, { defaultValue: 'Fallback' }) */}
-      <div className="text-sand-300 text-xs">{t(labelKey, labelKey)}</div>
+      {/* FIX 3: Använd bara t(labelKey) */}
+      <div className="text-sand-300 text-xs">{t(labelKey)}</div>
     </div>
   );
 }
