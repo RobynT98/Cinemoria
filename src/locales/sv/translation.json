@@ -1,7 +1,6 @@
 {
   "loading": "Laddar…", 
 
-  /* --- NAVIGATION (Plattat format för att matcha t('nav.home')) --- */
   "nav.home": "Hem",
   "nav.movies": "Film",
   "nav.games": "Spel",
@@ -10,7 +9,7 @@
   "nav.comics": "Serier",
   "nav.profile": "Profil",
 
-  /* --- SECTION NAV --- */
+  
   "sectionNav": {    
     "overview": "Översikt",    
     "search": "Sök",    
@@ -18,7 +17,6 @@
     "collections": "Samlingar"    
   },    
 
-  /* --- PROFILE --- */
   "profile": {    
     "title": "Profil & Inställningar",    
 
