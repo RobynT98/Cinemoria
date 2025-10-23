@@ -15,6 +15,7 @@ i18n
   .use(initReactI18next)
   .init({
     resources: {
+      // Nycklar som "nav.home" fungerar tack vare denna nästlade struktur:
       sv: { translation: sv },
       en: { translation: en },
     },
@@ -22,11 +23,10 @@ i18n
     fallbackLng: "sv",
     interpolation: { escapeValue: false },
     returnEmptyString: false,
+
+    // FIX FÖR TIMING: VI TAR BORT useSuspense: true som orsakade 2 minuters frysning!
+    // Vi litar på att Zustand och manuella "ready" fixar timing i stället.
     
-    // ✅ FIX FÖR TIMING/RACE CONDITION (Hänvisar till Suspense i App.tsx)
-    react: {
-        useSuspense: true, 
-    },
     // Säkerställ att vi använder standard-namespace korrekt
     ns: ['translation'],
     defaultNS: 'translation',
