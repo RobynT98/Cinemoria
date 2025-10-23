@@ -3,24 +3,31 @@ import { NavLink } from "react-router-dom";
 import {
   Home, Library, User, BookOpen, Gamepad2, Disc3, PanelsTopLeft,
 } from "lucide-react";
-import { useEffect, useState } from "react"; // <-- NYA IMPORTS
+import { useEffect, useState } from "react"; 
 import clsx from "classnames";
 import { useTranslation } from "react-i18next";
 
-
 // Helper-komponent för navigering
 function NavItem({ to, k, icon }: { to: string; k: string; icon: React.ReactNode; }) {
+  // OBS: Vi litar på att Suspension och Zustand fixade timing globalt.
+  // Vi tar bort all manuell fallback-logik här.
   const { t } = useTranslation();
-  
-  // Vi litar på att t(k) fungerar nu
-  const fallbackText = k.split('.')[1] || 'Error';
-  const label = t(k, { defaultValue: fallbackText }); // Använd den säkra fallbacken
+  const label = t(k); 
 
+  // Denna är kopierad från App.tsx och ger det snygga utseendet
   return (
     <NavLink
       to={to}
       aria-label={label}
-      // ... (resten av koden är intakt)
+      className={({ isActive }) =>
+        clsx(
+          "flex flex-col items-center justify-center py-2 text-[10px] gap-1 transition-colors",
+          isActive
+            ? "text-ink-900 dark:text-sand-200 sepia:text-[#3c2f1b]" // Active style
+            : "text-ink-600 hover:text-ink-900 dark:text-sand-400 dark:hover:text-sand-200 sepia:text-[#6b5637] sepia:hover:text-[#3c2f1b]" // Normal style
+        )
+      }
+      end={to === "/"}
     >
       {icon}
       <span>{label}</span>
@@ -30,36 +37,9 @@ function NavItem({ to, k, icon }: { to: string; k: string; icon: React.ReactNode
 
 
 export default function BottomNav() {
-  // ANVÄND EN DUMMY STATE FÖR ATT LÖSA RACE CONDITIONEN
-  const [ready, setReady] = useState(false);
+  // VIKTIG FIX: Dummy state/effect MÅSTE TAS BORT om du inte ska ha placeholder
+  // Jag tar bort ready state och returnerar den snygga nav-en direkt.
   
-  useEffect(() => {
-    // VIKTIG FIX: Tvinga fram en omrendering efter 10ms. 
-    // Detta ger i18next tid att registrera alla nycklar i den känsliga PWA-miljön.
-    const timer = setTimeout(() => {
-      setReady(true);
-    }, 10);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  // Om vi inte är "redo", visas den läsbara fallback-texten (home, movies, etc.) 
-  // tills den riktiga renderingen sker.
-  if (!ready) {
-      // Returnerar en "placeholder" nav bar som använder den läsbara fallbacken
-      return (
-          <nav className="fixed bottom-0 inset-x-0 border-t bg-ink-900/80">
-              <div className="max-w-3xl mx-auto grid grid-cols-7">
-                  {/* Returnerar en enkel version av NavItem utan all styling för att unvika krasch */}
-                  <NavItem to="/" k="nav.home" icon={<Home size={22} />} />
-                  <NavItem to="/movie" k="nav.movies" icon={<Library size={22} />} />
-                  {/* ... fyll på med de andra NavItems här ... */}
-              </div>
-          </nav>
-      );
-  }
-
-  // När "ready" är true, renderas den fulla komponenten med korrekta översättningar
   return (
     <nav
       className={clsx(
