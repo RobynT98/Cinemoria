@@ -37,10 +37,7 @@ i18n
 
     // Visa nyckeln i UI när den saknas – praktiskt på mobil.
     // Görs bara i DEV så slutanvändare slipper se det.
-    parseMissingKeyHandler: (key) =>
-      (typeof import.meta !== "undefined" && (import.meta as any).env?.DEV)
-        ? `⛳ ${key}`
-        : key,
+    parseMissingKeyHandler: (key) => `⛳ ${key}`,
 
     // Vill du slippa Suspense? Avkommentera:
     // react: { useSuspense: false },
