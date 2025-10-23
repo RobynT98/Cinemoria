@@ -1,16 +1,16 @@
 {
   "loading": "Loading…", 
 
-"nav": {
-  "home": "Home",
-  "movies": "Movies",
-  "games": "Games",
-  "books": "Books",
-  "music": "Music",
-  "comics": "Comics",
-  "profile": "Profile"
-},
-  
+  "nav": {
+    "home": "Home",
+    "movies": "Movies",
+    "games": "Games",
+    "books": "Books",
+    "music": "Music",
+    "comics": "Comics",
+    "profile": "Profile"
+  },
+
   "sectionNav": {    
     "overview": "Overview",    
     "search": "Search",    
@@ -18,7 +18,7 @@
     "collections": "Collections"    
   },    
 
-  
+
   "profile": {    
     "title": "Profile & Settings",    
 
@@ -41,7 +41,7 @@
       "title": "Theme",    
       "hint": "Choose dark, light or sepia.",    
       "dark": "Dark",    
-      "light": "Light",    
+      "light": "Light",
       "sepia": "Sepia"    
     },    
 
@@ -267,7 +267,7 @@
     }    
   },    
 
-  
+
   "home": {    
     "hero_lead": "A shelf for what you own and love — movies, books and games. Fast and offline.",    
     "get_started": "Get started",    
