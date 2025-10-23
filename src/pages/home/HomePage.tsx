@@ -77,7 +77,7 @@ export default function HomePage() {
 
   // PAUSA RENDERINGEN OM ÖVERSÄTTNINGAR INTE ÄR KLARA
   if (!ready) {
-    // Visa endast en minimal laddningsindikator (från Suspense i App.tsx)
+    // Visa endast en minimal laddningsindikator
     return <section className="p-4 space-y-6"><EmptyLine label={t("loading", "Laddar...")} /></section>;
   }
 
@@ -121,7 +121,7 @@ export default function HomePage() {
 
       {/* FILM */}
       <Section
-        t={t} // Skicka t-funktionen till Section
+        t={t} // Skicka t-funktions referens till Section
         titleKey="home.stats.movies"
         emptyKey="home.stats.empty_movies"
         stats={movieStats}
@@ -271,7 +271,7 @@ function Section({
   return (
     <section className="space-y-3">
       <div className="flex items-center justify-between">
-        {/* FIX 1: Tvingar uppslagning med enkel t(key) */}
+        {/* Tvingar uppslagning med enkel t(key) */}
         <h2 className="text-xl font-semibold">{t(titleKey)}</h2>
         <div className="flex gap-2">
           <button className="btn" onClick={onSearch}>{t("home.btn.search", "Sök")}</button>
@@ -293,7 +293,7 @@ function Section({
         {loading ? (
           <EmptyLine label={t("loading", "Laddar...")} />
         ) : showEmpty ? (
-          // FIX 2: Tvingar uppslagning med enkel t(key)
+          // Tvingar uppslagning med enkel t(key)
           <EmptyLine label={t(emptyKey)} />
         ) : (
           recent
@@ -307,7 +307,7 @@ function StatCard({ t, labelKey, value }: { t: (key: string, options?: any) => s
   return (
     <div className="card p-3 text-center">
       <div className="text-2xl font-semibold">{value}</div>
-      {/* FIX 3: Tvingar uppslagning med enkel t(key) */}
+      {/* Tvingar uppslagning med enkel t(key) */}
       <div className="text-sand-300 text-xs">{t(labelKey)}</div>
     </div>
   );
@@ -316,3 +316,4 @@ function StatCard({ t, labelKey, value }: { t: (key: string, options?: any) => s
 function EmptyLine({ label }: { label: string }) {
   return <div className="text-sand-300 text-sm">{label}</div>;
 }
+
